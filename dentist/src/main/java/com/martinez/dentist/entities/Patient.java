@@ -1,16 +1,15 @@
-package com.martinez.dentist.models;
+package com.martinez.dentist.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "patients")
 public class Patient {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "full_name")
@@ -113,4 +112,6 @@ public class Patient {
     public void setLastVisitDate(LocalDate lastVisitDate) {
         this.lastVisitDate = lastVisitDate;
     }
+
+    //toString no va aca
 }
