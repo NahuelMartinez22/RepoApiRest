@@ -31,6 +31,5 @@ public class PatientServiceManager {
         // cambiar el estado de activate a deactive
         //
 
-        repository.
     }
 }
