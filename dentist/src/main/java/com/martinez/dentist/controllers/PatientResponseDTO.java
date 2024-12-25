@@ -1,54 +1,45 @@
-package com.martinez.dentist.entities;
+package com.martinez.dentist.controllers;
 
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "patients")
-public class Patient {
+public class PatientResponseDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name")
+    @JsonProperty("full_name")
     private String fullName;
 
-    @Column(name = "document_type")
+    @JsonProperty("document_type")
     private String documentType;
 
-    @Column(name = "document_number")
+    @JsonProperty("document_number")
     private String documentNumber;
 
-    @Column(name = "birth_date")
+    @JsonProperty("birth_date")
     private LocalDate birthDate;
 
-    @Column(name = "gender")
-    private String gender;
-
-    @Column(name = "registration_date")
+    @JsonProperty("registration_date")
     private LocalDate registrationDate;
 
-    @Column(name = "last_visit_date")
+    @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
 
 
-    //Constructor vacio
-    public Patient() {
-    }
-
-    public Patient(Long id, String fullName, String documentType, String documentNumber, LocalDate birthDate, String gender, LocalDate registrationDate, LocalDate lastVisitDate) {
+    // Constructor completo
+    public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
+                              LocalDate birthDate, LocalDate registrationDate, LocalDate lastVisitDate) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
         this.birthDate = birthDate;
-        this.gender = gender;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
     }
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -89,14 +80,6 @@ public class Patient {
         this.birthDate = birthDate;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
     public LocalDate getRegistrationDate() {
         return registrationDate;
     }
@@ -112,6 +95,4 @@ public class Patient {
     public void setLastVisitDate(LocalDate lastVisitDate) {
         this.lastVisitDate = lastVisitDate;
     }
-
-    //toString no va aca
 }
