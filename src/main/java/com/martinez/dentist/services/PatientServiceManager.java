@@ -26,10 +26,10 @@ public class PatientServiceManager {
         this.repository.save(patient);
     }
 
-    public void deactivate(Long id) {
-        // buscar el paciente
-        // cambiar el estado de activate a deactive
-        //
+    public void disablePatient(Long id) {
+        Patient patient = this.repository.findById(id).get();
+        patient.disablePatient();
+        repository.save(patient);
 
     }
 }

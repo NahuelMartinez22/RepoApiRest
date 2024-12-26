@@ -79,4 +79,8 @@ public class Patient {
     public PatientState getPatientState() {
         return patientState;
     }
+
+    public void disablePatient() {
+        patientState = PatientState.DEACTIVATED;
+    }
 }
