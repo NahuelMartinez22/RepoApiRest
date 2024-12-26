@@ -30,6 +30,11 @@ public class PatientServiceManager {
         Patient patient = this.repository.findById(id).get();
         patient.disablePatient();
         repository.save(patient);
+    }
 
+    public void enablePatient(Long id) {
+        Patient patient = this.repository.findById(id).get();
+        patient.enablePatient();
+        repository.save(patient);
     }
 }

@@ -83,4 +83,7 @@ public class Patient {
     public void disablePatient() {
         patientState = PatientState.DEACTIVATED;
     }
+    public void enablePatient() {
+        patientState = PatientState.ACTIVE;
+    }
 }

@@ -56,4 +56,9 @@ public class PatientController {
         serviceManager.disablePatient(id);
         return null;
     }
+    @PatchMapping("/{id}/enable")
+    public PatientResponseDTO enablePatient(@PathVariable Long id) {
+        serviceManager.enablePatient(id);
+        return null;
+    }
 }
