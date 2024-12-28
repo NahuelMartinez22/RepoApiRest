@@ -1,4 +1,4 @@
-package com.martinez.dentist.Dto;
+package com.martinez.dentist.users.controllers;
 
 public class LoginDTO {
     private String username;

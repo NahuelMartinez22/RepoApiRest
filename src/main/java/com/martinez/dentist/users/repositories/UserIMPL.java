@@ -1,24 +1,22 @@
-package com.martinez.dentist.services.impl;
+package com.martinez.dentist.users.repositories;
 
-import com.martinez.dentist.Dto.LoginDTO;
-import com.martinez.dentist.Dto.UserDTO;
-import com.martinez.dentist.models.User;
-import com.martinez.dentist.repositories.UserRepository;
-import com.martinez.dentist.responses.LoginResponse;
-import com.martinez.dentist.services.UserService;
+import com.martinez.dentist.users.controllers.LoginDTO;
+import com.martinez.dentist.users.controllers.UserDTO;
+import com.martinez.dentist.users.models.User;
+import com.martinez.dentist.users.controllers.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserIMPL implements UserService {
+public class UserIMPL {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
+
     public String addUser(UserDTO userDTO) {
 
         User user = new User(
@@ -32,7 +30,6 @@ public class UserIMPL implements UserService {
         return user.getUsername();
     }
 
-    @Override
     public LoginResponse loginUser(LoginDTO loginDTO) {
         try {
             User user = userRepository.findByUsername(loginDTO.getUsername());

@@ -1,4 +1,4 @@
-package com.martinez.dentist.Dto;
+package com.martinez.dentist.pacients.controllers;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

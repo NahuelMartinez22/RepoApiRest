@@ -1,4 +1,4 @@
-package com.martinez.dentist.responses;
+package com.martinez.dentist.users.controllers;
 
 public class LoginResponse {
     String message;

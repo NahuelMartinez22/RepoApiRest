@@ -1,28 +1,25 @@
-package com.martinez.dentist.models;
+package com.martinez.dentist.users.controllers;
 
-import jakarta.persistence.*;
 
-@Entity
-@Table(name="users")
-public class User {
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserDTO {
+
     private Long id;
 
-    @Column(name = "username")
+    @JsonProperty("username")
     private String username;
 
-    @Column(name = "password")
+    @JsonProperty("password")
     private String password;
 
-    public User(Long id, String username, String password) {
+    public UserDTO(Long id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
     }
 
-    public User() {
+    public UserDTO() {
     }
 
     public Long getId() {
@@ -51,8 +48,10 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserDTO{" +
                 "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

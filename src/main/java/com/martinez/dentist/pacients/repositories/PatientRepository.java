@@ -1,6 +1,6 @@
-package com.martinez.dentist.repositories;
+package com.martinez.dentist.pacients.repositories;
 
-import com.martinez.dentist.models.Patient;
+import com.martinez.dentist.pacients.models.Patient;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PatientRepository extends CrudRepository<Patient, Long> {

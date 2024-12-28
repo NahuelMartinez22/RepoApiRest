@@ -1,11 +1,11 @@
-package com.martinez.dentist.services;
+package com.martinez.dentist.pacients.repositories;
 
-import com.martinez.dentist.models.Patient;
-import com.martinez.dentist.repositories.PatientRepository;
+import com.martinez.dentist.pacients.models.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PatientServiceManager {
@@ -19,7 +19,14 @@ public class PatientServiceManager {
     }
 
     public Patient findById(Long id) {
-        return this.repository.findById(id).get();
+
+        Patient patient = this.repository.findById(id).orElse(null);
+
+        if(patient == null) {
+            throw new RuntimeException("Paciente no encontrado");
+        }
+
+        return patient;
     }
 
     public void save(Patient patient) {

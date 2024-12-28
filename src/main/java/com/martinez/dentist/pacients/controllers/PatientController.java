@@ -1,10 +1,9 @@
-package com.martinez.dentist.controllers;
+package com.martinez.dentist.pacients.controllers;
 
-import com.martinez.dentist.Dto.PatientRequestDTO;
-import com.martinez.dentist.Dto.PatientResponseDTO;
-import com.martinez.dentist.models.Patient;
-import com.martinez.dentist.services.PatientServiceManager;
+import com.martinez.dentist.pacients.models.Patient;
+import com.martinez.dentist.pacients.repositories.PatientServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -33,17 +32,23 @@ public class PatientController {
     }
 
     @GetMapping("/{id}")
-    public PatientResponseDTO getByIdPatient(@PathVariable Long id){
-        // BUSCA PACIENTE POR ID
-        Patient patient = this.serviceManager.findById(id);
+    public ResponseEntity<?> getByIdPatient(@PathVariable Long id) {
 
-        // CONVIERTE DEL MODELO PACIENTE AL PASIENTE DTO
+        Patient patient;
+
+        try {
+            patient = this.serviceManager.findById(id);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+
         PatientResponseDTO patientDTO = new PatientResponseDTO(patient.getId(),
                 patient.getFullName(), patient.getDocumentType(), patient.getDocumentNumber(),
                 patient.getBirthDate(), patient.getRegistrationDate(), patient.getLastVisitDate());
 
-        // RETORNA EL PACIENTE DTO
-        return patientDTO;
+
+        return ResponseEntity.ok(patientDTO);
     }
 
     @GetMapping

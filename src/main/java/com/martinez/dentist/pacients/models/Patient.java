@@ -1,4 +1,4 @@
-package com.martinez.dentist.models;
+package com.martinez.dentist.pacients.models;
 
 import jakarta.persistence.*;
 

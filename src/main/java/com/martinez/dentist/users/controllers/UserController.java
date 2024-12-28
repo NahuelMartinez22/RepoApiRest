@@ -1,13 +1,8 @@
-package com.martinez.dentist.controllers;
+package com.martinez.dentist.users.controllers;
 
-import com.martinez.dentist.Dto.LoginDTO;
-import com.martinez.dentist.Dto.UserDTO;
-import com.martinez.dentist.models.User;
-import com.martinez.dentist.responses.LoginResponse;
-import com.martinez.dentist.services.UserService;
+import com.martinez.dentist.users.repositories.UserIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserIMPL userService;
     @PostMapping(path = "/save")
     public ResponseEntity<String> save(@RequestBody UserDTO userDTO) {
         try {

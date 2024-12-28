@@ -1,4 +1,4 @@
-package com.martinez.dentist.Config;
+package com.martinez.dentist.users.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
