@@ -1,7 +1,8 @@
 package com.martinez.dentist.controllers;
 
+import com.martinez.dentist.Dto.PatientRequestDTO;
+import com.martinez.dentist.Dto.PatientResponseDTO;
 import com.martinez.dentist.models.Patient;
-import com.martinez.dentist.models.PatientState;
 import com.martinez.dentist.services.PatientServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

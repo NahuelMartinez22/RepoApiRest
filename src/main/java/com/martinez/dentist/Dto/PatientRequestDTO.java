@@ -1,4 +1,4 @@
-package com.martinez.dentist.controllers;
+package com.martinez.dentist.Dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -88,7 +88,6 @@ public class PatientRequestDTO {
         this.lastAppointmentDate = lastAppointmentDate;
     }
 
-    // Método toString
     @Override
     public String toString() {
         return "PatientDTO{" +
