@@ -36,15 +36,15 @@ public class UserIMPL {
             if (user != null) {
                 boolean isPasswordCorrect = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
                 if (isPasswordCorrect) {
-                    return new LoginResponse("Login Success", true);
+                    return new LoginResponse("Inicio de sesión exitoso", true);
                 } else {
-                    return new LoginResponse("Password does not match", false);
+                    return new LoginResponse("La contraseña es incorrecta", false);
                 }
             } else {
-                return new LoginResponse("User not found", false);
+                return new LoginResponse("El usuario no existe", false);
             }
         } catch (Exception e) {
-            return new LoginResponse("An error occurred: " + e.getMessage(), false);
+            return new LoginResponse("Ocurrió un error: " + e.getMessage(), false);
         }
     }
 }

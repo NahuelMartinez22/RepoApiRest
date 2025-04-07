@@ -22,9 +22,26 @@ public class UserController {
         }
     }
     @PostMapping(path = "/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginDTO loginDTO)
-    {
-        LoginResponse loginResponse = userService.loginUser(loginDTO);
-        return ResponseEntity.ok(loginResponse);
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginDTO loginDTO) {
+        try {
+            LoginResponse loginResponse = userService.loginUser(loginDTO);
+
+            switch (loginResponse.getMessage()) {
+                case "Login Success":
+                    return ResponseEntity.ok(loginResponse);
+
+                case "User not found":
+                    return ResponseEntity.status(404).body(loginResponse);
+
+                case "Password does not match":
+                    return ResponseEntity.status(400).body(loginResponse);
+
+                default:
+                    return ResponseEntity.status(500).body(loginResponse);
+            }
+        } catch (Exception e) {
+            LoginResponse errorResponse = new LoginResponse("An error occurred: " + e.getMessage(), false);
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 }
