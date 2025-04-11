@@ -27,20 +27,20 @@ public class UserController {
             LoginResponse loginResponse = userService.loginUser(loginDTO);
 
             switch (loginResponse.getMessage()) {
-                case "Login Success":
+                case "Inicio de sesión exitoso":
                     return ResponseEntity.ok(loginResponse);
 
-                case "User not found":
+                case "El usuario no existe":
                     return ResponseEntity.status(404).body(loginResponse);
 
-                case "Password does not match":
+                case "La contraseña es incorrecta":
                     return ResponseEntity.status(400).body(loginResponse);
 
                 default:
                     return ResponseEntity.status(500).body(loginResponse);
             }
         } catch (Exception e) {
-            LoginResponse errorResponse = new LoginResponse("An error occurred: " + e.getMessage(), false);
+            LoginResponse errorResponse = new LoginResponse("Ocurrió un error: " + e.getMessage(), false);
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
