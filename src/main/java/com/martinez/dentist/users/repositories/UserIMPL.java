@@ -22,7 +22,8 @@ public class UserIMPL {
         User user = new User(
                 userDTO.getId(),
                 userDTO.getUsername(),
-                this.passwordEncoder.encode(userDTO.getPassword())
+                this.passwordEncoder.encode(userDTO.getPassword()),
+                userDTO.getEmail()
         );
 
         userRepository.save(user);

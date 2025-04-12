@@ -3,7 +3,7 @@ package com.martinez.dentist.users.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -16,10 +16,14 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    public User(Long id, String username, String password) {
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    public User(Long id, String username, String password, String email) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.email = email;
     }
 
     public User() {
@@ -47,6 +51,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
