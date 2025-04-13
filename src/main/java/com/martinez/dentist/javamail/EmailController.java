@@ -1,11 +1,20 @@
 package com.martinez.dentist.javamail;
 
+import com.martinez.dentist.users.models.Token;
 import com.martinez.dentist.users.models.User;
+import com.martinez.dentist.users.repositories.TokenRepository;
 import com.martinez.dentist.users.repositories.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -14,9 +23,17 @@ public class EmailController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/enviar")
-    public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @PostMapping("/enviar")
+    public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
         User user = userRepository.findByEmail(email.getDestinatario());
 
         if (user == null) {
@@ -24,12 +41,45 @@ public class EmailController {
                     .body("No existe un usuario con ese correo electrónico.");
         }
 
-        try {
-            EmailService.enviar(email);
-            return ResponseEntity.ok("Correo enviado correctamente.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al enviar correo: " + e.getMessage());
+        String tokenStr = UUID.randomUUID().toString();
+        LocalDateTime expiration = LocalDateTime.now().plusHours(1);
+
+        Token token = new Token();
+        token.setToken(tokenStr);
+        token.setUser(user);
+        token.setExpirationDate(expiration);
+        tokenRepository.save(token);
+
+        String resetLink = "http://localhost:8080/api/cambiar-contraseña?token=" + tokenStr;
+
+        EmailDTO dto = new EmailDTO();
+        dto.setDestinatario(user.getEmail());
+        dto.setAsunto("Recuperación de contraseña");
+        dto.setCuerpo("Hacé clic en el siguiente enlace para cambiar tu contraseña:\n\n" + resetLink);
+
+        emailService.enviar(dto);
+
+        return ResponseEntity.ok("Correo enviado correctamente con el enlace para cambiar la contraseña.");
+    }
+
+    @PostMapping("/cambiar-password")
+    @Transactional
+    public ResponseEntity<String> cambiarPassword(@RequestParam("token") String tokenParam,
+                                                  @RequestParam("nuevaPassword") String nuevaPassword) {
+
+        Optional<Token> token = tokenRepository.findByToken(tokenParam);
+
+        if (token.isEmpty() || token.get().getExpirationDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("El token es inválido o ha expirado.");
         }
+
+        User user = token.get().getUser();
+        user.setPassword(passwordEncoder.encode(nuevaPassword));
+
+        userRepository.save(user);
+        tokenRepository.delete(token.get());
+
+        return ResponseEntity.ok("Contraseña cambiada correctamente.");
     }
 }
