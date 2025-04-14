@@ -42,8 +42,6 @@ public class EmailDTO {
     public String toString() {
         return "MailDTO{" +
                 "destinatario='" + destinatario + '\'' +
-                ", asunto='" + asunto + '\'' +
-                ", cuerpo='" + cuerpo + '\'' +
                 '}';
     }
 }

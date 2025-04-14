@@ -50,7 +50,7 @@ public class EmailController {
         token.setExpirationDate(expiration);
         tokenRepository.save(token);
 
-        String resetLink = "http://localhost:8080/api/cambiar-contraseña?token=" + tokenStr;
+        String resetLink = "http://localhost:8080/api/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
         dto.setDestinatario(user.getEmail());
@@ -62,21 +62,28 @@ public class EmailController {
         return ResponseEntity.ok("Correo enviado correctamente con el enlace para cambiar la contraseña.");
     }
 
-    @PostMapping("/cambiar-password")
+    @PostMapping("/cambiar-contrasena")
     @Transactional
     public ResponseEntity<String> cambiarPassword(@RequestParam("token") String tokenParam,
-                                                  @RequestParam("nuevaPassword") String nuevaPassword) {
+                                                  @RequestParam("newPassword") String newPassword) {
 
+        System.out.println("Token recibido: " + tokenParam);
         Optional<Token> token = tokenRepository.findByToken(tokenParam);
 
-        if (token.isEmpty() || token.get().getExpirationDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("El token es inválido o ha expirado.");
+        if (token.isEmpty()) {
+            System.out.println("Token no encontrado.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido.");
+        }
+
+        if (token.get().getExpirationDate().isBefore(LocalDateTime.now())) {
+            System.out.println("Token expirado.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token ha expirado.");
         }
 
         User user = token.get().getUser();
-        user.setPassword(passwordEncoder.encode(nuevaPassword));
+        System.out.println("Usuario encontrado: " + user.getEmail());
 
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         tokenRepository.delete(token.get());
 
