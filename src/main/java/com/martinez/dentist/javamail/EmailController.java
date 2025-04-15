@@ -50,7 +50,8 @@ public class EmailController {
         token.setExpirationDate(expiration);
         tokenRepository.save(token);
 
-        String resetLink = "http://localhost:8080/api/cambiar-contrasena?token=" + tokenStr;
+        //String resetLink = "http://localhost:8080/api/cambiar-contrasena?token=" + tokenStr;
+        String resetLink = "http://localhost:3000/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
         dto.setDestinatario(user.getEmail());
