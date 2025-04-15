@@ -59,7 +59,7 @@ public class EmailController {
 
         emailService.enviar(dto);
 
-        return ResponseEntity.ok("Correo enviado correctamente con el enlace para cambiar la contraseña.");
+        return ResponseEntity.ok("Te enviamos un correo. Por favor, revisá tu casilla de email.");
     }
 
     @PostMapping("/cambiar-contrasena")
