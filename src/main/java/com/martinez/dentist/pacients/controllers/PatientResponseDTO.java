@@ -32,12 +32,15 @@ public class PatientResponseDTO {
     @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
 
+    @JsonProperty("note")
+    private String note;
+
     public PatientResponseDTO() {
     }
 
     public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
                               String healthInsurance, String insurancePlan, String phone,
-                              LocalDate registrationDate, LocalDate lastVisitDate) {
+                              LocalDate registrationDate, LocalDate lastVisitDate, String note) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
@@ -47,6 +50,7 @@ public class PatientResponseDTO {
         this.phone = phone;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
+        this.note = note;
     }
 
     public Long getId() {
@@ -119,5 +123,13 @@ public class PatientResponseDTO {
 
     public void setLastVisitDate(LocalDate lastVisitDate) {
         this.lastVisitDate = lastVisitDate;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

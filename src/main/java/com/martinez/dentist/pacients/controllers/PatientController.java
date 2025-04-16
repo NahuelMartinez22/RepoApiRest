@@ -27,7 +27,8 @@ public class PatientController {
                 patientRequestDTO.getInsurancePlan(),
                 patientRequestDTO.getPhone(),
                 patientRequestDTO.getRegistrationDate(),
-                patientRequestDTO.getLastVisitDate()
+                patientRequestDTO.getLastVisitDate(),
+                patientRequestDTO.getNote()
         );
 
         serviceManager.save(patient);
@@ -49,8 +50,8 @@ public class PatientController {
         PatientResponseDTO patientDTO = new PatientResponseDTO(patient.getId(),
                 patient.getFullName(), patient.getDocumentType(), patient.getDocumentNumber(),
                 patient.getHealthInsurance(), patient.getInsurancePlan(), patient.getPhone(),
-                patient.getRegistrationDate(),patient.getLastVisitDate());
-        
+                patient.getRegistrationDate(),patient.getLastVisitDate(), patient.getNote());
+
         return ResponseEntity.ok(patientDTO);
     }
 

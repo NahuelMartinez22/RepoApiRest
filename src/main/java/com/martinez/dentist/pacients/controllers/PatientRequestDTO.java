@@ -33,6 +33,9 @@ public class PatientRequestDTO {
     @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
 
+    @JsonProperty("note")
+    private String note;
+
 
     public PatientRequestDTO() {
     }
@@ -40,7 +43,7 @@ public class PatientRequestDTO {
 
     public PatientRequestDTO(String name, String lastName, String documentType, String documentNumber,
                              String healthInsurance, String insurancePlan, String phone,
-                             LocalDate registrationDate, LocalDate lastVisitDate) {
+                             LocalDate registrationDate, LocalDate lastVisitDate, String note) {
         this.name = name;
         this.lastName = lastName;
         this.documentType = documentType;
@@ -50,6 +53,7 @@ public class PatientRequestDTO {
         this.phone = phone;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
+        this.note = note;
     }
 
 
@@ -129,6 +133,14 @@ public class PatientRequestDTO {
         this.lastVisitDate = lastVisitDate;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     @Override
     public String toString() {
         return "PatientRequestDTO{" +
@@ -140,6 +152,7 @@ public class PatientRequestDTO {
                 ", phone='" + phone + '\'' +
                 ", registrationDate=" + registrationDate +
                 ", lastVisitDate=" + lastVisitDate +
+                ", note='" + note + '\'' +
                 '}';
     }
 }

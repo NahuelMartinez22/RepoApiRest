@@ -35,6 +35,9 @@ public class Patient {
     @Column(name = "last_visit_date")
     private LocalDate lastVisitDate;
 
+    @Column(name = "note")
+    private String note;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private PatientState patientState;
@@ -44,7 +47,7 @@ public class Patient {
 
     public Patient(String fullName, String documentType, String documentNumber,
                    String healthInsurance, String insurancePlan, String phone,
-                   LocalDate registrationDate, LocalDate lastVisitDate) {
+                   LocalDate registrationDate, LocalDate lastVisitDate, String note) {
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -53,10 +56,11 @@ public class Patient {
         this.phone = phone;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
+        this.note = note;
         this.patientState = PatientState.ACTIVE;
     }
 
-    // Getters
+
     public Long getId() {
         return id;
     }
@@ -91,6 +95,10 @@ public class Patient {
 
     public LocalDate getLastVisitDate() {
         return lastVisitDate;
+    }
+
+    public String getNote() {
+        return note;
     }
 
     public PatientState getPatientState() {
