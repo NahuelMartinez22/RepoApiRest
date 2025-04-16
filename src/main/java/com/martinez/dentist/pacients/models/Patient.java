@@ -1,7 +1,6 @@
 package com.martinez.dentist.pacients.models;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -21,8 +20,14 @@ public class Patient {
     @Column(name = "document_number")
     private String documentNumber;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
+    @Column(name = "health_insurance")
+    private String healthInsurance;
+
+    @Column(name = "insurance_plan")
+    private String insurancePlan;
+
+    @Column(name = "phone")
+    private String phone;
 
     @Column(name = "registration_date")
     private LocalDate registrationDate;
@@ -30,24 +35,28 @@ public class Patient {
     @Column(name = "last_visit_date")
     private LocalDate lastVisitDate;
 
-    @Enumerated(EnumType.STRING) // Guarda el valor como texto en la base de datos
+    @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private PatientState patientState;
 
-    //Constructor vacio
-    public Patient() {
+    protected Patient(){
     }
 
-    public Patient(String fullName, String documentType, String documentNumber, LocalDate birthDate, LocalDate registrationDate, LocalDate lastVisitDate) {
+    public Patient(String fullName, String documentType, String documentNumber,
+                   String healthInsurance, String insurancePlan, String phone,
+                   LocalDate registrationDate, LocalDate lastVisitDate) {
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
-        this.birthDate = birthDate;
+        this.healthInsurance = healthInsurance;
+        this.insurancePlan = insurancePlan;
+        this.phone = phone;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
         this.patientState = PatientState.ACTIVE;
     }
 
+    // Getters
     public Long getId() {
         return id;
     }
@@ -64,8 +73,16 @@ public class Patient {
         return documentNumber;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public String getHealthInsurance() {
+        return healthInsurance;
+    }
+
+    public String getInsurancePlan() {
+        return insurancePlan;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public LocalDate getRegistrationDate() {
@@ -80,10 +97,12 @@ public class Patient {
         return patientState;
     }
 
+    // Métodos para cambiar el estado del paciente
     public void disablePatient() {
-        patientState = PatientState.DEACTIVATED;
+        this.patientState = PatientState.DEACTIVATED;
     }
+
     public void enablePatient() {
-        patientState = PatientState.ACTIVE;
+        this.patientState = PatientState.ACTIVE;
     }
 }

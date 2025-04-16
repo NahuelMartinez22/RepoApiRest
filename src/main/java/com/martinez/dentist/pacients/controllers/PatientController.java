@@ -17,18 +17,21 @@ public class PatientController {
     @Autowired
     private PatientServiceManager serviceManager;
 
-
     @PostMapping
     @Transactional
-    public ResponseEntity<String> save(@RequestBody PatientRequestDTO patientRequestDTO){
+    public ResponseEntity<String> save(@RequestBody PatientRequestDTO patientRequestDTO) {
         Patient patient = new Patient(patientRequestDTO.getFullName(),
-                patientRequestDTO.getDocumentType(), patientRequestDTO.getDocumentNumber(),
-                patientRequestDTO.getBirthDate(), patientRequestDTO.getRegistrationDate(),
-                patientRequestDTO.getLastAppointmentDate());
+                patientRequestDTO.getDocumentType(),
+                patientRequestDTO.getDocumentNumber(),
+                patientRequestDTO.getHealthInsurance(),
+                patientRequestDTO.getInsurancePlan(),
+                patientRequestDTO.getPhone(),
+                patientRequestDTO.getRegistrationDate(),
+                patientRequestDTO.getLastVisitDate()
+        );
 
         serviceManager.save(patient);
-
-        return ResponseEntity.ok("El paciente se creo con exito.");
+        return ResponseEntity.ok("El paciente se creó con éxito.");
     }
 
     @GetMapping("/{id}")
@@ -45,9 +48,9 @@ public class PatientController {
 
         PatientResponseDTO patientDTO = new PatientResponseDTO(patient.getId(),
                 patient.getFullName(), patient.getDocumentType(), patient.getDocumentNumber(),
-                patient.getBirthDate(), patient.getRegistrationDate(), patient.getLastVisitDate());
-
-
+                patient.getHealthInsurance(), patient.getInsurancePlan(), patient.getPhone(),
+                patient.getRegistrationDate(),patient.getLastVisitDate());
+        
         return ResponseEntity.ok(patientDTO);
     }
 
@@ -58,13 +61,15 @@ public class PatientController {
     }
 
     @PatchMapping("/{id}/disable")
-    public PatientResponseDTO disablePatient(@PathVariable Long id) {
+    public ResponseEntity<String> disablePatient(@PathVariable Long id) {
         serviceManager.disablePatient(id);
-        return null;
+        return ResponseEntity.ok("Paciente deshabilitado.");
     }
+
     @PatchMapping("/{id}/enable")
-    public PatientResponseDTO enablePatient(@PathVariable Long id) {
+    public ResponseEntity<String> enablePatient(@PathVariable Long id) {
         serviceManager.enablePatient(id);
-        return null;
+        return ResponseEntity.ok("Paciente habilitado.");
     }
 }
+

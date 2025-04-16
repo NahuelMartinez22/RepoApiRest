@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
-
 public class PatientRequestDTO {
 
     @JsonProperty("name")
@@ -19,33 +18,59 @@ public class PatientRequestDTO {
     @JsonProperty("document_number")
     private String documentNumber;
 
-    @JsonProperty("birth_date")
-    private LocalDate birthDate;
+    @JsonProperty("health_insurance")
+    private String healthInsurance;
 
-    @JsonProperty("registrationDate")
+    @JsonProperty("insurance_plan")
+    private String insurancePlan;
+
+    @JsonProperty("phone")
+    private String phone;
+
+    @JsonProperty("registration_date")
     private LocalDate registrationDate;
 
-    @JsonProperty("lastAppointmentDate")
-    private LocalDate lastAppointmentDate;
+    @JsonProperty("last_visit_date")
+    private LocalDate lastVisitDate;
 
 
     public PatientRequestDTO() {
     }
 
-    // Constructor con todos los campos
-    public PatientRequestDTO(String name, String lastName, String documentType, String documentNumber, LocalDate birthDate, LocalDate registrationDate, LocalDate lastAppointmentDate) {
+
+    public PatientRequestDTO(String name, String lastName, String documentType, String documentNumber,
+                             String healthInsurance, String insurancePlan, String phone,
+                             LocalDate registrationDate, LocalDate lastVisitDate) {
         this.name = name;
         this.lastName = lastName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
-        this.birthDate = birthDate;
+        this.healthInsurance = healthInsurance;
+        this.insurancePlan = insurancePlan;
+        this.phone = phone;
         this.registrationDate = registrationDate;
-        this.lastAppointmentDate = lastAppointmentDate;
+        this.lastVisitDate = lastVisitDate;
     }
 
-    // Getters y setters
+
     public String getFullName() {
-        return this.name + " " + this.lastName;
+        return name + " " + lastName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getDocumentType() {
@@ -64,12 +89,28 @@ public class PatientRequestDTO {
         this.documentNumber = documentNumber;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public String getHealthInsurance() {
+        return healthInsurance;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setHealthInsurance(String healthInsurance) {
+        this.healthInsurance = healthInsurance;
+    }
+
+    public String getInsurancePlan() {
+        return insurancePlan;
+    }
+
+    public void setInsurancePlan(String insurancePlan) {
+        this.insurancePlan = insurancePlan;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public LocalDate getRegistrationDate() {
@@ -80,23 +121,25 @@ public class PatientRequestDTO {
         this.registrationDate = registrationDate;
     }
 
-    public LocalDate getLastAppointmentDate() {
-        return lastAppointmentDate;
+    public LocalDate getLastVisitDate() {
+        return lastVisitDate;
     }
 
-    public void setLastAppointmentDate(LocalDate lastAppointmentDate) {
-        this.lastAppointmentDate = lastAppointmentDate;
+    public void setLastVisitDate(LocalDate lastVisitDate) {
+        this.lastVisitDate = lastVisitDate;
     }
 
     @Override
     public String toString() {
-        return "PatientDTO{" +
+        return "PatientRequestDTO{" +
                 "fullName='" + getFullName() + '\'' +
                 ", documentType='" + documentType + '\'' +
                 ", documentNumber='" + documentNumber + '\'' +
-                ", birthDate=" + birthDate +
+                ", healthInsurance='" + healthInsurance + '\'' +
+                ", insurancePlan='" + insurancePlan + '\'' +
+                ", phone='" + phone + '\'' +
                 ", registrationDate=" + registrationDate +
-                ", lastAppointmentDate=" + lastAppointmentDate +
+                ", lastVisitDate=" + lastVisitDate +
                 '}';
     }
 }

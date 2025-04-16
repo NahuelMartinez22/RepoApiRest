@@ -17,8 +17,14 @@ public class PatientResponseDTO {
     @JsonProperty("document_number")
     private String documentNumber;
 
-    @JsonProperty("birth_date")
-    private LocalDate birthDate;
+    @JsonProperty("health_insurance")
+    private String healthInsurance;
+
+    @JsonProperty("insurance_plan")
+    private String insurancePlan;
+
+    @JsonProperty("phone")
+    private String phone;
 
     @JsonProperty("registration_date")
     private LocalDate registrationDate;
@@ -26,20 +32,23 @@ public class PatientResponseDTO {
     @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
 
+    public PatientResponseDTO() {
+    }
 
-    // Constructor completo
     public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
-                              LocalDate birthDate, LocalDate registrationDate, LocalDate lastVisitDate) {
+                              String healthInsurance, String insurancePlan, String phone,
+                              LocalDate registrationDate, LocalDate lastVisitDate) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
-        this.birthDate = birthDate;
+        this.healthInsurance = healthInsurance;
+        this.insurancePlan = insurancePlan;
+        this.phone = phone;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -72,12 +81,28 @@ public class PatientResponseDTO {
         this.documentNumber = documentNumber;
     }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
+    public String getHealthInsurance() {
+        return healthInsurance;
     }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+    public void setHealthInsurance(String healthInsurance) {
+        this.healthInsurance = healthInsurance;
+    }
+
+    public String getInsurancePlan() {
+        return insurancePlan;
+    }
+
+    public void setInsurancePlan(String insurancePlan) {
+        this.insurancePlan = insurancePlan;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public LocalDate getRegistrationDate() {
