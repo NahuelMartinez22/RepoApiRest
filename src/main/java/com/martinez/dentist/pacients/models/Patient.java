@@ -1,5 +1,6 @@
 package com.martinez.dentist.pacients.models;
 
+import com.martinez.dentist.pacients.controllers.PatientRequestDTO;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -58,6 +59,18 @@ public class Patient {
         this.lastVisitDate = lastVisitDate;
         this.note = note;
         this.patientState = PatientState.ACTIVE;
+    }
+
+    public void updateData(PatientRequestDTO dto) {
+        this.fullName = dto.getFullName();
+        this.documentType = dto.getDocumentType();
+        this.documentNumber = dto.getDocumentNumber();
+        this.healthInsurance = dto.getHealthInsurance();
+        this.insurancePlan = dto.getInsurancePlan();
+        this.phone = dto.getPhone();
+        this.registrationDate = dto.getRegistrationDate();
+        this.lastVisitDate = dto.getLastVisitDate();
+        this.note = dto.getNote();
     }
 
 

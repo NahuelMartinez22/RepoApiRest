@@ -72,5 +72,38 @@ public class PatientController {
         serviceManager.enablePatient(id);
         return ResponseEntity.ok("Paciente habilitado.");
     }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> updatePatient(@PathVariable Long id,
+                                           @RequestBody PatientRequestDTO dto) {
+        try {
+            Patient existing = serviceManager.findById(id);
+            existing.updateData(dto);
+            serviceManager.save(existing);
+
+            PatientResponseDTO responseDTO = new PatientResponseDTO(
+                    existing.getId(),
+                    existing.getFullName(),
+                    existing.getDocumentType(),
+                    existing.getDocumentNumber(),
+                    existing.getHealthInsurance(),
+                    existing.getInsurancePlan(),
+                    existing.getPhone(),
+                    existing.getRegistrationDate(),
+                    existing.getLastVisitDate(),
+                    existing.getNote()
+            );
+            return ResponseEntity.ok(responseDTO);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se encontró el paciente: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar paciente: " + e.getMessage());
+        }
+    }
 }
 

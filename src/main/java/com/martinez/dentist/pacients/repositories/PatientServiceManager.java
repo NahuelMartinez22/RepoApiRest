@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PatientServiceManager {
@@ -19,14 +20,11 @@ public class PatientServiceManager {
     }
 
     public Patient findById(Long id) {
-
-        Patient patient = this.repository.findById(id).orElse(null);
-
-        if(patient == null) {
+        Optional<Patient> patient = this.repository.findById(id);
+        if (patient.isEmpty()) {
             throw new RuntimeException("Paciente no encontrado");
         }
-
-        return patient;
+        return patient.get();
     }
 
     public void save(Patient patient) {
@@ -34,17 +32,26 @@ public class PatientServiceManager {
     }
 
     public Patient disablePatient(Long id) {
-        Patient patient = this.repository.findById(id).get();
+        Optional<Patient> patientOpt = this.repository.findById(id);
+        if (patientOpt.isEmpty()) {
+            throw new RuntimeException("Paciente no encontrado");
+        }
+
+        Patient patient = patientOpt.get();
         patient.disablePatient();
         repository.save(patient);
         return patient;
     }
 
     public Patient enablePatient(Long id) {
-        Patient patient = this.repository.findById(id).get();
+        Optional<Patient> patientOpt = this.repository.findById(id);
+        if (patientOpt.isEmpty()) {
+            throw new RuntimeException("Paciente no encontrado");
+        }
+
+        Patient patient = patientOpt.get();
         patient.enablePatient();
         repository.save(patient);
         return patient;
     }
-
 }
