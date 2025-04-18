@@ -1,8 +1,11 @@
 package com.martinez.dentist.appointments.models;
 
 public enum AppointmentState {
-    PENDING,
-    CONFIRMED,
-    CANCELED,
-    FINALIZED
+    PENDIENTE,
+    ATENDIDO,
+    AUSENTE_CON_AVISO,
+    AUSENTE_SIN_AVISO,
+    CANCELADO,
+    CONFIRMADO,
+    NINGUNO,
 }

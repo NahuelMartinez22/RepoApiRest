@@ -45,7 +45,7 @@ public class AppointmentIMPL implements AppointmentService {
                 request.getDateTime(),
                 doctor,
                 request.getReason(),
-                AppointmentState.PENDING
+                AppointmentState.PENDIENTE
         );
 
         appointmentRepository.save(appointment);
