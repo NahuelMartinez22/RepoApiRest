@@ -57,7 +57,6 @@ public class AppointmentIMPL implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
 
-
         Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
@@ -67,6 +66,10 @@ public class AppointmentIMPL implements AppointmentService {
         return new AppointmentResponseDTO(
                 appointment.getPatientDni(),
                 patientFullName,
+                patient.getHealthInsurance(),
+                patient.getInsurancePlan(),
+                patient.getPhone(),
+                patient.getNote(),
                 appointment.getDateTime(),
                 doctorFullName,
                 appointment.getReason(),
@@ -80,12 +83,22 @@ public class AppointmentIMPL implements AppointmentService {
 
         return appointments.stream().map(appointment -> {
             Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni()).orElse(null);
+
             String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
+            String healthInsurance = (patient != null) ? patient.getHealthInsurance() : "Desconocido";
+            String insurancePlan = (patient != null) ? patient.getInsurancePlan() : "Desconocido";
+            String phone = (patient != null) ? patient.getPhone() : "Desconocido";
+            String note = (patient != null) ? patient.getNote() : "";
+
             String doctorFullName = appointment.getDoctor().getUsername();
 
             return new AppointmentResponseDTO(
                     appointment.getPatientDni(),
                     patientFullName,
+                    healthInsurance,
+                    insurancePlan,
+                    phone,
+                    note,
                     appointment.getDateTime(),
                     doctorFullName,
                     appointment.getReason(),
