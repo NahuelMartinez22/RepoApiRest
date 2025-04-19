@@ -1,51 +1,25 @@
 package com.martinez.dentist.pacients.controllers;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDate;
 
 public class PatientRequestDTO {
 
-    @JsonProperty("name")
-    private String name;
-
-    @JsonProperty("last_name")
-    private String lastName;
-
-    @JsonProperty("document_type")
+    private String fullName;
     private String documentType;
-
-    @JsonProperty("document_number")
     private String documentNumber;
-
-    @JsonProperty("health_insurance")
     private String healthInsurance;
-
-    @JsonProperty("insurance_plan")
     private String insurancePlan;
-
-    @JsonProperty("phone")
     private String phone;
-
-    @JsonProperty("registration_date")
     private LocalDate registrationDate;
-
-    @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
-
-    @JsonProperty("note")
     private String note;
 
+    public PatientRequestDTO() {}
 
-    public PatientRequestDTO() {
-    }
-
-
-    public PatientRequestDTO(String name, String lastName, String documentType, String documentNumber,
+    public PatientRequestDTO(String fullName, String documentType, String documentNumber,
                              String healthInsurance, String insurancePlan, String phone,
                              LocalDate registrationDate, LocalDate lastVisitDate, String note) {
-        this.name = name;
-        this.lastName = lastName;
+        this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
         this.healthInsurance = healthInsurance;
@@ -56,25 +30,12 @@ public class PatientRequestDTO {
         this.note = note;
     }
 
-
     public String getFullName() {
-        return name + " " + lastName;
+        return fullName;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getDocumentType() {
@@ -144,7 +105,7 @@ public class PatientRequestDTO {
     @Override
     public String toString() {
         return "PatientRequestDTO{" +
-                "fullName='" + getFullName() + '\'' +
+                "fullName='" + fullName + '\'' +
                 ", documentType='" + documentType + '\'' +
                 ", documentNumber='" + documentNumber + '\'' +
                 ", healthInsurance='" + healthInsurance + '\'' +

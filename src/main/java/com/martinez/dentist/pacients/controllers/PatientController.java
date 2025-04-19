@@ -19,16 +19,17 @@ public class PatientController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> save(@RequestBody PatientRequestDTO patientRequestDTO) {
-        Patient patient = new Patient(patientRequestDTO.getFullName(),
-                patientRequestDTO.getDocumentType(),
-                patientRequestDTO.getDocumentNumber(),
-                patientRequestDTO.getHealthInsurance(),
-                patientRequestDTO.getInsurancePlan(),
-                patientRequestDTO.getPhone(),
-                patientRequestDTO.getRegistrationDate(),
-                patientRequestDTO.getLastVisitDate(),
-                patientRequestDTO.getNote()
+    public ResponseEntity<String> save(@RequestBody PatientRequestDTO dto) {
+        Patient patient = new Patient(
+                dto.getFullName(),
+                dto.getDocumentType(),
+                dto.getDocumentNumber(),
+                dto.getHealthInsurance(),
+                dto.getInsurancePlan(),
+                dto.getPhone(),
+                dto.getRegistrationDate(),
+                dto.getLastVisitDate(),
+                dto.getNote()
         );
 
         serviceManager.save(patient);
