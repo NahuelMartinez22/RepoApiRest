@@ -2,16 +2,35 @@ package com.martinez.dentist.pacients.controllers;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class PatientRequestDTO {
 
+    @JsonProperty("full_name")
     private String fullName;
+
+    @JsonProperty("document_type")
     private String documentType;
+
+    @JsonProperty("document_number")
     private String documentNumber;
+
+    @JsonProperty("health_insurance")
     private String healthInsurance;
+
+    @JsonProperty("insurance_plan")
     private String insurancePlan;
+
+    @JsonProperty("phone")
     private String phone;
+
+    @JsonProperty("registration_date")
     private LocalDate registrationDate;
+
+    @JsonProperty("last_visit_date")
     private LocalDate lastVisitDate;
+
+    @JsonProperty("note")
     private String note;
 
     public PatientRequestDTO() {}
