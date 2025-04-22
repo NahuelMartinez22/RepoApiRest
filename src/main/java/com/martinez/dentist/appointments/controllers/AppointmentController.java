@@ -1,11 +1,9 @@
 package com.martinez.dentist.appointments.controllers;
 
-import com.martinez.dentist.appointments.models.Appointment;
-import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,30 +15,34 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AppointmentResponseDTO> getAppointment(@PathVariable Long id) {
-        AppointmentResponseDTO dto = appointmentService.getAppointmentWithDetails(id);
-        return ResponseEntity.ok(dto);
+    @PostMapping
+    @Transactional
+    public ResponseEntity<String> createAppointment(@RequestBody AppointmentRequestDTO dto) {
+        return ResponseEntity.ok(appointmentService.createAppointment(dto));
     }
 
     @GetMapping
     public ResponseEntity<List<AppointmentResponseDTO>> getAllAppointments() {
-        List<AppointmentResponseDTO> appointments = appointmentService.getAllAppointments();
-        return ResponseEntity.ok(appointments);
+        return ResponseEntity.ok(appointmentService.getAllAppointments());
     }
 
-
-    @PostMapping
-    public ResponseEntity<String> createAppointment(@RequestBody AppointmentRequestDTO request) {
-        String error = appointmentService.createAppointment(request);
-        if (error != null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body("Turno creado correctamente");
+    @PatchMapping("/{id}/state")
+    @Transactional
+    public ResponseEntity<String> updateAppointmentState(@PathVariable Long id,
+                                                         @RequestParam String state) {
+        return ResponseEntity.ok(appointmentService.updateAppointmentState(id, state));
     }
 
-    @GetMapping("/api/appointment-states")
-    public ResponseEntity<AppointmentState[]> getAllAppointmentStates() {
-        return ResponseEntity.ok(AppointmentState.values());
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<String> updateAppointment(@PathVariable Long id,
+                                                    @RequestBody AppointmentRequestDTO dto) {
+        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
     }
+
+    @GetMapping("/dni/{dni}")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDni(@PathVariable String dni) {
+        return ResponseEntity.ok(appointmentService.findAppointmentsByDni(dni));
+    }
+
 }

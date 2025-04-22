@@ -6,8 +6,9 @@ import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 import java.util.List;
 
 public interface AppointmentService {
-    String createAppointment(AppointmentRequestDTO request);
-    AppointmentResponseDTO getAppointmentWithDetails(Long id);
+    String createAppointment(AppointmentRequestDTO dto);
     List<AppointmentResponseDTO> getAllAppointments();
-
+    String updateAppointmentState(Long id, String state);
+    String updateAppointment(Long id, AppointmentRequestDTO dto);
+    List<AppointmentResponseDTO> findAppointmentsByDni(String dni);
 }

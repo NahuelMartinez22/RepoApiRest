@@ -118,7 +118,6 @@ public class Patient {
         return patientState;
     }
 
-    // Métodos para cambiar el estado del paciente
     public void disablePatient() {
         this.patientState = PatientState.DEACTIVATED;
     }

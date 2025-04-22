@@ -1,8 +1,8 @@
 package com.martinez.dentist.appointments.models;
 
-import com.martinez.dentist.appointments.models.AppointmentState;
-import com.martinez.dentist.users.models.User;
+import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,26 +19,34 @@ public class Appointment {
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private User doctor;
+    @ManyToOne
+    @JoinColumn(name = "professional_id", nullable = false)
+    private Professional professional;
 
-    @Column(nullable = false)
+    @Column(name = "reason")
     private String reason;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "state")
     private AppointmentState state;
 
-    // Constructor vacío requerido por JPA
-    public Appointment() {
-    }
+    public Appointment() {}
 
-    // Constructor con parámetros
-    public Appointment(String patientDni, LocalDateTime dateTime, User doctor, String reason, AppointmentState state) {
+    public Appointment(String patientDni, LocalDateTime dateTime,
+                       Professional professional, String reason,
+                       AppointmentState state) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
-        this.doctor = doctor;
+        this.professional = professional;
+        this.reason = reason;
+        this.state = state;
+    }
+
+    public void updateData(String patientDni, LocalDateTime dateTime, Professional professional,
+                           String reason, AppointmentState state) {
+        this.patientDni = patientDni;
+        this.dateTime = dateTime;
+        this.professional = professional;
         this.reason = reason;
         this.state = state;
     }
@@ -55,8 +63,8 @@ public class Appointment {
         return dateTime;
     }
 
-    public User getDoctor() {
-        return doctor;
+    public Professional getProfessional() {
+        return professional;
     }
 
     public String getReason() {
@@ -65,5 +73,9 @@ public class Appointment {
 
     public AppointmentState getState() {
         return state;
+    }
+
+    public void updateState(AppointmentState newState) {
+        this.state = newState;
     }
 }
