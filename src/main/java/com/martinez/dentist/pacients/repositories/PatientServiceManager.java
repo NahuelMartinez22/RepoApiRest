@@ -2,6 +2,7 @@ package com.martinez.dentist.pacients.repositories;
 
 import com.martinez.dentist.pacients.controllers.PatientRequestDTO;
 import com.martinez.dentist.pacients.models.Patient;
+import com.martinez.dentist.pacients.models.PatientState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,9 @@ public class PatientServiceManager {
     public void save(Patient patient) {
         this.repository.save(patient);
     }
+    public Optional<Patient> findByDocumentNumber(String documentNumber) {
+        return repository.findByDocumentNumber(documentNumber);
+    }
 
     public Patient disablePatient(Long id) {
         Optional<Patient> patientOpt = this.repository.findById(id);
@@ -53,5 +57,9 @@ public class PatientServiceManager {
         patient.enablePatient();
         repository.save(patient);
         return patient;
+    }
+
+    public List<Patient> findByState(PatientState state) {
+        return repository.findAllByPatientState(state);
     }
 }

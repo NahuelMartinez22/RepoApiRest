@@ -1,6 +1,7 @@
 package com.martinez.dentist.pacients.controllers;
 
 import com.martinez.dentist.pacients.models.Patient;
+import com.martinez.dentist.pacients.models.PatientState;
 import com.martinez.dentist.pacients.repositories.PatientServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -20,6 +22,12 @@ public class PatientController {
     @PostMapping
     @Transactional
     public ResponseEntity<String> save(@RequestBody PatientRequestDTO dto) {
+        Optional<Patient> existingPatient = serviceManager.findByDocumentNumber(dto.getDocumentNumber());
+        if (existingPatient.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ya existe un paciente con ese DNI");
+        }
+
         Patient patient = new Patient(
                 dto.getFullName(),
                 dto.getDocumentType(),
@@ -48,18 +56,53 @@ public class PatientController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
 
-        PatientResponseDTO patientDTO = new PatientResponseDTO(patient.getId(),
-                patient.getFullName(), patient.getDocumentType(), patient.getDocumentNumber(),
-                patient.getHealthInsurance(), patient.getInsurancePlan(), patient.getPhone(),
-                patient.getRegistrationDate(),patient.getLastVisitDate(), patient.getNote());
-
+        PatientResponseDTO patientDTO = new PatientResponseDTO(
+                patient.getId(),
+                patient.getFullName(),
+                patient.getDocumentType(),
+                patient.getDocumentNumber(),
+                patient.getHealthInsurance(),
+                patient.getInsurancePlan(),
+                patient.getPhone(),
+                patient.getRegistrationDate(),
+                patient.getLastVisitDate(),
+                patient.getNote(),
+                patient.getPatientState().getDisplayName()
+        );
         return ResponseEntity.ok(patientDTO);
     }
 
     @GetMapping
     @Transactional(readOnly = true)
-    public List<Patient> findAllPatients(){
-        return this.serviceManager.findAll();
+    public ResponseEntity<List<PatientResponseDTO>> findAllPatients(@RequestParam(required = false) String state) {
+        List<Patient> patients;
+
+        if (state != null) {
+            try {
+                PatientState parsedState = PatientState.valueOf(state.toUpperCase());
+                patients = serviceManager.findByState(parsedState);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body(null);
+            }
+        } else {
+            patients = serviceManager.findAll();
+        }
+
+        List<PatientResponseDTO> responseList = patients.stream().map(patient -> new PatientResponseDTO(
+                patient.getId(),
+                patient.getFullName(),
+                patient.getDocumentType(),
+                patient.getDocumentNumber(),
+                patient.getHealthInsurance(),
+                patient.getInsurancePlan(),
+                patient.getPhone(),
+                patient.getRegistrationDate(),
+                patient.getLastVisitDate(),
+                patient.getNote(),
+                patient.getPatientState().getDisplayName()
+        )).toList();
+
+        return ResponseEntity.ok(responseList);
     }
 
     @PatchMapping("/{id}/disable")
@@ -93,7 +136,8 @@ public class PatientController {
                     existing.getPhone(),
                     existing.getRegistrationDate(),
                     existing.getLastVisitDate(),
-                    existing.getNote()
+                    existing.getNote(),
+                    existing.getPatientState().getDisplayName()
             );
             return ResponseEntity.ok(responseDTO);
 

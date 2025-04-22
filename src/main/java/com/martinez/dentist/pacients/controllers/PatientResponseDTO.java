@@ -35,12 +35,13 @@ public class PatientResponseDTO {
     @JsonProperty("note")
     private String note;
 
+    @JsonProperty("state")
+    private String state;
+
     public PatientResponseDTO() {
     }
 
-    public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
-                              String healthInsurance, String insurancePlan, String phone,
-                              LocalDate registrationDate, LocalDate lastVisitDate, String note) {
+    public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber, String healthInsurance, String insurancePlan, String phone, LocalDate registrationDate, LocalDate lastVisitDate, String note, String state) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
@@ -51,6 +52,7 @@ public class PatientResponseDTO {
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
         this.note = note;
+        this.state = state;
     }
 
     public Long getId() {
@@ -131,5 +133,13 @@ public class PatientResponseDTO {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

@@ -1,5 +1,5 @@
 package com.martinez.dentist.users.models;
-
+import com.martinez.dentist.users.models.UserRole;
 import jakarta.persistence.*;
 
 @Entity
@@ -18,6 +18,10 @@ public class User {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role",nullable = false)
+    private UserRole role;
 
     public User(Long id, String username, String password, String email) {
         this.id = id;
