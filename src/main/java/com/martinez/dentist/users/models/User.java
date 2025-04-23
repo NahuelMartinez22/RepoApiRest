@@ -1,5 +1,5 @@
 package com.martinez.dentist.users.models;
-import com.martinez.dentist.users.models.UserRole;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -10,65 +10,42 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
+    @Column(nullable = false, unique = true, length = 45)
     private String username;
 
-    @Column(name = "password")
+    @Column(nullable = false, length = 300)
     private String password;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    @Column(name = "role",nullable = false)
     private UserRole role;
 
-    public User(Long id, String username, String password, String email) {
-        this.id = id;
+    public User() {}
+
+    public User(String username, String password, String email, UserRole role) {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.role = role;
     }
 
-    public User() {
-    }
+    public Long getId() { return id; }
+    public String getUsername() { return username; }
+    public String getPassword() { return password; }
+    public String getEmail() { return email; }
+    public UserRole getRole() { return role; }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
+    public void updateData(String username, String email, UserRole role) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
+        this.role = role;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                '}';
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }

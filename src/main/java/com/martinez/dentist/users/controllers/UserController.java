@@ -1,47 +1,52 @@
 package com.martinez.dentist.users.controllers;
 
-import com.martinez.dentist.users.repositories.UserIMPL;
+import com.martinez.dentist.users.models.User;
+import com.martinez.dentist.users.repositories.UserRepository;
+import com.martinez.dentist.users.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@CrossOrigin
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
 
     @Autowired
-    private UserIMPL userService;
-    @PostMapping(path = "/save")
-    public ResponseEntity<String> save(@RequestBody UserDTO userDTO) {
-        try {
-            userService.addUser(userDTO);
-            return ResponseEntity.ok("El usuario fue creado.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Ocurrió un error al guardar el usuario: " + e.getMessage());
-        }
+    private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+
+    @PostMapping("/save")
+    @Transactional
+    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(userService.createUser(dto));
     }
-    @PostMapping(path = "/login")
-    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginDTO loginDTO) {
-        try {
-            LoginResponse loginResponse = userService.loginUser(loginDTO);
 
-            switch (loginResponse.getMessage()) {
-                case "Inicio de sesión exitoso":
-                    return ResponseEntity.ok(loginResponse);
 
-                case "El usuario no existe":
-                    return ResponseEntity.status(404).body(loginResponse);
-
-                case "La contraseña es incorrecta":
-                    return ResponseEntity.status(400).body(loginResponse);
-
-                default:
-                    return ResponseEntity.status(500).body(loginResponse);
-            }
-        } catch (Exception e) {
-            LoginResponse errorResponse = new LoginResponse("Ocurrió un error: " + e.getMessage(), false);
-            return ResponseEntity.status(500).body(errorResponse);
-        }
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<String> updateUser(@PathVariable Long id,
+                                             @RequestBody UserRequestDTO dto,
+                                             @RequestParam("adminUsername") String adminUsername) {
+        User admin = userRepository.findByUsername(adminUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario autenticador no encontrado"));
+
+        return ResponseEntity.ok(userService.updateUser(id, dto, admin));
+    }
+
 }

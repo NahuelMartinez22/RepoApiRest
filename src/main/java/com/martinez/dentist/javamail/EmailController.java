@@ -34,12 +34,14 @@ public class EmailController {
 
     @PostMapping("/enviar")
     public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
-        User user = userRepository.findByEmail(email.getDestinatario());
+        Optional<User> userOptional = userRepository.findByEmail(email.getDestinatario());
 
-        if (user == null) {
+        if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("No existe un usuario con ese correo electrónico.");
         }
+
+        User user = userOptional.get();
 
         String tokenStr = UUID.randomUUID().toString();
         LocalDateTime expiration = LocalDateTime.now().plusHours(1);
@@ -50,7 +52,6 @@ public class EmailController {
         token.setExpirationDate(expiration);
         tokenRepository.save(token);
 
-        //String resetLink = "http://localhost:8080/api/cambiar-contrasena?token=" + tokenStr;
         String resetLink = "http://localhost:3000/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
@@ -68,25 +69,22 @@ public class EmailController {
     public ResponseEntity<String> cambiarPassword(@RequestParam("token") String tokenParam,
                                                   @RequestParam("newPassword") String newPassword) {
 
-        System.out.println("Token recibido: " + tokenParam);
-        Optional<Token> token = tokenRepository.findByToken(tokenParam);
+        Optional<Token> tokenOpt = tokenRepository.findByToken(tokenParam);
 
-        if (token.isEmpty()) {
-            System.out.println("Token no encontrado.");
+        if (tokenOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido.");
         }
 
-        if (token.get().getExpirationDate().isBefore(LocalDateTime.now())) {
-            System.out.println("Token expirado.");
+        Token token = tokenOpt.get();
+
+        if (token.getExpirationDate().isBefore(LocalDateTime.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token ha expirado.");
         }
 
-        User user = token.get().getUser();
-        System.out.println("Usuario encontrado: " + user.getEmail());
-
-        user.setPassword(passwordEncoder.encode(newPassword));
+        User user = token.getUser();
+        user.updatePassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        tokenRepository.delete(token.get());
+        tokenRepository.delete(token);
 
         return ResponseEntity.ok("Contraseña cambiada correctamente.");
     }
