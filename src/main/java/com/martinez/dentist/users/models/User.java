@@ -1,10 +1,15 @@
 package com.martinez.dentist.users.models;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,12 +37,17 @@ public class User {
         this.role = role;
     }
 
-    public Long getId() { return id; }
-    public String getUsername() { return username; }
-    public String getPassword() { return password; }
-    public String getEmail() { return email; }
-    public UserRole getRole() { return role; }
+    public Long getId() {
+        return id;
+    }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
 
     public void updateData(String username, String email, UserRole role) {
         this.username = username;
@@ -47,5 +57,42 @@ public class User {
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    // Métodos de UserDetails
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(() -> "ROLE_" + role.name()); // ejemplo: ROLE_ADMIN
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

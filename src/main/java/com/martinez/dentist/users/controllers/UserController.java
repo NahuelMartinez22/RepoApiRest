@@ -1,10 +1,13 @@
 package com.martinez.dentist.users.controllers;
 
 import com.martinez.dentist.users.models.User;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import com.martinez.dentist.users.repositories.UserRepository;
 import com.martinez.dentist.users.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +25,11 @@ public class UserController {
 
 
     @PostMapping("/save")
-    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> createUser(@RequestBody UserRequestDTO dto) {
         return ResponseEntity.ok(userService.createUser(dto));
     }
+
 
 
     @GetMapping
@@ -39,14 +43,21 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
-                                             @RequestBody UserRequestDTO dto,
-                                             @RequestParam("adminUsername") String adminUsername) {
-        User admin = userRepository.findByUsername(adminUsername)
-                .orElseThrow(() -> new RuntimeException("Usuario autenticador no encontrado"));
+                                             @RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(userService.updateUser(id, dto));
+    }
 
-        return ResponseEntity.ok(userService.updateUser(id, dto, admin));
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().name()
+        ));
     }
 
 }

@@ -88,11 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String updateUser(Long id, UserRequestDTO dto, User admin) {
-        if (admin.getRole() != UserRole.ADMIN) {
-            throw new RuntimeException("Solo un ADMIN puede cambiar el rol de un usuario.");
-        }
-
+    public String updateUser(Long id, UserRequestDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
