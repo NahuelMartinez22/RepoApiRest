@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface PatientRepository extends CrudRepository<Patient, Long> {
     Optional<Patient> findByDocumentNumber(String documentNumber);
-    List<Patient> findAllByPatientState(PatientState state);
+    List<Patient> findByPatientState(PatientState state);
 }

@@ -1,10 +1,14 @@
 package com.martinez.dentist.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -12,23 +16,29 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // RuntimeException → 400 Bad Request
+    // ❗ 400 - Errores comunes de lógica
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntime(RuntimeException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage()));
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 400,
+                "error", ex.getMessage(),
+                "path", request.getRequestURI()
+        ));
     }
 
-    // NoSuchElementException → 404 Not Found
+    // ❗ 404 - Recurso no encontrado
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("Recurso no encontrado: " + ex.getMessage()));
+    public ResponseEntity<Map<String, Object>> handleNotFound(NoSuchElementException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 404,
+                "error", "Recurso no encontrado: " + ex.getMessage(),
+                "path", request.getRequestURI()
+        ));
     }
 
-    // Errores de validación → 400 + lista de campos
+    // ❗ 400 - Errores de validación
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -37,21 +47,28 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    // Clase interna para respuesta JSON estándar
-    static class ErrorResponse {
-        private final String error;
+    // ❗ 403 - Acceso denegado (sin rol adecuado)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 403,
+                "error", "No tenés permisos para realizar esta acción.",
+                "path", request.getRequestURI()
+        ));
+    }
 
-        public ErrorResponse(String error) {
-            this.error = error;
-        }
-
-        public String getError() {
-            return error;
-        }
+    // ❗ 401 - Credenciales inválidas o token ausente
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorized(BadCredentialsException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 401,
+                "error", "Credenciales inválidas o token ausente.",
+                "path", request.getRequestURI()
+        ));
     }
 }
