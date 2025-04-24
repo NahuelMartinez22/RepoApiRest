@@ -10,7 +10,9 @@ import com.martinez.dentist.pacients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,15 +33,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public String createAppointment(AppointmentRequestDTO dto) {
 
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
-                .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profesional no encontrado"));
 
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Paciente no encontrado"));
 
         if (dto.getDateTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("No se puede crear un turno en una fecha/hora que ya pasó.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede crear un turno en una fecha/hora que ya pasó.");
         }
-
         Appointment appointment = new Appointment(
                 dto.getPatientDni(),
                 dto.getDateTime(),
@@ -62,15 +63,22 @@ public class AppointmentServiceImpl implements AppointmentService {
             String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
 
             String professionalFullName = appointment.getProfessional().getFullName();
+            String professionalDni = appointment.getProfessional().getDocumentNumber();
 
-            return new AppointmentResponseDTO(
+            AppointmentResponseDTO dto = new AppointmentResponseDTO(
+                    appointment.getId(),
                     appointment.getPatientDni(),
                     patientFullName,
                     appointment.getDateTime(),
                     professionalFullName,
+                    professionalDni,
                     appointment.getReason(),
                     appointment.getState().name()
             );
+
+            dto.setPatient(patient);
+
+            return dto;
         }).toList();
     }
 
@@ -124,22 +132,27 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se encontraron turnos con el DNI: " + dni);
         }
 
-        String patientFullName = patientRepository.findByDocumentNumber(dni)
-                .map(Patient::getFullName)
-                .orElse("Paciente desconocido");
+        Patient patient = patientRepository.findByDocumentNumber(dni).orElse(null);
+        String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
 
         return appointments.stream().map(appointment -> {
             String professionalFullName = appointment.getProfessional().getFullName();
+            String professionalDni = appointment.getProfessional().getDocumentNumber();
 
-            return new AppointmentResponseDTO(
+            AppointmentResponseDTO dto = new AppointmentResponseDTO(
+                    appointment.getId(),
                     appointment.getPatientDni(),
                     patientFullName,
                     appointment.getDateTime(),
                     professionalFullName,
+                    professionalDni,
                     appointment.getReason(),
                     appointment.getState().name()
             );
+
+            dto.setPatient(patient);
+
+            return dto;
         }).toList();
     }
-
 }
