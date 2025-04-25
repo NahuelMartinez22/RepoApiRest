@@ -5,6 +5,7 @@ import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
+import com.martinez.dentist.patients.controllers.PatientResponseDTO;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
@@ -29,7 +30,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public String createAppointment(AppointmentRequestDTO dto) {
-
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
@@ -59,13 +59,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments.stream().map(appointment -> {
             Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
                     .orElse(null);
-            String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
+            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
             return new AppointmentResponseDTO(
-                    appointment.getPatientDni(),
-                    patientFullName,
+                    appointment.getId(),
+                    patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
@@ -100,7 +100,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        if (dto.getDateTime().isBefore(java.time.LocalDateTime.now())) {
+        if (dto.getDateTime().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("No se puede asignar un turno en una fecha/hora pasada.");
         }
 
@@ -124,23 +124,22 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se encontraron turnos con el DNI: " + dni);
         }
 
-        String patientFullName = patientRepository.findByDocumentNumber(dni)
-                .map(Patient::getFullName)
-                .orElse("Paciente desconocido");
-
         return appointments.stream().map(appointment -> {
+            Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                    .orElse(null);
+            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
+
             String professionalFullName = appointment.getProfessional().getFullName();
 
             return new AppointmentResponseDTO(
-                    appointment.getPatientDni(),
-                    patientFullName,
+                    appointment.getId(),
+                    patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
                     appointment.getState().name()
             );
         }).toList();
-
     }
 
     @Override
@@ -150,13 +149,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments.stream().map(appointment -> {
             Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
                     .orElse(null);
-            String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
+            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
             return new AppointmentResponseDTO(
-                    appointment.getPatientDni(),
-                    patientFullName,
+                    appointment.getId(),
+                    patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
@@ -166,4 +165,19 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
+    private PatientResponseDTO convertToPatientResponseDTO(Patient patient) {
+        return new PatientResponseDTO(
+                patient.getId(),
+                patient.getFullName(),
+                patient.getDocumentType(),
+                patient.getDocumentNumber(),
+                patient.getHealthInsurance(),
+                patient.getInsurancePlan(),
+                patient.getPhone(),
+                patient.getRegistrationDate(),
+                patient.getLastVisitDate(),
+                patient.getNote(),
+                patient.getPatientState().name()
+        );
+    }
 }
