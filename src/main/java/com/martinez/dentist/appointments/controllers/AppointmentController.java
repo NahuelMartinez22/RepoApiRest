@@ -45,4 +45,8 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.findAppointmentsByDni(dni));
     }
 
+    @GetMapping("/professional/dni/{dni}")
+    public ResponseEntity<List<AppointmentResponseDTO>> getByProfessionalDni(@PathVariable String dni) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByProfessionalDni(dni));
+    }
 }

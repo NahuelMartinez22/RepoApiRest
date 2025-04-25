@@ -1,7 +1,7 @@
-package com.martinez.dentist.pacients.controllers;
+package com.martinez.dentist.patients.controllers;
 
-import com.martinez.dentist.pacients.models.PatientState;
-import com.martinez.dentist.pacients.services.PatientService;
+import com.martinez.dentist.patients.models.PatientState;
+import com.martinez.dentist.patients.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

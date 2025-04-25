@@ -1,4 +1,4 @@
-package com.martinez.dentist.pacients.models;
+package com.martinez.dentist.patients.models;
 
 public enum PatientState {
     ACTIVE("Active"),

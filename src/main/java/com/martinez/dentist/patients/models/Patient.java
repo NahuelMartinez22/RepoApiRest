@@ -1,6 +1,6 @@
-package com.martinez.dentist.pacients.models;
+package com.martinez.dentist.patients.models;
 
-import com.martinez.dentist.pacients.controllers.PatientRequestDTO;
+import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 

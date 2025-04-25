@@ -71,4 +71,14 @@ public class GlobalExceptionHandler {
                 "path", request.getRequestURI()
         ));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 500,
+                "error", "Error inesperado: " + ex.getClass().getSimpleName() + " - " + ex.getMessage(),
+                "path", request.getRequestURI()
+        ));
+    }
 }

@@ -1,8 +1,8 @@
-package com.martinez.dentist.pacients.services;
+package com.martinez.dentist.patients.services;
 
-import com.martinez.dentist.pacients.controllers.PatientRequestDTO;
-import com.martinez.dentist.pacients.controllers.PatientResponseDTO;
-import com.martinez.dentist.pacients.models.PatientState;
+import com.martinez.dentist.patients.controllers.PatientRequestDTO;
+import com.martinez.dentist.patients.controllers.PatientResponseDTO;
+import com.martinez.dentist.patients.models.PatientState;
 
 import java.util.List;
 

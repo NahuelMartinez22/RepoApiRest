@@ -5,8 +5,8 @@ import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
-import com.martinez.dentist.pacients.models.Patient;
-import com.martinez.dentist.pacients.repositories.PatientRepository;
+import com.martinez.dentist.patients.models.Patient;
+import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +140,30 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointment.getState().name()
             );
         }).toList();
+
     }
+
+    @Override
+    public List<AppointmentResponseDTO> getAppointmentsByProfessionalDni(String dni) {
+        List<Appointment> appointments = appointmentRepository.findByProfessionalDocumentNumber(dni);
+
+        return appointments.stream().map(appointment -> {
+            Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                    .orElse(null);
+            String patientFullName = (patient != null) ? patient.getFullName() : "Paciente desconocido";
+
+            String professionalFullName = appointment.getProfessional().getFullName();
+
+            return new AppointmentResponseDTO(
+                    appointment.getPatientDni(),
+                    patientFullName,
+                    appointment.getDateTime(),
+                    professionalFullName,
+                    appointment.getReason(),
+                    appointment.getState().name()
+            );
+        }).toList();
+    }
+
 
 }

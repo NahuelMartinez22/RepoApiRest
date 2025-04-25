@@ -1,10 +1,10 @@
-package com.martinez.dentist.pacients.services;
+package com.martinez.dentist.patients.services;
 
-import com.martinez.dentist.pacients.controllers.PatientRequestDTO;
-import com.martinez.dentist.pacients.controllers.PatientResponseDTO;
-import com.martinez.dentist.pacients.models.Patient;
-import com.martinez.dentist.pacients.models.PatientState;
-import com.martinez.dentist.pacients.repositories.PatientRepository;
+import com.martinez.dentist.patients.controllers.PatientRequestDTO;
+import com.martinez.dentist.patients.controllers.PatientResponseDTO;
+import com.martinez.dentist.patients.models.Patient;
+import com.martinez.dentist.patients.models.PatientState;
+import com.martinez.dentist.patients.repositories.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
