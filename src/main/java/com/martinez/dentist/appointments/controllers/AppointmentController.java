@@ -49,4 +49,10 @@ public class AppointmentController {
     public ResponseEntity<List<AppointmentResponseDTO>> getByProfessionalDni(@PathVariable String dni) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByProfessionalDni(dni));
     }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<String> deleteAppointment(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.deleteAppointment(id));
+    }
 }

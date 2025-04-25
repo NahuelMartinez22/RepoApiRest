@@ -180,4 +180,14 @@ public class AppointmentServiceImpl implements AppointmentService {
                 patient.getPatientState().name()
         );
     }
+
+    @Override
+    public String deleteAppointment(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+
+        appointmentRepository.delete(appointment);
+        return "Turno eliminado correctamente.";
+    }
+
 }
