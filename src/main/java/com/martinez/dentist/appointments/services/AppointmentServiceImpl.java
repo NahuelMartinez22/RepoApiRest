@@ -40,6 +40,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se puede crear un turno en una fecha/hora que ya pasó.");
         }
 
+        if (appointmentRepository.existsByProfessionalIdAndDateTime(professional.getId(), dto.getDateTime())) {
+            throw new RuntimeException("El profesional ya tiene un turno asignado en ese horario.");
+        }
+
+        if (appointmentRepository.existsByPatientDniAndDateTime(patient.getDocumentNumber(), dto.getDateTime())) {
+            throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
+        }
+
         Appointment appointment = new Appointment(
                 dto.getPatientDni(),
                 dto.getDateTime(),
