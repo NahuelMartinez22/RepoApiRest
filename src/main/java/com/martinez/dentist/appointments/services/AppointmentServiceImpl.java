@@ -9,11 +9,14 @@ import com.martinez.dentist.patients.controllers.PatientResponseDTO;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
+import com.martinez.dentist.professionals.models.ProfessionalState;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -32,6 +35,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public String createAppointment(AppointmentRequestDTO dto) {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
+
+        if (professional.getProfessionalState() != ProfessionalState.ACTIVE) {
+            throw new RuntimeException("El profesional seleccionado no está activo.");
+        }
+
+        if (!professional.trabajaEsteDiaYHorario(dto.getDateTime())) {
+            throw new RuntimeException("El profesional no atiende en el día y horario seleccionado.");
+        }
 
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));

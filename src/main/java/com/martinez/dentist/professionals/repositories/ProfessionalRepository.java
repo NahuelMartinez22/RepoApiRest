@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface ProfessionalRepository extends CrudRepository<Professional, Long> {
 
     Optional<Professional> findByDocumentNumber(String documentNumber);
-
-    List<Professional> findAllByProfessionalState(ProfessionalState state);
+    List<Professional> findAllByProfessionalState(ProfessionalState professionalState);
 }
