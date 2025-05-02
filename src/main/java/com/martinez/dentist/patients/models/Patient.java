@@ -61,6 +61,13 @@ public class Patient {
         this.patientState = PatientState.ACTIVE;
     }
 
+    @PrePersist
+    public void prePersist() {
+        if (this.registrationDate == null) {
+            this.registrationDate = LocalDate.now();
+        }
+    }
+
     public void updateData(PatientRequestDTO dto) {
         this.fullName = dto.getFullName();
         this.documentType = dto.getDocumentType();
@@ -110,6 +117,10 @@ public class Patient {
         return lastVisitDate;
     }
 
+    public void setLastVisitDate(LocalDate lastVisitDate) {
+        this.lastVisitDate = lastVisitDate;
+    }
+
     public String getNote() {
         return note;
     }
@@ -125,4 +136,6 @@ public class Patient {
     public void enablePatient() {
         this.patientState = PatientState.ACTIVE;
     }
+
+
 }

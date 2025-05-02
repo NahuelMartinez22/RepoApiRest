@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +102,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         try {
             AppointmentState newState = AppointmentState.valueOf(state.toUpperCase());
             appointment.updateState(newState);
+
+            if (newState == AppointmentState.ATENDIDO) {
+                Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                        .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+                patient.setLastVisitDate(LocalDate.now());
+                patientRepository.save(patient);
+            }
+
             appointmentRepository.save(appointment);
             return "Estado del turno actualizado a: " + newState.name();
         } catch (IllegalArgumentException e) {

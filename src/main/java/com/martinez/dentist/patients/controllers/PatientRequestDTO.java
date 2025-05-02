@@ -20,9 +20,7 @@ public class PatientRequestDTO {
     private String insurancePlan;
     private String phone;
 
-    @NotNull(message = "La fecha de registro es obligatoria")
     private LocalDate registrationDate;
-
     private LocalDate lastVisitDate;
 
     private String note;
