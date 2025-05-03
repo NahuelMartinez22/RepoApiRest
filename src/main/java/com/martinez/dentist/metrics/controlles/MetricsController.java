@@ -22,9 +22,9 @@ public class MetricsController {
         return ResponseEntity.ok(metricsService.getAppointmentsPerDay());
     }
 
-    @GetMapping("/new-patients-per-week")
-    public ResponseEntity<Map<Integer, Long>> getNewPatientsPerWeek() {
-        return ResponseEntity.ok(metricsService.getNewPatientsPerWeek());
+    @GetMapping("/new-patients-per-month")
+    public ResponseEntity<Map<String, String>> getNewPatientsPerMonth() {
+        return ResponseEntity.ok(metricsService.getNewPatientsPerMonth());
     }
 
     @GetMapping("/appointment-stats")

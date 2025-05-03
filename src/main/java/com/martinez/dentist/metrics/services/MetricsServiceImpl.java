@@ -32,14 +32,21 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public Map<Integer, Long> getNewPatientsPerWeek() {
-        LocalDate desde = LocalDate.now().minusDays(28);
-        return patientRepository.countNewPatientsPerWeek(desde)
+    public Map<String, String> getNewPatientsPerMonth() {
+        LocalDate desde = LocalDate.now().minusMonths(6);
+        return patientRepository.countNewPatientsPerMonth(desde)
                 .stream()
+                .sorted((a, b) -> Integer.compare((Integer) a[0], (Integer) b[0]))
                 .collect(Collectors.toMap(
-                        row -> (Integer) row[0],
-                        row -> (Long) row[1]
+                        row -> getMonthName((Integer) row[0]),
+                        row -> row[1] + " pacientes nuevos",
+                        (v1, v2) -> v1,
+                        java.util.LinkedHashMap::new
                 ));
+    }
+
+    private String getMonthName(int monthNumber) {
+        return java.time.Month.of(monthNumber).getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es"));
     }
 
     @Override

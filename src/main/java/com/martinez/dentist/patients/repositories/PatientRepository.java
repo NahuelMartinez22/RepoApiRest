@@ -17,10 +17,10 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
     List<Patient> findByPatientState(PatientState state);
 
 
-    @Query("SELECT FUNCTION('WEEK', p.registrationDate), COUNT(p) " +
+    @Query("SELECT FUNCTION('MONTH', p.registrationDate), COUNT(p) " +
             "FROM Patient p " +
             "WHERE p.registrationDate >= :desde " +
             "AND p.patientState = com.martinez.dentist.patients.models.PatientState.ACTIVE " +
-            "GROUP BY FUNCTION('WEEK', p.registrationDate)")
-    List<Object[]> countNewPatientsPerWeek(@Param("desde") LocalDate desde);
+            "GROUP BY FUNCTION('MONTH', p.registrationDate)")
+    List<Object[]> countNewPatientsPerMonth(@Param("desde") LocalDate desde);
 }
