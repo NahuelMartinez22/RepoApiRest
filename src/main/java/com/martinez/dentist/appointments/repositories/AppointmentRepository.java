@@ -1,6 +1,7 @@
 package com.martinez.dentist.appointments.repositories;
 
 import com.martinez.dentist.appointments.models.Appointment;
+import com.martinez.dentist.appointments.models.AppointmentState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     boolean existsByPatientDniAndDateTime(String patientDni, LocalDateTime dateTime);
 
+    List<Appointment> findByState(AppointmentState state);
+
 
     @Query("SELECT DATE(a.dateTime), COUNT(a) " +
             "FROM Appointment a " +
@@ -34,4 +37,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "WHERE a.dateTime >= :desde " +
             "GROUP BY a.state")
     List<Object[]> countAppointmentsByStateSince(@Param("desde") LocalDateTime desde);
+
 }

@@ -219,4 +219,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         return "Turno eliminado correctamente.";
     }
 
+    @Override
+    public String confirmAppointment(Long id) {
+        Appointment turno = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+        turno.updateState(AppointmentState.CONFIRMADO);
+        appointmentRepository.save(turno);
+        return "✅ ¡Tu turno fue confirmado con éxito!";
+    }
+
+    @Override
+    public String cancelAppointment(Long id) {
+        Appointment turno = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+        turno.updateState(AppointmentState.CANCELADO);
+        appointmentRepository.save(turno);
+        return "❌ Tu turno fue cancelado correctamente.";
+    }
+
 }

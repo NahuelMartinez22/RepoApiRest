@@ -30,6 +30,9 @@ public class Appointment {
     @Column(name = "state")
     private AppointmentState state;
 
+    @Column(name = "reminder_sent")
+    private boolean reminderSent = false;
+
     public Appointment() {}
 
     public Appointment(String patientDni, LocalDateTime dateTime,
@@ -77,5 +80,16 @@ public class Appointment {
 
     public void updateState(AppointmentState newState) {
         this.state = newState;
+    }
+
+    public void setState(AppointmentState state) {this.state = state;}
+
+
+    public boolean isReminderSent() {
+        return reminderSent;
+    }
+
+    public void setReminderSent(boolean reminderSent) {
+        this.reminderSent = reminderSent;
     }
 }

@@ -1,5 +1,7 @@
 package com.martinez.dentist.appointments.controllers;
 
+import com.martinez.dentist.appointments.models.Appointment;
+import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +56,15 @@ public class AppointmentController {
     @Transactional
     public ResponseEntity<String> deleteAppointment(@PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.deleteAppointment(id));
+    }
+
+    @GetMapping("/confirmar/{id}")
+    public ResponseEntity<String> confirmAppointment(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.confirmAppointment(id));
+    }
+
+    @GetMapping("/cancelar/{id}")
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.cancelAppointment(id));
     }
 }

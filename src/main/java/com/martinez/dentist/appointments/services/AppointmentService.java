@@ -13,5 +13,7 @@ public interface AppointmentService {
     List<AppointmentResponseDTO> findAppointmentsByDni(String dni);
     List<AppointmentResponseDTO> getAppointmentsByProfessionalDni(String dni);
     String deleteAppointment(Long id);
+    String confirmAppointment(Long id);
+    String cancelAppointment(Long id);
 
 }
