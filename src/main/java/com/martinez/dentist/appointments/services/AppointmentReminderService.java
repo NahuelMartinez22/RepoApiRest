@@ -6,6 +6,8 @@ import com.martinez.dentist.appointments.repositories.AppointmentRepository;
 import com.martinez.dentist.notifications.services.WhatsAppService;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
+import com.martinez.dentist.javamail.EmailDTO;
+import com.martinez.dentist.javamail.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class AppointmentReminderService {
     @Autowired
     private WhatsAppService whatsappService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 30000)
     public void enviarRecordatorios() {
         LocalDateTime ahora = LocalDateTime.now();
         LocalDateTime en24Horas = ahora.plusHours(24);
@@ -65,6 +67,21 @@ public class AppointmentReminderService {
                 System.out.println("📨 Enviando mensaje a " + telefono);
                 whatsappService.enviarMensaje(telefono, mensaje);
 
+                // Enviar email si tiene
+                try {
+                    if (paciente.getEmail() != null && !paciente.getEmail().isBlank()) {
+                        EmailDTO email = new EmailDTO(
+                                paciente.getEmail(),
+                                "Recordatorio de turno",
+                                mensaje
+                        );
+                        EmailService.enviar(email);
+                        System.out.println("📧 Correo enviado a " + paciente.getEmail());
+                    }
+                } catch (Exception e) {
+                    System.out.println("⚠️ Error al enviar correo: " + e.getMessage());
+                }
+
                 turno.setReminderSent(true);
                 appointmentRepository.save(turno);
                 System.out.println("✅ Recordatorio enviado para turno ID: " + turno.getId());
@@ -72,4 +89,3 @@ public class AppointmentReminderService {
         }
     }
 }
-

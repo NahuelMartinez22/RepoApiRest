@@ -5,6 +5,8 @@ import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
+import com.martinez.dentist.javamail.EmailDTO;
+import com.martinez.dentist.javamail.EmailService;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
@@ -69,8 +71,40 @@ public class AppointmentServiceImpl implements AppointmentService {
         );
 
         appointmentRepository.save(appointment);
+
+        try {
+            if (patient.getEmail() != null && !patient.getEmail().isBlank()) {
+                String dia = dto.getDateTime().getDayOfWeek()
+                        .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
+
+                String hora = dto.getDateTime().toLocalTime().toString();
+
+                String cuerpo = String.format(
+                        "Hola %s,\n\nTu turno fue creado con éxito. Te esperamos el %s a las %s con el profesional %s.\n" +
+                                "Dirección: Av. Corrientes 3822, CABA.\nMotivo: %s\n\n¡Gracias por confiar en nosotros!",
+                        patient.getFullName(),
+                        dia,
+                        hora,
+                        professional.getFullName(),
+                        dto.getReason()
+                );
+
+                EmailDTO email = new EmailDTO(
+                        patient.getEmail(),
+                        "Confirmación de turno",
+                        cuerpo
+                );
+
+                EmailService.enviar(email);
+                System.out.println("📧 Correo de confirmación enviado a " + patient.getEmail());
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Error al enviar el correo de confirmación: " + e.getMessage());
+        }
+
         return "Turno creado con éxito.";
     }
+
 
     @Override
     public List<AppointmentResponseDTO> getAllAppointments() {
