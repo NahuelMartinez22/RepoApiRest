@@ -1,5 +1,6 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.patients.controllers.ClinicalFileDTO;
 import com.martinez.dentist.patients.controllers.ClinicalHistoryRequestDTO;
 import com.martinez.dentist.patients.controllers.ClinicalHistoryResponseDTO;
 import com.martinez.dentist.patients.models.ClinicalHistory;
@@ -51,12 +52,28 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
 
         List<ClinicalHistory> histories = clinicalHistoryRepository.findByPatientId(patient.getId());
 
-        return histories.stream().map(history -> new ClinicalHistoryResponseDTO(
-                history.getId(),
-                history.getPatient().getFullName(),
-                history.getProfessional().getFullName(),
-                history.getDate(),
-                history.getDescription()
-        )).toList();
+        return histories.stream().map(history -> {
+            List<ClinicalFileDTO> fileDTOs = history.getFiles().stream()
+                    .map(file -> new ClinicalFileDTO(
+                            file.getId(),
+                            file.getFileName(),
+                            file.getFileType()
+                    )).toList();
+
+            return new ClinicalHistoryResponseDTO(
+                    history.getId(),
+                    history.getPatient().getFullName(),
+                    history.getProfessional().getFullName(),
+                    history.getDate(),
+                    history.getDescription(),
+                    fileDTOs
+            );
+        }).toList();
+    }
+
+    @Override
+    public ClinicalHistory getById(Long id) {
+        return clinicalHistoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada"));
     }
 }
