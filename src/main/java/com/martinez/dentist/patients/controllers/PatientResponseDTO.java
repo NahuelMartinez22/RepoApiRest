@@ -11,13 +11,14 @@ public class PatientResponseDTO {
     private String healthInsurance;
     private String insurancePlan;
     private String phone;
+    private String email;
     private LocalDate registrationDate;
     private LocalDate lastVisitDate;
     private String note;
     private String state;
 
     public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
-                              String healthInsurance, String insurancePlan, String phone,
+                              String healthInsurance, String insurancePlan, String phone, String email,
                               LocalDate registrationDate, LocalDate lastVisitDate, String note, String state) {
         this.id = id;
         this.fullName = fullName;
@@ -26,6 +27,7 @@ public class PatientResponseDTO {
         this.healthInsurance = healthInsurance;
         this.insurancePlan = insurancePlan;
         this.phone = phone;
+        this.email = email;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
         this.note = note;
@@ -39,6 +41,7 @@ public class PatientResponseDTO {
     public String getHealthInsurance() { return healthInsurance; }
     public String getInsurancePlan() { return insurancePlan; }
     public String getPhone() { return phone; }
+    public String getEmail() { return email; }
     public LocalDate getRegistrationDate() { return registrationDate; }
     public LocalDate getLastVisitDate() { return lastVisitDate; }
     public String getNote() { return note; }

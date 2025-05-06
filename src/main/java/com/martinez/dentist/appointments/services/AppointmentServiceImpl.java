@@ -203,6 +203,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 patient.getHealthInsurance(),
                 patient.getInsurancePlan(),
                 patient.getPhone(),
+                patient.getEmail(),
                 patient.getRegistrationDate(),
                 patient.getLastVisitDate(),
                 patient.getNote(),

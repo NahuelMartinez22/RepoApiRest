@@ -31,6 +31,7 @@ public class PatientServiceImpl implements PatientService {
                 dto.getHealthInsurance(),
                 dto.getInsurancePlan(),
                 dto.getPhone(),
+                dto.getEmail(),
                 dto.getRegistrationDate(),
                 dto.getLastVisitDate(),
                 dto.getNote()
@@ -100,6 +101,7 @@ public class PatientServiceImpl implements PatientService {
                 patient.getHealthInsurance(),
                 patient.getInsurancePlan(),
                 patient.getPhone(),
+                patient.getEmail(),
                 patient.getRegistrationDate(),
                 patient.getLastVisitDate(),
                 patient.getNote(),

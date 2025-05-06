@@ -30,6 +30,9 @@ public class Patient {
     @Column(name = "phone")
     private String phone;
 
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "registration_date")
     private LocalDate registrationDate;
 
@@ -43,18 +46,19 @@ public class Patient {
     @Column(name = "state", nullable = false)
     private PatientState patientState;
 
-    protected Patient(){
+    protected Patient() {
     }
 
     public Patient(String fullName, String documentType, String documentNumber,
                    String healthInsurance, String insurancePlan, String phone,
-                   LocalDate registrationDate, LocalDate lastVisitDate, String note) {
+                   String email, LocalDate registrationDate, LocalDate lastVisitDate, String note) {
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
         this.healthInsurance = healthInsurance;
         this.insurancePlan = insurancePlan;
         this.phone = phone;
+        this.email = email;
         this.registrationDate = registrationDate;
         this.lastVisitDate = lastVisitDate;
         this.note = note;
@@ -75,11 +79,11 @@ public class Patient {
         this.healthInsurance = dto.getHealthInsurance();
         this.insurancePlan = dto.getInsurancePlan();
         this.phone = dto.getPhone();
+        this.email = dto.getEmail();
         this.registrationDate = dto.getRegistrationDate();
         this.lastVisitDate = dto.getLastVisitDate();
         this.note = dto.getNote();
     }
-
 
     public Long getId() {
         return id;
@@ -109,6 +113,14 @@ public class Patient {
         return phone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public LocalDate getRegistrationDate() {
         return registrationDate;
     }
@@ -136,6 +148,4 @@ public class Patient {
     public void enablePatient() {
         this.patientState = PatientState.ACTIVE;
     }
-
-
 }

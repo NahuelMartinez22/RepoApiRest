@@ -1,8 +1,6 @@
 package com.martinez.dentist.patients.controllers;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 
 public class PatientRequestDTO {
@@ -19,12 +17,12 @@ public class PatientRequestDTO {
     private String healthInsurance;
     private String insurancePlan;
     private String phone;
+    private String email;
 
     private LocalDate registrationDate;
     private LocalDate lastVisitDate;
 
     private String note;
-
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -43,6 +41,9 @@ public class PatientRequestDTO {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public LocalDate getRegistrationDate() { return registrationDate; }
     public void setRegistrationDate(LocalDate registrationDate) { this.registrationDate = registrationDate; }

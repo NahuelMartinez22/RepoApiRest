@@ -27,10 +27,8 @@ public class ClinicalHistory {
     @Column(name = "description", columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    // Constructor vacío
     public ClinicalHistory() {}
 
-    // Constructor completo
     public ClinicalHistory(Patient patient, Professional professional, LocalDate date, String description) {
         this.patient = patient;
         this.professional = professional;

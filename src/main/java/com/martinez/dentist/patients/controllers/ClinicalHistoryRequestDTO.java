@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class ClinicalHistoryRequestDTO {
 
-    private String patientDocumentNumber;  // 👈 Ahora es String
+    private String patientDocumentNumber;
     private Long professionalId;
     private LocalDate date;
     private String description;
@@ -18,7 +18,7 @@ public class ClinicalHistoryRequestDTO {
         this.description = description;
     }
 
-    public String getPatientDocumentNumber() { return patientDocumentNumber; }  // 👈 getter correcto
+    public String getPatientDocumentNumber() { return patientDocumentNumber; }
     public Long getProfessionalId() { return professionalId; }
     public LocalDate getDate() { return date; }
     public String getDescription() { return description; }
