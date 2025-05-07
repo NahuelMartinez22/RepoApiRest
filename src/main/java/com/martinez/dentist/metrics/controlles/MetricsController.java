@@ -23,7 +23,7 @@ public class MetricsController {
     }
 
     @GetMapping("/new-patients-per-month")
-    public ResponseEntity<Map<String, String>> getNewPatientsPerMonth() {
+    public ResponseEntity<Map<String, Integer>> getNewPatientsPerMonth() {
         return ResponseEntity.ok(metricsService.getNewPatientsPerMonth());
     }
 

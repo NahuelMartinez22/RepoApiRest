@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface MetricsService {
     Map<LocalDate, Long> getAppointmentsPerDay();
-    Map<String, String> getNewPatientsPerMonth();
+    Map<String, Integer> getNewPatientsPerMonth();
     Map<String, Long> getAppointmentStateStats();
 }
 

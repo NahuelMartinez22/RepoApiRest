@@ -5,6 +5,8 @@ import com.martinez.dentist.metrics.controlles.MetricsResponseDTO;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.LinkedHashMap;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -32,16 +34,16 @@ public class MetricsServiceImpl implements MetricsService {
     }
 
     @Override
-    public Map<String, String> getNewPatientsPerMonth() {
+    public Map<String, Integer> getNewPatientsPerMonth() {
         LocalDate desde = LocalDate.now().minusMonths(6);
         return patientRepository.countNewPatientsPerMonth(desde)
                 .stream()
-                .sorted((a, b) -> Integer.compare((Integer) a[0], (Integer) b[0]))
+                .sorted((a, b) -> Integer.compare(((Number) a[0]).intValue(), ((Number) b[0]).intValue()))
                 .collect(Collectors.toMap(
-                        row -> getMonthName((Integer) row[0]),
-                        row -> row[1] + " pacientes nuevos",
+                        row -> getMonthName(((Number) row[0]).intValue()),
+                        row -> ((Number) row[1]).intValue(),
                         (v1, v2) -> v1,
-                        java.util.LinkedHashMap::new
+                        LinkedHashMap::new
                 ));
     }
 
