@@ -1,5 +1,6 @@
 package com.martinez.dentist.users.models;
 
+import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +28,10 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToOne
+    @JoinColumn(name = "professional_id")
+    private Professional professional;
 
     public User() {}
 
@@ -95,4 +100,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public Professional getProfessional() {return professional;}
+
+    public void setProfessional(Professional professional) {this.professional = professional;}
 }

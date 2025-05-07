@@ -18,6 +18,8 @@ public class UserRequestDTO {
     @NotNull(message = "El rol es obligatorio")
     private UserRole role;
 
+    private Long professionalId;
+
     public UserRequestDTO() {}
 
     public UserRequestDTO(String username, String password, String email, UserRole role) {
@@ -38,4 +40,7 @@ public class UserRequestDTO {
 
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
+
+    public Long getProfessionalId() {return professionalId;}
+    public void setProfessionalId(Long professionalId) {this.professionalId = professionalId;}
 }

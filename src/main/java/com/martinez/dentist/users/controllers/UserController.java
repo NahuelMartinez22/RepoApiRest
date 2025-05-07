@@ -1,5 +1,6 @@
 package com.martinez.dentist.users.controllers;
 
+import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.users.models.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -52,11 +53,17 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getCurrentUser(@AuthenticationPrincipal User user) {
+        Professional prof = user.getProfessional();
+        Long profId = (prof != null) ? prof.getId() : null;
+        String profName = (prof != null) ? prof.getFullName() : null;
+
         return ResponseEntity.ok(new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole().name()
+                user.getRole().name(),
+                profId,
+                profName
         ));
     }
 

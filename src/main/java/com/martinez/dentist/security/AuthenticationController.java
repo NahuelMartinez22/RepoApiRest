@@ -1,5 +1,6 @@
 package com.martinez.dentist.security;
 
+import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.users.controllers.LoginDTO;
 import com.martinez.dentist.users.controllers.LoginSuccessResponseDTO;
 import com.martinez.dentist.users.controllers.UserResponseDTO;
@@ -44,11 +45,17 @@ public class AuthenticationController {
 
         String token = jwtService.generateToken(user);
 
+        Professional prof = user.getProfessional();
+        Long profId = (prof != null) ? prof.getId() : null;
+        String profName = (prof != null) ? prof.getFullName() : null;
+
         UserResponseDTO userDTO = new UserResponseDTO(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getRole().name()
+                user.getRole().name(),
+                profId,
+                profName
         );
 
         return ResponseEntity.ok(new LoginSuccessResponseDTO(token, userDTO));
