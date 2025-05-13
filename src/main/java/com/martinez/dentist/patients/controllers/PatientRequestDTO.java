@@ -1,6 +1,7 @@
 package com.martinez.dentist.patients.controllers;
 
 import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDate;
 
 public class PatientRequestDTO {
@@ -14,8 +15,10 @@ public class PatientRequestDTO {
     @NotBlank(message = "El número de documento es obligatorio")
     private String documentNumber;
 
-    private String healthInsurance;
-    private String insurancePlan;
+    private Long healthInsuranceId;
+    private Long insurancePlanId;
+    private String affiliateNumber;
+
     private String phone;
     private String email;
 
@@ -23,6 +26,7 @@ public class PatientRequestDTO {
     private LocalDate lastVisitDate;
 
     private String note;
+
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -33,11 +37,14 @@ public class PatientRequestDTO {
     public String getDocumentNumber() { return documentNumber; }
     public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
 
-    public String getHealthInsurance() { return healthInsurance; }
-    public void setHealthInsurance(String healthInsurance) { this.healthInsurance = healthInsurance; }
+    public Long getHealthInsuranceId() { return healthInsuranceId; }
+    public void setHealthInsuranceId(Long healthInsuranceId) { this.healthInsuranceId = healthInsuranceId; }
 
-    public String getInsurancePlan() { return insurancePlan; }
-    public void setInsurancePlan(String insurancePlan) { this.insurancePlan = insurancePlan; }
+    public Long getInsurancePlanId() { return insurancePlanId; }
+    public void setInsurancePlanId(Long insurancePlanId) { this.insurancePlanId = insurancePlanId; }
+
+    public String getAffiliateNumber() { return affiliateNumber; }
+    public void setAffiliateNumber(String affiliateNumber) { this.affiliateNumber = affiliateNumber; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }

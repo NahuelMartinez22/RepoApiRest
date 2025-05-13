@@ -1,5 +1,9 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.patients.models.HealthInsurance;
+import com.martinez.dentist.patients.models.InsurancePlan;
+import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
+import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
 import com.martinez.dentist.patients.models.Patient;
@@ -17,6 +21,12 @@ public class PatientServiceImpl implements PatientService {
     @Autowired
     private PatientRepository repository;
 
+    @Autowired
+    private HealthInsuranceRepository healthInsuranceRepository;
+
+    @Autowired
+    private InsurancePlanRepository insurancePlanRepository;
+
     @Override
     public String save(PatientRequestDTO dto) {
         Optional<Patient> existing = repository.findByDocumentNumber(dto.getDocumentNumber());
@@ -24,12 +34,19 @@ public class PatientServiceImpl implements PatientService {
             throw new RuntimeException("Ya existe un paciente con ese DNI");
         }
 
+        HealthInsurance healthInsurance = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
+                .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
+
+        InsurancePlan insurancePlan = insurancePlanRepository.findById(dto.getInsurancePlanId())
+                .orElseThrow(() -> new RuntimeException("Plan de obra social no encontrado"));
+
         Patient patient = new Patient(
                 dto.getFullName(),
                 dto.getDocumentType(),
                 dto.getDocumentNumber(),
-                dto.getHealthInsurance(),
-                dto.getInsurancePlan(),
+                healthInsurance,
+                insurancePlan,
+                dto.getAffiliateNumber(),
                 dto.getPhone(),
                 dto.getEmail(),
                 dto.getRegistrationDate(),
@@ -68,7 +85,13 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        patient.updateData(dto);
+        HealthInsurance healthInsurance = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
+                .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
+
+        InsurancePlan insurancePlan = insurancePlanRepository.findById(dto.getInsurancePlanId())
+                .orElseThrow(() -> new RuntimeException("Plan de obra social no encontrado"));
+
+        patient.updateData(dto, healthInsurance, insurancePlan);
         repository.save(patient);
 
         return toResponseDTO(patient);
@@ -98,8 +121,9 @@ public class PatientServiceImpl implements PatientService {
                 patient.getFullName(),
                 patient.getDocumentType(),
                 patient.getDocumentNumber(),
-                patient.getHealthInsurance(),
-                patient.getInsurancePlan(),
+                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : null,
+                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : null,
+                patient.getAffiliateNumber(),
                 patient.getPhone(),
                 patient.getEmail(),
                 patient.getRegistrationDate(),

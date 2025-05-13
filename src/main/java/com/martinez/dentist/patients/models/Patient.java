@@ -2,6 +2,7 @@ package com.martinez.dentist.patients.models;
 
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity
@@ -21,11 +22,16 @@ public class Patient {
     @Column(name = "document_number")
     private String documentNumber;
 
-    @Column(name = "health_insurance")
-    private String healthInsurance;
+    @ManyToOne
+    @JoinColumn(name = "health_insurance_id")
+    private HealthInsurance healthInsurance;
 
-    @Column(name = "insurance_plan")
-    private String insurancePlan;
+    @ManyToOne
+    @JoinColumn(name = "insurance_plan_id")
+    private InsurancePlan insurancePlan;
+
+    @Column(name = "affiliate_number")
+    private String affiliateNumber;
 
     @Column(name = "phone")
     private String phone;
@@ -46,17 +52,17 @@ public class Patient {
     @Column(name = "state", nullable = false)
     private PatientState patientState;
 
-    protected Patient() {
-    }
+    protected Patient() {}
 
     public Patient(String fullName, String documentType, String documentNumber,
-                   String healthInsurance, String insurancePlan, String phone,
-                   String email, LocalDate registrationDate, LocalDate lastVisitDate, String note) {
+                   HealthInsurance healthInsurance, InsurancePlan insurancePlan, String affiliateNumber,
+                   String phone, String email, LocalDate registrationDate, LocalDate lastVisitDate, String note) {
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
         this.healthInsurance = healthInsurance;
         this.insurancePlan = insurancePlan;
+        this.affiliateNumber = affiliateNumber;
         this.phone = phone;
         this.email = email;
         this.registrationDate = registrationDate;
@@ -72,12 +78,13 @@ public class Patient {
         }
     }
 
-    public void updateData(PatientRequestDTO dto) {
+    public void updateData(PatientRequestDTO dto, HealthInsurance healthInsurance, InsurancePlan insurancePlan) {
         this.fullName = dto.getFullName();
         this.documentType = dto.getDocumentType();
         this.documentNumber = dto.getDocumentNumber();
-        this.healthInsurance = dto.getHealthInsurance();
-        this.insurancePlan = dto.getInsurancePlan();
+        this.healthInsurance = healthInsurance;
+        this.insurancePlan = insurancePlan;
+        this.affiliateNumber = dto.getAffiliateNumber();
         this.phone = dto.getPhone();
         this.email = dto.getEmail();
         this.registrationDate = dto.getRegistrationDate();
@@ -101,12 +108,16 @@ public class Patient {
         return documentNumber;
     }
 
-    public String getHealthInsurance() {
+    public HealthInsurance getHealthInsurance() {
         return healthInsurance;
     }
 
-    public String getInsurancePlan() {
+    public InsurancePlan getInsurancePlan() {
         return insurancePlan;
+    }
+
+    public String getAffiliateNumber() {
+        return affiliateNumber;
     }
 
     public String getPhone() {

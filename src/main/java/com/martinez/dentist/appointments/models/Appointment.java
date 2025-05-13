@@ -1,9 +1,11 @@
 package com.martinez.dentist.appointments.models;
 
+import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "appointments")
@@ -33,6 +35,16 @@ public class Appointment {
     @Column(name = "reminder_sent")
     private boolean reminderSent = false;
 
+    @ManyToMany
+    @JoinTable(
+            name = "appointment_procedures",
+            joinColumns = @JoinColumn(name = "appointment_id"),
+            inverseJoinColumns = @JoinColumn(name = "procedure_id")
+    )
+    private List<DentalProcedure> procedures;
+
+    // === Constructores ===
+
     public Appointment() {}
 
     public Appointment(String patientDni, LocalDateTime dateTime,
@@ -45,14 +57,21 @@ public class Appointment {
         this.state = state;
     }
 
+
     public void updateData(String patientDni, LocalDateTime dateTime, Professional professional,
-                           String reason, AppointmentState state) {
+                           String reason, AppointmentState state, List<DentalProcedure> procedures) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
+        this.procedures = procedures;
     }
+
+    public void updateState(AppointmentState newState) {
+        this.state = newState;
+    }
+
 
     public Long getId() {
         return id;
@@ -78,12 +97,9 @@ public class Appointment {
         return state;
     }
 
-    public void updateState(AppointmentState newState) {
-        this.state = newState;
+    public void setState(AppointmentState state) {
+        this.state = state;
     }
-
-    public void setState(AppointmentState state) {this.state = state;}
-
 
     public boolean isReminderSent() {
         return reminderSent;
@@ -91,5 +107,13 @@ public class Appointment {
 
     public void setReminderSent(boolean reminderSent) {
         this.reminderSent = reminderSent;
+    }
+
+    public List<DentalProcedure> getProcedures() {
+        return procedures;
+    }
+
+    public void setProcedures(List<DentalProcedure> procedures) {
+        this.procedures = procedures;
     }
 }

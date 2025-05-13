@@ -8,7 +8,9 @@ import com.martinez.dentist.appointments.repositories.AppointmentRepository;
 import com.martinez.dentist.javamail.EmailDTO;
 import com.martinez.dentist.javamail.EmailService;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
+import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.patients.models.Patient;
+import com.martinez.dentist.patients.repositories.DentalProcedureRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.models.ProfessionalState;
@@ -16,10 +18,8 @@ import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -33,6 +33,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private ProfessionalRepository professionalRepository;
+
+    @Autowired
+    private DentalProcedureRepository dentalProcedureRepository;
 
     @Override
     public String createAppointment(AppointmentRequestDTO dto) {
@@ -62,6 +65,13 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
         }
 
+        List<DentalProcedure> procedures = dto.getProcedureIds() != null
+                ? dto.getProcedureIds().stream()
+                .map(procedureId -> dentalProcedureRepository.findById(procedureId)
+                        .orElseThrow(() -> new RuntimeException("Práctica no encontrada con ID: " + procedureId)))
+                .toList()
+                : List.of();
+
         Appointment appointment = new Appointment(
                 dto.getPatientDni(),
                 dto.getDateTime(),
@@ -69,14 +79,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getReason(),
                 dto.getState()
         );
-
+        appointment.setProcedures(procedures);
         appointmentRepository.save(appointment);
 
         try {
             if (patient.getEmail() != null && !patient.getEmail().isBlank()) {
                 String dia = dto.getDateTime().getDayOfWeek()
                         .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
-
                 String hora = dto.getDateTime().toLocalTime().toString();
 
                 String cuerpo = String.format(
@@ -96,7 +105,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 );
 
                 EmailService.enviar(email);
-                System.out.println("📧 Correo de confirmación enviado a " + patient.getEmail());
             }
         } catch (Exception e) {
             System.out.println("⚠️ Error al enviar el correo de confirmación: " + e.getMessage());
@@ -104,7 +112,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return "Turno creado con éxito.";
     }
-
 
     @Override
     public List<AppointmentResponseDTO> getAllAppointments() {
@@ -117,13 +124,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
+            List<String> procedureNames = appointment.getProcedures().stream()
+                    .map(p -> p.getName())
+                    .toList();
+
             return new AppointmentResponseDTO(
                     appointment.getId(),
                     patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name()
+                    appointment.getState().name(),
+                    procedureNames
             );
         }).toList();
     }
@@ -140,7 +152,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             if (newState == AppointmentState.ATENDIDO) {
                 Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
                         .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-
                 patient.setLastVisitDate(LocalDate.now());
                 patientRepository.save(patient);
             }
@@ -167,12 +178,20 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se puede asignar un turno en una fecha/hora pasada.");
         }
 
+        List<DentalProcedure> procedures = dto.getProcedureIds() != null
+                ? dto.getProcedureIds().stream()
+                .map(procedureId -> dentalProcedureRepository.findById(procedureId)
+                        .orElseThrow(() -> new RuntimeException("Práctica no encontrada con ID: " + procedureId)))
+                .toList()
+                : List.of();
+
         appointment.updateData(
                 dto.getPatientDni(),
                 dto.getDateTime(),
                 professional,
                 dto.getReason(),
-                dto.getState()
+                dto.getState(),
+                procedures
         );
 
         appointmentRepository.save(appointment);
@@ -194,13 +213,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
+            List<String> procedureNames = appointment.getProcedures().stream()
+                    .map(p -> p.getName())
+                    .toList();
+
             return new AppointmentResponseDTO(
                     appointment.getId(),
                     patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name()
+                    appointment.getState().name(),
+                    procedureNames
             );
         }).toList();
     }
@@ -216,16 +240,22 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
+            List<String> procedureNames = appointment.getProcedures().stream()
+                    .map(p -> p.getName())
+                    .toList();
+
             return new AppointmentResponseDTO(
                     appointment.getId(),
                     patientDTO,
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name()
+                    appointment.getState().name(),
+                    procedureNames
             );
         }).toList();
     }
+
 
 
     private PatientResponseDTO convertToPatientResponseDTO(Patient patient) {
@@ -234,14 +264,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                 patient.getFullName(),
                 patient.getDocumentType(),
                 patient.getDocumentNumber(),
-                patient.getHealthInsurance(),
-                patient.getInsurancePlan(),
+                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : null,
+                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : null,
+                patient.getAffiliateNumber(),
                 patient.getPhone(),
                 patient.getEmail(),
                 patient.getRegistrationDate(),
                 patient.getLastVisitDate(),
                 patient.getNote(),
-                patient.getPatientState().name()
+                patient.getPatientState().getDisplayName()
         );
     }
 
