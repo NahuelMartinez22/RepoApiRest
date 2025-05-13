@@ -39,8 +39,6 @@ public class HealthInsurance {
         this.isActive = true;
     }
 
-    // Getters y setters
-
     public Long getId() {
         return id;
     }

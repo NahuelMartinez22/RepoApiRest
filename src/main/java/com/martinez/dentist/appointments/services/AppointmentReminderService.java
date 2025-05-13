@@ -67,7 +67,6 @@ public class AppointmentReminderService {
                 System.out.println("📨 Enviando mensaje a " + telefono);
                 whatsappService.enviarMensaje(telefono, mensaje);
 
-                // Enviar email si tiene
                 try {
                     if (paciente.getEmail() != null && !paciente.getEmail().isBlank()) {
                         EmailDTO email = new EmailDTO(

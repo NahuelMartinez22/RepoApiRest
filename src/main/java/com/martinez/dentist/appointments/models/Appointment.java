@@ -43,7 +43,6 @@ public class Appointment {
     )
     private List<DentalProcedure> procedures;
 
-    // === Constructores ===
 
     public Appointment() {}
 

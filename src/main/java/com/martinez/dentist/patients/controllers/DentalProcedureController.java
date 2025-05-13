@@ -14,19 +14,16 @@ public class DentalProcedureController {
     @Autowired
     private DentalProcedureRepository repository;
 
-    // Obtener todas las prácticas activas
     @GetMapping
     public List<DentalProcedure> getAll() {
         return repository.findAllByIsActiveTrue();
     }
 
-    // Cargar nueva práctica
     @PostMapping
     public DentalProcedure create(@RequestBody DentalProcedure procedure) {
         return repository.save(procedure);
     }
 
-    // Desactivar práctica
     @PutMapping("/{id}/disable")
     public void disable(@PathVariable Long id) {
         DentalProcedure procedure = repository.findById(id)

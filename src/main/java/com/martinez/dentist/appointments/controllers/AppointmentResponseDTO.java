@@ -30,7 +30,6 @@ public class AppointmentResponseDTO {
         this.procedures = procedures;
     }
 
-    // Getters
     public Long getId() { return id; }
     public PatientResponseDTO getPatient() { return patient; }
     public LocalDateTime getDateTime() { return dateTime; }
@@ -39,7 +38,6 @@ public class AppointmentResponseDTO {
     public String getState() { return state; }
     public List<String> getProcedures() { return procedures; }
 
-    // Setters
     public void setId(Long id) { this.id = id; }
     public void setPatient(PatientResponseDTO patient) { this.patient = patient; }
     public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
