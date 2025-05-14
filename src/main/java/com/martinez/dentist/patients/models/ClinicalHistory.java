@@ -26,7 +26,12 @@ public class ClinicalHistory {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_procedure", nullable = false)
+    private DentalProcedure procedure;
+
+
+    @Column(name = "description", columnDefinition = "TEXT", nullable = true)
     private String description;
 
     public ClinicalHistory() {}
@@ -65,5 +70,13 @@ public class ClinicalHistory {
     public void removeFile(ClinicalFile file) {
         files.remove(file);
         file.setClinicalHistory(null);
+    }
+
+    public DentalProcedure getProcedure() {
+        return procedure;
+    }
+
+    public void setProcedure(DentalProcedure procedure) {
+        this.procedure = procedure;
     }
 }
