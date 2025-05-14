@@ -34,18 +34,22 @@ public class PatientServiceImpl implements PatientService {
             throw new RuntimeException("Ya existe un paciente con ese DNI");
         }
 
+        InsurancePlan plan = insurancePlanRepository.findById(dto.getInsurancePlanId())
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+
         HealthInsurance healthInsurance = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
 
-        InsurancePlan insurancePlan = insurancePlanRepository.findById(dto.getInsurancePlanId())
-                .orElseThrow(() -> new RuntimeException("Plan de obra social no encontrado"));
+        if (!plan.getHealthInsurance().getId().equals(healthInsurance.getId())) {
+            throw new RuntimeException("El plan no corresponde a la obra social seleccionada");
+        }
 
         Patient patient = new Patient(
                 dto.getFullName(),
                 dto.getDocumentType(),
                 dto.getDocumentNumber(),
                 healthInsurance,
-                insurancePlan,
+                plan,
                 dto.getAffiliateNumber(),
                 dto.getPhone(),
                 dto.getEmail(),
@@ -55,8 +59,9 @@ public class PatientServiceImpl implements PatientService {
         );
 
         repository.save(patient);
-        return "El paciente se creó con éxito.";
+        return "Paciente creado con éxito.";
     }
+
 
     @Override
     public PatientResponseDTO findById(Long id) {
@@ -85,13 +90,17 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
+        InsurancePlan plan = insurancePlanRepository.findById(dto.getInsurancePlanId())
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+
         HealthInsurance healthInsurance = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
 
-        InsurancePlan insurancePlan = insurancePlanRepository.findById(dto.getInsurancePlanId())
-                .orElseThrow(() -> new RuntimeException("Plan de obra social no encontrado"));
+        if (!plan.getHealthInsurance().getId().equals(healthInsurance.getId())) {
+            throw new RuntimeException("El plan no corresponde a la obra social seleccionada");
+        }
 
-        patient.updateData(dto, healthInsurance, insurancePlan);
+        patient.updateData(dto, healthInsurance, plan);
         repository.save(patient);
 
         return toResponseDTO(patient);
@@ -121,8 +130,8 @@ public class PatientServiceImpl implements PatientService {
                 patient.getFullName(),
                 patient.getDocumentType(),
                 patient.getDocumentNumber(),
-                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : null,
-                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : null,
+                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : "Sin obra social",
+                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : "Sin plan",
                 patient.getAffiliateNumber(),
                 patient.getPhone(),
                 patient.getEmail(),
