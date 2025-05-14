@@ -92,4 +92,31 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
             return clinicalHistoryRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada"));
         }
+
+    @Override
+    public void deleteClinicalHistory(Long id) {
+        if (!clinicalHistoryRepository.existsById(id)) {
+            throw new RuntimeException("Historia clínica no encontrada");
+        }
+        clinicalHistoryRepository.deleteById(id);
     }
+
+    @Override
+    public String updateClinicalHistory(Long id, ClinicalHistoryRequestDTO dto) {
+        ClinicalHistory clinicalHistory = clinicalHistoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada"));
+
+        Professional professional = professionalRepository.findById(dto.getProfessionalId())
+                .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
+
+        DentalProcedure procedure = dentalProcedureRepository.findById(dto.getProcedureId())
+                .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado"));
+
+        clinicalHistory.setProfessional(professional);
+        clinicalHistory.setProcedure(procedure);
+        clinicalHistory.setDescription(dto.getDescription());
+
+        clinicalHistoryRepository.save(clinicalHistory);
+        return "Historia clínica actualizada correctamente.";
+    }
+}

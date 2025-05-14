@@ -70,4 +70,17 @@ public class ClinicalHistoryController {
         clinicalFileRepository.deleteById(fileId);
         return ResponseEntity.ok("Archivo eliminado.");
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteClinicalHistory(@PathVariable Long id) {
+        clinicalHistoryService.deleteClinicalHistory(id);
+        return ResponseEntity.ok("Historia clínica eliminada correctamente.");
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateClinicalHistory(
+            @PathVariable Long id,
+            @RequestBody ClinicalHistoryRequestDTO dto) {
+        return ResponseEntity.ok(clinicalHistoryService.updateClinicalHistory(id, dto));
+    }
 }

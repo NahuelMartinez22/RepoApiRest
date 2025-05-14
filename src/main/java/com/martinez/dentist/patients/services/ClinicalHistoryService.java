@@ -11,4 +11,6 @@ public interface ClinicalHistoryService {
     String createClinicalHistory(ClinicalHistoryRequestDTO dto);
     List<ClinicalHistoryResponseDTO> getClinicalHistoryByPatient(String documentNumber);
     ClinicalHistory getById(Long id);
+    void deleteClinicalHistory(Long id);
+    String updateClinicalHistory(Long id, ClinicalHistoryRequestDTO dto);
 }
