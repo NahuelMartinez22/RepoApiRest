@@ -2,6 +2,7 @@ package com.martinez.dentist.appointments.services;
 
 import com.martinez.dentist.appointments.controllers.AppointmentRequestDTO;
 import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
+import com.martinez.dentist.appointments.controllers.BillingAppointmentDTO;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
@@ -18,9 +19,13 @@ import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -63,6 +68,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         if (appointmentRepository.existsByPatientDniAndDateTime(patient.getDocumentNumber(), dto.getDateTime())) {
             throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
+        }
+
+        if (dto.getProcedureIds() == null || dto.getProcedureIds().isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar al menos un procedimiento.");
         }
 
         List<DentalProcedure> procedures = dto.getProcedureIds() != null
@@ -302,5 +311,73 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(turno);
         return "❌ Tu turno fue cancelado correctamente.";
     }
+
+
+    @Override
+    public void markAsAttended(Long appointmentId, String credentialToken) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+
+        Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        if (appointment.getState() != AppointmentState.PENDIENTE) {
+            throw new IllegalStateException("El turno ya fue atendido o cancelado.");
+        }
+
+        if (patient.getHealthInsurance() != null) {
+            if (credentialToken == null || credentialToken.isBlank()) {
+                throw new IllegalArgumentException("El token es obligatorio para pacientes con obra social.");
+            }
+            appointment.registrarCredentialToken(credentialToken);
+        } else {
+            appointment.registrarCredentialToken(null);
+        }
+
+        appointment.setState(AppointmentState.ATENDIDO);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public Map<String, Object> getAppointmentsForBilling(Long obraSocialId, int mes, int anio) {
+        List<Appointment> appointments = appointmentRepository.findAppointmentsForBilling(obraSocialId, mes, anio);
+
+        List<BillingAppointmentDTO> dtoList = new ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (Appointment appt : appointments) {
+            Patient patient = patientRepository.findByDocumentNumber(appt.getPatientDni()).orElse(null);
+            if (patient == null) continue;
+
+            String nombreApellido = patient.getFullName();
+            String dni = patient.getDocumentNumber();
+            String numeroAfiliado = patient.getAffiliateNumber();
+            String plan = patient.getInsurancePlan().getName();
+            String token = appt.getCredentialToken(); // si lo agregaste
+
+            for (DentalProcedure proc : appt.getProcedures()) {
+                String codigo = proc.getCode();
+                BigDecimal valor = proc.getBaseValue();
+                subtotal = subtotal.add(valor);
+
+                dtoList.add(new BillingAppointmentDTO(
+                        appt.getDateTime().toLocalDate(),
+                        nombreApellido,
+                        dni,
+                        numeroAfiliado,
+                        plan,
+                        codigo,
+                        valor.doubleValue(),
+                        token
+                ));
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("turnos", dtoList);
+        response.put("subtotal", subtotal.doubleValue());
+        return response;
+    }
+
 
 }

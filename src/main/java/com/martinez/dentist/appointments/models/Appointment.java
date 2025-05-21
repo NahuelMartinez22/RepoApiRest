@@ -43,6 +43,9 @@ public class Appointment {
     )
     private List<DentalProcedure> procedures;
 
+    @Column(name = "credential_token")
+    private String credentialToken;
+
 
     public Appointment() {}
 
@@ -114,5 +117,10 @@ public class Appointment {
 
     public void setProcedures(List<DentalProcedure> procedures) {
         this.procedures = procedures;
+    }
+
+    public String getCredentialToken() {return credentialToken;}
+    public void registrarCredentialToken(String token) {
+        this.credentialToken = token;
     }
 }

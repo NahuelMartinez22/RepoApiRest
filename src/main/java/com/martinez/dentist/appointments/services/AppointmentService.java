@@ -4,6 +4,7 @@ import com.martinez.dentist.appointments.controllers.AppointmentRequestDTO;
 import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AppointmentService {
     String createAppointment(AppointmentRequestDTO dto);
@@ -15,5 +16,8 @@ public interface AppointmentService {
     String deleteAppointment(Long id);
     String confirmAppointment(Long id);
     String cancelAppointment(Long id);
+
+    void markAsAttended(Long appointmentId, String credentialToken);
+    Map<String, Object> getAppointmentsForBilling(Long obraSocialId, int mes, int anio);
 
 }

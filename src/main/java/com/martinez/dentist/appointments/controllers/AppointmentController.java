@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -67,4 +68,22 @@ public class AppointmentController {
     public ResponseEntity<String> cancelAppointment(@PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.cancelAppointment(id));
     }
+
+    @PutMapping("/{id}/attend")
+    @Transactional
+    public ResponseEntity<String> attendAppointment(@PathVariable Long id,
+                                                    @RequestBody AttendAppointmentRequestDTO dto) {
+        appointmentService.markAsAttended(id, dto.getCredentialToken());
+        return ResponseEntity.ok("Turno marcado como ATENDIDO correctamente.");
+    }
+
+    @GetMapping("/facturacion")
+    public ResponseEntity<Map<String, Object>> getFacturacionMensual(
+            @RequestParam Long obraSocialId,
+            @RequestParam int mes,
+            @RequestParam int anio) {
+
+        return ResponseEntity.ok(appointmentService.getAppointmentsForBilling(obraSocialId, mes, anio));
+    }
+
 }

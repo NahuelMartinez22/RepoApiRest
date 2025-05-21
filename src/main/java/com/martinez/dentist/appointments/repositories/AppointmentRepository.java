@@ -38,4 +38,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "GROUP BY a.state")
     List<Object[]> countAppointmentsByStateSince(@Param("desde") LocalDateTime desde);
 
+
+
+    @Query("""
+    SELECT a FROM Appointment a
+    JOIN Patient p ON a.patientDni = p.documentNumber
+    WHERE a.state = 'ATENDIDO'
+      AND p.healthInsurance.id = :obraSocialId
+      AND MONTH(a.dateTime) = :mes
+      AND YEAR(a.dateTime) = :anio
+""")
+    List<Appointment> findAppointmentsForBilling(@Param("obraSocialId") Long obraSocialId,
+                                                 @Param("mes") int mes,
+                                                 @Param("anio") int anio);
+
 }
