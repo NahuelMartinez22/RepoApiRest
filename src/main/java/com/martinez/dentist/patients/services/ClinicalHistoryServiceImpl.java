@@ -1,5 +1,6 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.ClinicalFileDTO;
 import com.martinez.dentist.patients.controllers.ClinicalHistoryRequestDTO;
 import com.martinez.dentist.patients.controllers.ClinicalHistoryResponseDTO;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
@@ -111,6 +113,14 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
 
         DentalProcedure procedure = dentalProcedureRepository.findById(dto.getProcedureId())
                 .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado"));
+
+        boolean sinCambios = Objects.equals(clinicalHistory.getProfessional().getId(), dto.getProfessionalId()) &&
+                Objects.equals(clinicalHistory.getProcedure().getId(), dto.getProcedureId()) &&
+                Objects.equals(clinicalHistory.getDescription(), dto.getDescription());
+
+        if (sinCambios) {
+            throw new NoChangesDetectedException("No se detectaron cambios en la historia clínica.");
+        }
 
         clinicalHistory.setProfessional(professional);
         clinicalHistory.setProcedure(procedure);
