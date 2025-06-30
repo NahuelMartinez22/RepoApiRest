@@ -1,5 +1,6 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.models.InsurancePlan;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
@@ -100,11 +101,27 @@ public class PatientServiceImpl implements PatientService {
             throw new RuntimeException("El plan no corresponde a la obra social seleccionada");
         }
 
+        boolean noChanges =
+                patient.getFullName().equals(dto.getFullName()) &&
+                        patient.getDocumentType().equals(dto.getDocumentType()) &&
+                        patient.getDocumentNumber().equals(dto.getDocumentNumber()) &&
+                        patient.getAffiliateNumber().equals(dto.getAffiliateNumber()) &&
+                        patient.getPhone().equals(dto.getPhone()) &&
+                        patient.getEmail().equals(dto.getEmail()) &&
+                        patient.getNote().equals(dto.getNote()) &&
+                        patient.getInsurancePlan().getId().equals(plan.getId()) &&
+                        patient.getHealthInsurance().getId().equals(healthInsurance.getId());
+
+        if (noChanges) {
+            throw new NoChangesDetectedException("No se detectaron cambios en los datos del paciente.");
+        }
+
         patient.updateData(dto, healthInsurance, plan);
         repository.save(patient);
 
         return toResponseDTO(patient);
     }
+
 
     @Override
     public void disable(Long id) {

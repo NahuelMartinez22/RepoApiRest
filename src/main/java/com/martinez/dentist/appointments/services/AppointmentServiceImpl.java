@@ -6,6 +6,7 @@ import com.martinez.dentist.appointments.controllers.BillingAppointmentDTO;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
+import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.javamail.EmailDTO;
 import com.martinez.dentist.javamail.EmailService;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
@@ -22,10 +23,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -191,8 +190,23 @@ public class AppointmentServiceImpl implements AppointmentService {
                 ? dto.getProcedureIds().stream()
                 .map(procedureId -> dentalProcedureRepository.findById(procedureId)
                         .orElseThrow(() -> new RuntimeException("Práctica no encontrada con ID: " + procedureId)))
-                .toList()
-                : List.of();
+                .collect(Collectors.toList()) // ✅ mutable
+                : new ArrayList<>();
+
+        boolean noChanges =
+                Objects.equals(appointment.getPatientDni(), dto.getPatientDni()) &&
+                        Objects.equals(appointment.getDateTime(), dto.getDateTime()) &&
+                        Objects.equals(appointment.getProfessional().getId(), professional.getId()) &&
+                        Objects.equals(appointment.getReason(), dto.getReason()) &&
+                        Objects.equals(appointment.getState(), dto.getState()) &&
+                        Objects.equals(
+                                appointment.getProcedures().stream().map(DentalProcedure::getId).sorted().toList(),
+                                procedures.stream().map(DentalProcedure::getId).sorted().toList()
+                        );
+
+        if (noChanges) {
+            throw new NoChangesDetectedException("No se detectaron cambios en los datos del turno.");
+        }
 
         appointment.updateData(
                 dto.getPatientDni(),
@@ -206,6 +220,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
         return "Turno actualizado correctamente.";
     }
+
 
     @Override
     public List<AppointmentResponseDTO> findAppointmentsByDni(String dni) {
