@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ProfessionalService {
     Professional create(ProfessionalRequestDTO dto);
-    Professional updateByDocumentNumber(String documentNumber, ProfessionalRequestDTO dto);
+    Professional updateById(Long id, ProfessionalRequestDTO dto);
     List<Professional> findAll();
     List<Professional> findAllActive();
     Professional disableByDocumentNumber(String documentNumber);

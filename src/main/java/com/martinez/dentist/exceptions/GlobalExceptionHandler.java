@@ -17,6 +17,14 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ❗ 304 - Sin cambios
+    @ExceptionHandler(NoChangesDetectedException.class)
+    public ResponseEntity<Void> handleNoChangesDetected(NoChangesDetectedException ex) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Message", ex.getMessage());
+        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+    }
+
     // ❗ 400 - Errores comunes de lógica
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex, HttpServletRequest request) {
@@ -82,12 +90,4 @@ public class GlobalExceptionHandler {
                 "path", request.getRequestURI()
         ));
     }
-
-    @ExceptionHandler(NoChangesDetectedException.class)
-    public ResponseEntity<Void> handleNoChangesDetected(NoChangesDetectedException ex) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Message", ex.getMessage());
-        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
-    }
-
 }

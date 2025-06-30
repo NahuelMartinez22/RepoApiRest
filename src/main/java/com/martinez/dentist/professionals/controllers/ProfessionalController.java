@@ -72,38 +72,23 @@ public class ProfessionalController {
         }
     }
 
-    @PutMapping("/document/{documentNumber}")
+    @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> updateProfessionalByDocument(@PathVariable String documentNumber,
-                                                          @RequestBody ProfessionalRequestDTO dto) {
-        try {
-            professionalService.updateByDocumentNumber(documentNumber, dto);
-            return ResponseEntity.ok("Profesional actualizado.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No se encontró el profesional con documento: " + documentNumber);
-        }
+    public ResponseEntity<?> updateProfessionalById(@PathVariable Long id,
+                                                    @RequestBody ProfessionalRequestDTO dto) {
+        professionalService.updateById(id, dto);
+        return ResponseEntity.ok("Profesional actualizado.");
     }
 
     @PatchMapping("/document/{documentNumber}/disable")
     public ResponseEntity<String> disableProfessionalByDocument(@PathVariable String documentNumber) {
-        try {
-            professionalService.disableByDocumentNumber(documentNumber);
-            return ResponseEntity.ok("Profesional deshabilitado con éxito.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No se encontró el profesional con documento: " + documentNumber);
-        }
+        professionalService.disableByDocumentNumber(documentNumber);
+        return ResponseEntity.ok("Profesional deshabilitado con éxito.");
     }
 
     @PatchMapping("/document/{documentNumber}/enable")
     public ResponseEntity<String> enableProfessionalByDocument(@PathVariable String documentNumber) {
-        try {
-            professionalService.enableByDocumentNumber(documentNumber);
-            return ResponseEntity.ok("Profesional habilitado con éxito.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No se encontró el profesional con documento: " + documentNumber);
-        }
+        professionalService.enableByDocumentNumber(documentNumber);
+        return ResponseEntity.ok("Profesional habilitado con éxito.");
     }
 }
