@@ -2,10 +2,10 @@ package com.martinez.dentist.professionals.services;
 
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.professionals.controllers.professional.ProfessionalRequestDTO;
+import com.martinez.dentist.professionals.controllers.professional.ProfessionalResponseDTO;
 import com.martinez.dentist.professionals.controllers.schedule.ScheduleRequestDTO;
-import com.martinez.dentist.professionals.models.Professional;
-import com.martinez.dentist.professionals.models.ProfessionalSchedule;
-import com.martinez.dentist.professionals.models.ProfessionalState;
+import com.martinez.dentist.professionals.controllers.schedule.ScheduleResponseDTO;
+import com.martinez.dentist.professionals.models.*;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class ProfessionalServiceImpl implements ProfessionalService {
@@ -116,13 +117,17 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     @Override
-    public List<Professional> findAll() {
-        return (List<Professional>) professionalRepository.findAll();
+    public List<ProfessionalResponseDTO> findAll() {
+        return StreamSupport.stream(professionalRepository.findAll().spliterator(), false)
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Override
-    public List<Professional> findAllActive() {
-        return professionalRepository.findAllByProfessionalState(ProfessionalState.ACTIVE);
+    public List<ProfessionalResponseDTO> findAllActive() {
+        return professionalRepository.findAllByProfessionalState(ProfessionalState.ACTIVE).stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Override
@@ -141,5 +146,31 @@ public class ProfessionalServiceImpl implements ProfessionalService {
 
         professional.enable();
         return professionalRepository.save(professional);
+    }
+
+    private ProfessionalResponseDTO toResponseDTO(Professional professional) {
+        List<ScheduleResponseDTO> scheduleDTOs = professional.getSchedules().stream().map(schedule ->
+                new ScheduleResponseDTO(
+                        schedule.getDayOfWeek(),
+                        schedule.getStartTime(),
+                        schedule.getEndTime()
+                )
+        ).toList();
+
+        List<String> specialtyNames = professional.getProfessionalSpecialties().stream()
+                .map(ps -> ps.getSpecialty().getName())
+                .distinct()
+                .toList();
+
+        return new ProfessionalResponseDTO(
+                professional.getId(),
+                professional.getFullName(),
+                professional.getDocumentType(),
+                professional.getDocumentNumber(),
+                professional.getPhone(),
+                scheduleDTOs,
+                specialtyNames,
+                professional.getProfessionalState().toString()
+        );
     }
 }

@@ -1,9 +1,6 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
-import com.martinez.dentist.professionals.controllers.schedule.ScheduleResponseDTO;
-import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.services.ProfessionalService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -12,52 +9,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/professionals")
-@CrossOrigin
 public class ProfessionalController {
 
-    @Autowired
-    private ProfessionalService professionalService;
+    private final ProfessionalService professionalService;
+
+    public ProfessionalController(ProfessionalService professionalService) {
+        this.professionalService = professionalService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<ProfessionalResponseDTO>> getAllProfessionals() {
-        List<Professional> professionals = professionalService.findAll();
-
-        List<ProfessionalResponseDTO> response = professionals.stream().map(prof -> new ProfessionalResponseDTO(
-                prof.getId(),
-                prof.getFullName(),
-                prof.getDocumentType(),
-                prof.getDocumentNumber(),
-                prof.getPhone(),
-                prof.getSchedules().stream().map(schedule -> new ScheduleResponseDTO(
-                        schedule.getDayOfWeek(),
-                        schedule.getStartTime(),
-                        schedule.getEndTime()
-                )).toList(),
-                prof.getProfessionalState().getDisplayName()
-        )).toList();
-
-        return ResponseEntity.ok(response);
+    public List<ProfessionalResponseDTO> getAll() {
+        return professionalService.findAll();
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<ProfessionalResponseDTO>> getAllActiveProfessionals() {
-        List<Professional> professionals = professionalService.findAllActive();
-
-        List<ProfessionalResponseDTO> response = professionals.stream().map(prof -> new ProfessionalResponseDTO(
-                prof.getId(),
-                prof.getFullName(),
-                prof.getDocumentType(),
-                prof.getDocumentNumber(),
-                prof.getPhone(),
-                prof.getSchedules().stream().map(schedule -> new ScheduleResponseDTO(
-                        schedule.getDayOfWeek(),
-                        schedule.getStartTime(),
-                        schedule.getEndTime()
-                )).toList(),
-                prof.getProfessionalState().getDisplayName()
-        )).toList();
-
-        return ResponseEntity.ok(response);
+    public List<ProfessionalResponseDTO> getAllActive() {
+        return professionalService.findAllActive();
     }
 
     @PostMapping

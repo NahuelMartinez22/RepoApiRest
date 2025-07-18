@@ -1,7 +1,6 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
 import com.martinez.dentist.professionals.controllers.schedule.ScheduleResponseDTO;
-
 import java.util.List;
 
 public class ProfessionalResponseDTO {
@@ -11,11 +10,13 @@ public class ProfessionalResponseDTO {
     private String documentNumber;
     private String phone;
     private List<ScheduleResponseDTO> schedules;
+    private List<String> specialties;
     private String professionalState;
 
     public ProfessionalResponseDTO(Long id, String fullName, String documentType,
                                    String documentNumber, String phone,
                                    List<ScheduleResponseDTO> schedules,
+                                   List<String> specialties,
                                    String professionalState) {
         this.id = id;
         this.fullName = fullName;
@@ -23,6 +24,7 @@ public class ProfessionalResponseDTO {
         this.documentNumber = documentNumber;
         this.phone = phone;
         this.schedules = schedules;
+        this.specialties = specialties;
         this.professionalState = professionalState;
     }
 
@@ -32,5 +34,6 @@ public class ProfessionalResponseDTO {
     public String getDocumentNumber() { return documentNumber; }
     public String getPhone() { return phone; }
     public List<ScheduleResponseDTO> getSchedules() { return schedules; }
+    public List<String> getSpecialties() { return specialties; }
     public String getProfessionalState() { return professionalState; }
 }

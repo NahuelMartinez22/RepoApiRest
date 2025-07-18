@@ -35,6 +35,10 @@ public class Professional {
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProfessionalSchedule> schedules = new ArrayList<>();
 
+    @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProfessionalSpecialty> professionalSpecialties = new ArrayList<>();
+
+
     public Professional() {
         this.schedules = new ArrayList<>();
     }
@@ -86,4 +90,5 @@ public class Professional {
     public String getPhone() { return phone; }
     public ProfessionalState getProfessionalState() { return professionalState; }
     public List<ProfessionalSchedule> getSchedules() { return schedules; }
+    public List<ProfessionalSpecialty> getProfessionalSpecialties() {return professionalSpecialties;}
 }
