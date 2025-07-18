@@ -1,4 +1,6 @@
-package com.martinez.dentist.professionals.controllers;
+package com.martinez.dentist.professionals.controllers.professional;
+
+import com.martinez.dentist.professionals.controllers.schedule.ScheduleRequestDTO;
 
 import java.util.List;
 

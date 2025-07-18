@@ -1,8 +1,8 @@
 package com.martinez.dentist.professionals.services;
 
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
-import com.martinez.dentist.professionals.controllers.ProfessionalRequestDTO;
-import com.martinez.dentist.professionals.controllers.ScheduleRequestDTO;
+import com.martinez.dentist.professionals.controllers.professional.ProfessionalRequestDTO;
+import com.martinez.dentist.professionals.controllers.schedule.ScheduleRequestDTO;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.models.ProfessionalSchedule;
 import com.martinez.dentist.professionals.models.ProfessionalState;

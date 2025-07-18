@@ -1,5 +1,6 @@
 package com.martinez.dentist.professionals.models;
 
+import com.martinez.dentist.professionals.controllers.professional.ProfessionalRequestDTO;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,7 +49,7 @@ public class Professional {
         this.schedules = new ArrayList<>();
     }
 
-    public void updateData(com.martinez.dentist.professionals.controllers.ProfessionalRequestDTO dto) {
+    public void updateData(ProfessionalRequestDTO dto) {
         this.fullName = dto.getFullName();
         this.documentType = dto.getDocumentType();
         this.documentNumber = dto.getDocumentNumber();

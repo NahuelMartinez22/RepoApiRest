@@ -1,6 +1,6 @@
 package com.martinez.dentist.professionals.services;
 
-import com.martinez.dentist.professionals.controllers.ProfessionalRequestDTO;
+import com.martinez.dentist.professionals.controllers.professional.ProfessionalRequestDTO;
 import com.martinez.dentist.professionals.models.Professional;
 
 import java.util.List;

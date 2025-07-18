@@ -1,4 +1,4 @@
-package com.martinez.dentist.professionals.controllers;
+package com.martinez.dentist.professionals.controllers.schedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
