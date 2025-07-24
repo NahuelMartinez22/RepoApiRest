@@ -9,10 +9,13 @@ public class PatientResponseDTO {
     private String documentType;
     private String documentNumber;
 
+    private Long healthInsuranceId;
     private String healthInsuranceName;
-    private String insurancePlanName;
-    private String affiliateNumber;
 
+    private Long insurancePlanId;
+    private String insurancePlanName;
+
+    private String affiliateNumber;
     private String phone;
     private String email;
 
@@ -23,14 +26,18 @@ public class PatientResponseDTO {
     private String state;
 
     public PatientResponseDTO(Long id, String fullName, String documentType, String documentNumber,
-                              String healthInsuranceName, String insurancePlanName, String affiliateNumber,
-                              String phone, String email, LocalDate registrationDate,
-                              LocalDate lastVisitDate, String note, String state) {
+                              Long healthInsuranceId, String healthInsuranceName,
+                              Long insurancePlanId, String insurancePlanName,
+                              String affiliateNumber, String phone, String email,
+                              LocalDate registrationDate, LocalDate lastVisitDate,
+                              String note, String state) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
+        this.healthInsuranceId = healthInsuranceId;
         this.healthInsuranceName = healthInsuranceName;
+        this.insurancePlanId = insurancePlanId;
         this.insurancePlanName = insurancePlanName;
         this.affiliateNumber = affiliateNumber;
         this.phone = phone;
@@ -41,17 +48,63 @@ public class PatientResponseDTO {
         this.state = state;
     }
 
-    public Long getId() { return id; }
-    public String getFullName() { return fullName; }
-    public String getDocumentType() { return documentType; }
-    public String getDocumentNumber() { return documentNumber; }
-    public String getHealthInsuranceName() { return healthInsuranceName; }
-    public String getInsurancePlanName() { return insurancePlanName; }
-    public String getAffiliateNumber() { return affiliateNumber; }
-    public String getPhone() { return phone; }
-    public String getEmail() { return email; }
-    public LocalDate getRegistrationDate() { return registrationDate; }
-    public LocalDate getLastVisitDate() { return lastVisitDate; }
-    public String getNote() { return note; }
-    public String getState() { return state; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getDocumentType() {
+        return documentType;
+    }
+
+    public String getDocumentNumber() {
+        return documentNumber;
+    }
+
+    public Long getHealthInsuranceId() {
+        return healthInsuranceId;
+    }
+
+    public String getHealthInsuranceName() {
+        return healthInsuranceName;
+    }
+
+    public Long getInsurancePlanId() {
+        return insurancePlanId;
+    }
+
+    public String getInsurancePlanName() {
+        return insurancePlanName;
+    }
+
+    public String getAffiliateNumber() {
+        return affiliateNumber;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public LocalDate getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public LocalDate getLastVisitDate() {
+        return lastVisitDate;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public String getState() {
+        return state;
+    }
 }

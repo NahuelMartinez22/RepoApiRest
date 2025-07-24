@@ -147,8 +147,13 @@ public class PatientServiceImpl implements PatientService {
                 patient.getFullName(),
                 patient.getDocumentType(),
                 patient.getDocumentNumber(),
+
+                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getId() : null,
                 patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : "Sin obra social",
+
+                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getId() : null,
                 patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : "Sin plan",
+
                 patient.getAffiliateNumber(),
                 patient.getPhone(),
                 patient.getEmail(),
