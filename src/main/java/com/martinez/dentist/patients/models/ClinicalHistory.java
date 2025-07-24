@@ -3,7 +3,7 @@ package com.martinez.dentist.patients.models;
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,44 +23,54 @@ public class ClinicalHistory {
     @JoinColumn(name = "professional_id")
     private Professional professional;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
+    @Column(name = "date_time", nullable = false)
+    private LocalDateTime dateTime;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_procedure", nullable = false)
     private DentalProcedure procedure;
 
-
     @Column(name = "description", columnDefinition = "TEXT", nullable = true)
     private String description;
-
-    public ClinicalHistory() {}
-
-    public ClinicalHistory(Patient patient, Professional professional, LocalDate date, String description) {
-        this.patient = patient;
-        this.professional = professional;
-        this.date = date;
-        this.description = description;
-    }
-
-
-    public Long getId() { return id; }
-    public Patient getPatient() { return patient; }
-    public Professional getProfessional() { return professional; }
-    public LocalDate getDate() { return date; }
-    public String getDescription() { return description; }
-
-    public void setPatient(Patient patient) { this.patient = patient; }
-    public void setProfessional(Professional professional) { this.professional = professional; }
-    public void setDate(LocalDate date) { this.date = date; }
-    public void setDescription(String description) { this.description = description; }
 
     @OneToMany(mappedBy = "clinicalHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClinicalFile> files = new ArrayList<>();
 
-    public List<ClinicalFile> getFiles() {
-        return files;
+    // Constructors
+    public ClinicalHistory() {}
+
+    public ClinicalHistory(Patient patient, Professional professional, LocalDateTime dateTime, String description) {
+        this.patient = patient;
+        this.professional = professional;
+        this.dateTime = dateTime;
+        this.description = description;
     }
+
+    // Getters and Setters
+    public Long getId() { return id; }
+
+    public Patient getPatient() { return patient; }
+
+    public Professional getProfessional() { return professional; }
+
+    public LocalDateTime getDateTime() { return dateTime; }
+
+    public DentalProcedure getProcedure() { return procedure; }
+
+    public String getDescription() { return description; }
+
+    public List<ClinicalFile> getFiles() { return files; }
+
+    public void setPatient(Patient patient) { this.patient = patient; }
+
+    public void setProfessional(Professional professional) { this.professional = professional; }
+
+    public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
+
+    public void setProcedure(DentalProcedure procedure) { this.procedure = procedure; }
+
+    public void setDescription(String description) { this.description = description; }
+
 
     public void addFile(ClinicalFile file) {
         files.add(file);
@@ -70,13 +80,5 @@ public class ClinicalHistory {
     public void removeFile(ClinicalFile file) {
         files.remove(file);
         file.setClinicalHistory(null);
-    }
-
-    public DentalProcedure getProcedure() {
-        return procedure;
-    }
-
-    public void setProcedure(DentalProcedure procedure) {
-        this.procedure = procedure;
     }
 }

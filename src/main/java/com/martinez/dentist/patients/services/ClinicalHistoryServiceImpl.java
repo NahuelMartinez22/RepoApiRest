@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,7 +49,7 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
         ClinicalHistory clinicalHistory = new ClinicalHistory(
                 patient,
                 professional,
-                LocalDate.now(),
+                LocalDateTime.now(),
                 dto.getDescription()
         );
         clinicalHistory.setProcedure(procedure);
@@ -80,7 +81,7 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
                     history.getId(),
                     history.getPatient().getFullName(),
                     history.getProfessional().getFullName(),
-                    history.getDate(),
+                    history.getDateTime(),
                     description,
                     procedureId,
                     procedureName,
