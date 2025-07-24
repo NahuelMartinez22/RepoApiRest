@@ -69,17 +69,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
         }
 
-        if (dto.getProcedureIds() == null || dto.getProcedureIds().isEmpty()) {
-            throw new IllegalArgumentException("Debe seleccionar al menos un procedimiento.");
-        }
-
-        List<DentalProcedure> procedures = dto.getProcedureIds() != null
-                ? dto.getProcedureIds().stream()
-                .map(procedureId -> dentalProcedureRepository.findById(procedureId)
-                        .orElseThrow(() -> new RuntimeException("Práctica no encontrada con ID: " + procedureId)))
-                .toList()
-                : List.of();
-
         Appointment appointment = new Appointment(
                 dto.getPatientDni(),
                 dto.getDateTime(),
@@ -87,7 +76,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getReason(),
                 dto.getState()
         );
-        appointment.setProcedures(procedures);
 
         appointment.setCancelToken(UUID.randomUUID().toString());
         appointment.setConfirmToken(UUID.randomUUID().toString());
@@ -154,8 +142,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name(),
-                    procedureNames
+                    appointment.getState().name()
             );
         }).toList();
     }
@@ -198,23 +185,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se puede asignar un turno en una fecha/hora pasada.");
         }
 
-        List<DentalProcedure> procedures = dto.getProcedureIds() != null
-                ? dto.getProcedureIds().stream()
-                .map(procedureId -> dentalProcedureRepository.findById(procedureId)
-                        .orElseThrow(() -> new RuntimeException("Práctica no encontrada con ID: " + procedureId)))
-                .collect(Collectors.toList()) // ✅ mutable
-                : new ArrayList<>();
-
         boolean noChanges =
                 Objects.equals(appointment.getPatientDni(), dto.getPatientDni()) &&
                         Objects.equals(appointment.getDateTime(), dto.getDateTime()) &&
                         Objects.equals(appointment.getProfessional().getId(), professional.getId()) &&
                         Objects.equals(appointment.getReason(), dto.getReason()) &&
-                        Objects.equals(appointment.getState(), dto.getState()) &&
-                        Objects.equals(
-                                appointment.getProcedures().stream().map(DentalProcedure::getId).sorted().toList(),
-                                procedures.stream().map(DentalProcedure::getId).sorted().toList()
-                        );
+                        Objects.equals(appointment.getState(), dto.getState());
 
         if (noChanges) {
             throw new NoChangesDetectedException("No se detectaron cambios en los datos del turno.");
@@ -225,8 +201,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getDateTime(),
                 professional,
                 dto.getReason(),
-                dto.getState(),
-                procedures
+                dto.getState()
         );
 
         appointmentRepository.save(appointment);
@@ -259,8 +234,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name(),
-                    procedureNames
+                    appointment.getState().name()
             );
         }).toList();
     }
@@ -286,8 +260,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                     appointment.getDateTime(),
                     professionalFullName,
                     appointment.getReason(),
-                    appointment.getState().name(),
-                    procedureNames
+                    appointment.getState().name()
             );
         }).toList();
     }

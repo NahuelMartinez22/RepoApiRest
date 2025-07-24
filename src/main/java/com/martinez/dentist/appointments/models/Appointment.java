@@ -66,14 +66,13 @@ public class Appointment {
     }
 
 
-    public void updateData(String patientDni, LocalDateTime dateTime, Professional professional,
-                           String reason, AppointmentState state, List<DentalProcedure> procedures) {
-        this.patientDni = patientDni;
+    public void updateData(String dni, LocalDateTime dateTime, Professional professional,
+                           String reason, AppointmentState state) {
+        this.patientDni = dni;
         this.dateTime = dateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
-        this.procedures = procedures;
     }
 
     public void updateState(AppointmentState newState) {
