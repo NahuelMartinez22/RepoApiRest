@@ -46,6 +46,12 @@ public class Appointment {
     @Column(name = "credential_token")
     private String credentialToken;
 
+    @Column(name = "cancel_token", unique = true)
+    private String cancelToken;
+
+    @Column(name = "confirm_token", unique = true)
+    private String confirmToken;
+
 
     public Appointment() {}
 
@@ -122,5 +128,21 @@ public class Appointment {
     public String getCredentialToken() {return credentialToken;}
     public void registrarCredentialToken(String token) {
         this.credentialToken = token;
+    }
+
+    public String getCancelToken() {
+        return cancelToken;
+    }
+
+    public void setCancelToken(String cancelToken) {
+        this.cancelToken = cancelToken;
+    }
+
+    public String getConfirmToken() {
+        return confirmToken;
+    }
+
+    public void setConfirmToken(String confirmToken) {
+        this.confirmToken = confirmToken;
     }
 }

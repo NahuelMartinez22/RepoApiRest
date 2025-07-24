@@ -20,4 +20,6 @@ public interface AppointmentService {
     void markAsAttended(Long appointmentId, String credentialToken);
     Map<String, Object> getAppointmentsForBilling(Long obraSocialId, int mes, int anio);
 
+    boolean confirmByToken(String token);
+    boolean cancelByToken(String token);
 }

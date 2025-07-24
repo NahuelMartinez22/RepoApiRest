@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
@@ -52,4 +53,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                  @Param("mes") int mes,
                                                  @Param("anio") int anio);
 
+    Optional<Appointment> findByCancelToken(String cancelToken);
+    Optional<Appointment> findByConfirmToken(String confirmToken);
 }
