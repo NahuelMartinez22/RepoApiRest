@@ -1,11 +1,9 @@
 package com.martinez.dentist.appointments.models;
 
-import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "appointments")
@@ -34,14 +32,6 @@ public class Appointment {
 
     @Column(name = "reminder_sent")
     private boolean reminderSent = false;
-
-    @ManyToMany
-    @JoinTable(
-            name = "appointment_procedures",
-            joinColumns = @JoinColumn(name = "appointment_id"),
-            inverseJoinColumns = @JoinColumn(name = "procedure_id")
-    )
-    private List<DentalProcedure> procedures;
 
     @Column(name = "credential_token")
     private String credentialToken;
@@ -116,15 +106,8 @@ public class Appointment {
         this.reminderSent = reminderSent;
     }
 
-    public List<DentalProcedure> getProcedures() {
-        return procedures;
-    }
-
-    public void setProcedures(List<DentalProcedure> procedures) {
-        this.procedures = procedures;
-    }
-
     public String getCredentialToken() {return credentialToken;}
+
     public void registrarCredentialToken(String token) {
         this.credentialToken = token;
     }

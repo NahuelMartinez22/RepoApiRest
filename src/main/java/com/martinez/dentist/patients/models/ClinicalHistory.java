@@ -26,17 +26,16 @@ public class ClinicalHistory {
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id_procedure", nullable = false)
-    private DentalProcedure procedure;
-
-    @Column(name = "description", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @OneToMany(mappedBy = "clinicalHistory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClinicalFile> files = new ArrayList<>();
 
-    // Constructors
+    @OneToMany(mappedBy = "clinicalHistory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClinicalHistoryProcedure> clinicalHistoryProcedures = new ArrayList<>();
+
+
     public ClinicalHistory() {}
 
     public ClinicalHistory(Patient patient, Professional professional, LocalDateTime dateTime, String description) {
@@ -46,30 +45,39 @@ public class ClinicalHistory {
         this.description = description;
     }
 
-    // Getters and Setters
+
     public Long getId() { return id; }
-
     public Patient getPatient() { return patient; }
-
     public Professional getProfessional() { return professional; }
-
     public LocalDateTime getDateTime() { return dateTime; }
-
-    public DentalProcedure getProcedure() { return procedure; }
-
     public String getDescription() { return description; }
-
     public List<ClinicalFile> getFiles() { return files; }
+    public List<ClinicalHistoryProcedure> getClinicalHistoryProcedures() { return clinicalHistoryProcedures; }
+
+    public void addProcedure(DentalProcedure procedure) {
+        ClinicalHistoryProcedure chp = new ClinicalHistoryProcedure(this, procedure);
+        clinicalHistoryProcedures.add(chp);
+    }
+
+    public void removeProcedure(DentalProcedure procedure) {
+        clinicalHistoryProcedures.removeIf(chp -> chp.getProcedure().equals(procedure));
+    }
+
+    public List<DentalProcedure> getProcedures() {
+        return clinicalHistoryProcedures.stream()
+                .map(ClinicalHistoryProcedure::getProcedure)
+                .toList();
+    }
 
     public void setPatient(Patient patient) { this.patient = patient; }
-
     public void setProfessional(Professional professional) { this.professional = professional; }
-
     public void setDateTime(LocalDateTime dateTime) { this.dateTime = dateTime; }
-
-    public void setProcedure(DentalProcedure procedure) { this.procedure = procedure; }
-
     public void setDescription(String description) { this.description = description; }
+
+    public void setProcedures(List<DentalProcedure> procedures) {
+        clinicalHistoryProcedures.clear();
+        procedures.forEach(this::addProcedure);
+    }
 
 
     public void addFile(ClinicalFile file) {

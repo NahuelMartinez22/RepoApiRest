@@ -13,4 +13,6 @@ public interface ClinicalHistoryService {
     ClinicalHistory getById(Long id);
     void deleteClinicalHistory(Long id);
     String updateClinicalHistory(Long id, ClinicalHistoryRequestDTO dto);
+    String addProcedureToClinicalHistory(Long historyId, Long procedureId);
+    String removeProcedureFromClinicalHistory(Long historyId, Long procedureId);
 }

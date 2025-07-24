@@ -10,7 +10,6 @@ import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.javamail.EmailDTO;
 import com.martinez.dentist.javamail.EmailService;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
-import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.DentalProcedureRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
@@ -132,10 +131,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
-            List<String> procedureNames = appointment.getProcedures().stream()
-                    .map(p -> p.getName())
-                    .toList();
-
             return new AppointmentResponseDTO(
                     appointment.getId(),
                     patientDTO,
@@ -224,10 +219,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             String professionalFullName = appointment.getProfessional().getFullName();
 
-            List<String> procedureNames = appointment.getProcedures().stream()
-                    .map(p -> p.getName())
-                    .toList();
-
             return new AppointmentResponseDTO(
                     appointment.getId(),
                     patientDTO,
@@ -249,10 +240,6 @@ public class AppointmentServiceImpl implements AppointmentService {
             PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
 
             String professionalFullName = appointment.getProfessional().getFullName();
-
-            List<String> procedureNames = appointment.getProcedures().stream()
-                    .map(p -> p.getName())
-                    .toList();
 
             return new AppointmentResponseDTO(
                     appointment.getId(),
@@ -358,24 +345,18 @@ public class AppointmentServiceImpl implements AppointmentService {
             String dni = patient.getDocumentNumber();
             String numeroAfiliado = patient.getAffiliateNumber();
             String plan = patient.getInsurancePlan().getName();
-            String token = appt.getCredentialToken(); // si lo agregaste
+            String token = appt.getCredentialToken();
 
-            for (DentalProcedure proc : appt.getProcedures()) {
-                String codigo = proc.getCode();
-                BigDecimal valor = proc.getBaseValue();
-                subtotal = subtotal.add(valor);
-
-                dtoList.add(new BillingAppointmentDTO(
-                        appt.getDateTime().toLocalDate(),
-                        nombreApellido,
-                        dni,
-                        numeroAfiliado,
-                        plan,
-                        codigo,
-                        valor.doubleValue(),
-                        token
-                ));
-            }
+            dtoList.add(new BillingAppointmentDTO(
+                    appt.getDateTime().toLocalDate(),
+                    nombreApellido,
+                    dni,
+                    numeroAfiliado,
+                    plan,
+                    "Sin procedimiento",
+                    0.0,
+                    token
+            ));
         }
 
         Map<String, Object> response = new HashMap<>();

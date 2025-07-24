@@ -83,4 +83,20 @@ public class ClinicalHistoryController {
             @RequestBody ClinicalHistoryRequestDTO dto) {
         return ResponseEntity.ok(clinicalHistoryService.updateClinicalHistory(id, dto));
     }
+
+    @PostMapping("/{id}/procedure/{procedureId}")
+    public ResponseEntity<String> addProcedureToClinicalHistory(
+            @PathVariable Long id,
+            @PathVariable Long procedureId) {
+        String message = clinicalHistoryService.addProcedureToClinicalHistory(id, procedureId);
+        return ResponseEntity.ok(message);
+    }
+
+    @DeleteMapping("/{id}/procedure/{procedureId}")
+    public ResponseEntity<String> removeProcedureFromClinicalHistory(
+            @PathVariable Long id,
+            @PathVariable Long procedureId) {
+        String message = clinicalHistoryService.removeProcedureFromClinicalHistory(id, procedureId);
+        return ResponseEntity.ok(message);
+    }
 }
