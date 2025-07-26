@@ -1,8 +1,8 @@
 package com.martinez.dentist.patients.services;
 
 
-import com.martinez.dentist.patients.controllers.ClinicalHistoryRequestDTO;
-import com.martinez.dentist.patients.controllers.ClinicalHistoryResponseDTO;
+import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryRequestDTO;
+import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryResponseDTO;
 import com.martinez.dentist.patients.models.ClinicalHistory;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public interface ClinicalHistoryService {
     List<ClinicalHistoryResponseDTO> getClinicalHistoryByPatient(String documentNumber);
     ClinicalHistory getById(Long id);
     void deleteClinicalHistory(Long id);
-    String updateClinicalHistory(Long id, ClinicalHistoryRequestDTO dto);
-    String addProcedureToClinicalHistory(Long historyId, Long procedureId);
-    String removeProcedureFromClinicalHistory(Long historyId, Long procedureId);
+    String updateClinicalHistoryDescription(Long id, ClinicalHistoryRequestDTO dto);
+    String addProcedures(Long historyId, List<Long> procedureIds);
+    String removeProcedures(Long historyId, List<Long> procedureIds);
 }

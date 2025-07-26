@@ -1,4 +1,4 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.clinicalHistory;
 
 import com.martinez.dentist.patients.models.ClinicalFile;
 import com.martinez.dentist.patients.models.ClinicalHistory;
@@ -77,26 +77,24 @@ public class ClinicalHistoryController {
         return ResponseEntity.ok("Historia clínica eliminada correctamente.");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<String> updateClinicalHistory(
+    @PutMapping("/{id}/description")
+    public ResponseEntity<String> updateClinicalHistoryDescription(
             @PathVariable Long id,
             @RequestBody ClinicalHistoryRequestDTO dto) {
-        return ResponseEntity.ok(clinicalHistoryService.updateClinicalHistory(id, dto));
+        return ResponseEntity.ok(clinicalHistoryService.updateClinicalHistoryDescription(id, dto));
     }
 
-    @PostMapping("/{id}/procedure/{procedureId}")
-    public ResponseEntity<String> addProcedureToClinicalHistory(
+    @PostMapping("/{id}/procedures")
+    public ResponseEntity<String> addMultipleProcedures(
             @PathVariable Long id,
-            @PathVariable Long procedureId) {
-        String message = clinicalHistoryService.addProcedureToClinicalHistory(id, procedureId);
-        return ResponseEntity.ok(message);
+            @RequestBody ProcedureIdsRequestDTO dto) {
+        return ResponseEntity.ok(clinicalHistoryService.addProcedures(id, dto.getProcedureIds()));
     }
 
-    @DeleteMapping("/{id}/procedure/{procedureId}")
-    public ResponseEntity<String> removeProcedureFromClinicalHistory(
+    @DeleteMapping("/{id}/procedures")
+    public ResponseEntity<String> removeMultipleProcedures(
             @PathVariable Long id,
-            @PathVariable Long procedureId) {
-        String message = clinicalHistoryService.removeProcedureFromClinicalHistory(id, procedureId);
-        return ResponseEntity.ok(message);
+            @RequestBody ProcedureIdsRequestDTO dto) {
+        return ResponseEntity.ok(clinicalHistoryService.removeProcedures(id, dto.getProcedureIds()));
     }
 }

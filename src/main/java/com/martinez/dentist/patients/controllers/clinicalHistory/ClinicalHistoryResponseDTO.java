@@ -1,4 +1,4 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.clinicalHistory;
 
 import java.time.LocalDateTime;
 import java.util.List;

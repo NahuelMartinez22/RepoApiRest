@@ -1,9 +1,9 @@
 package com.martinez.dentist.patients.services;
 
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
-import com.martinez.dentist.patients.controllers.ClinicalFileDTO;
-import com.martinez.dentist.patients.controllers.ClinicalHistoryRequestDTO;
-import com.martinez.dentist.patients.controllers.ClinicalHistoryResponseDTO;
+import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalFileDTO;
+import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryRequestDTO;
+import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryResponseDTO;
 import com.martinez.dentist.patients.models.ClinicalHistory;
 import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.patients.models.Patient;
@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +45,16 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
-        List<DentalProcedure> procedures = dto.getProcedureIds().stream()
+        if (dto.getProcedureIds() == null || dto.getProcedureIds().isEmpty()) {
+            throw new RuntimeException("Debe ingresar al menos un procedimiento.");
+        }
+
+        Set<Long> uniqueIds = new HashSet<>(dto.getProcedureIds());
+        if (uniqueIds.size() < dto.getProcedureIds().size()) {
+            throw new RuntimeException("Hay procedimientos duplicados en el request.");
+        }
+
+        List<DentalProcedure> procedures = uniqueIds.stream()
                 .map(id -> dentalProcedureRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + id)))
                 .toList();
@@ -52,14 +63,15 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
                 patient,
                 professional,
                 LocalDateTime.now(),
-                dto.getDescription()
+                dto.getDescription() != null ? dto.getDescription().trim() : null
         );
 
         clinicalHistory.setProcedures(procedures);
-
         clinicalHistoryRepository.save(clinicalHistory);
+
         return "Historia clínica creada correctamente.";
     }
+
 
     @Override
     public List<ClinicalHistoryResponseDTO> getClinicalHistoryByPatient(String documentNumber) {
@@ -112,72 +124,85 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
     }
 
     @Override
-    public String updateClinicalHistory(Long id, ClinicalHistoryRequestDTO dto) {
+    public String updateClinicalHistoryDescription(Long id, ClinicalHistoryRequestDTO dto) {
         ClinicalHistory clinicalHistory = clinicalHistoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada"));
 
-        Professional professional = professionalRepository.findById(dto.getProfessionalId())
-                .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
-
-        List<DentalProcedure> newProcedures = dto.getProcedureIds().stream()
-                .map(pid -> dentalProcedureRepository.findById(pid)
-                        .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid)))
-                .toList();
-
-        boolean sinCambios =
-                Objects.equals(clinicalHistory.getProfessional().getId(), dto.getProfessionalId()) &&
-                        Objects.equals(
-                                clinicalHistory.getProcedures().stream().map(DentalProcedure::getId).sorted().toList(),
-                                newProcedures.stream().map(DentalProcedure::getId).sorted().toList()
-                        ) &&
-                        Objects.equals(clinicalHistory.getDescription(), dto.getDescription());
-
-        if (sinCambios) {
-            throw new NoChangesDetectedException("No se detectaron cambios en la historia clínica.");
+        if (Objects.equals(clinicalHistory.getDescription(), dto.getDescription())) {
+            throw new NoChangesDetectedException("La descripción es la misma, no se detectaron cambios.");
         }
 
-        clinicalHistory.setProfessional(professional);
-        clinicalHistory.setProcedures(newProcedures);
         clinicalHistory.setDescription(dto.getDescription());
-
         clinicalHistoryRepository.save(clinicalHistory);
-        return "Historia clínica actualizada correctamente.";
+
+        return "Descripción de la historia clínica actualizada correctamente.";
     }
 
     @Override
-    public String addProcedureToClinicalHistory(Long historyId, Long procedureId) {
-        ClinicalHistory history = clinicalHistoryRepository.findById(historyId)
-                .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada con ID: " + historyId));
+    public String addProcedures(Long id, List<Long> procedureIds) {
+        ClinicalHistory history = getById(id);
 
-        DentalProcedure procedure = dentalProcedureRepository.findById(procedureId)
-                .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + procedureId));
-
-        boolean yaExiste = history.getProcedures().stream()
-                .anyMatch(p -> p.getId().equals(procedureId));
-        if (yaExiste) {
-            return "El procedimiento ya está registrado en la historia clínica.";
+        Set<Long> uniqueRequestIds = new HashSet<>(procedureIds);
+        if (uniqueRequestIds.size() < procedureIds.size()) {
+            throw new RuntimeException("Hay procedimientos repetidos en el request.");
         }
 
-        history.addProcedure(procedure);
+        Set<Long> currentProcedureIds = history.getProcedures().stream()
+                .map(DentalProcedure::getId)
+                .collect(Collectors.toSet());
+
+        boolean algunAgregado = false;
+
+        for (Long pid : uniqueRequestIds) {
+            if (currentProcedureIds.contains(pid)) continue;
+
+            DentalProcedure procedure = dentalProcedureRepository.findById(pid)
+                    .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid));
+
+            history.addProcedure(procedure);
+            algunAgregado = true;
+        }
+
+        if (!algunAgregado) {
+            throw new NoChangesDetectedException("Todos los procedimientos ya estaban asociados a la historia clínica.");
+        }
+
         clinicalHistoryRepository.save(history);
-        return "Procedimiento agregado a la historia clínica.";
+        return "Procedimientos agregados correctamente.";
     }
+
 
     @Override
-    public String removeProcedureFromClinicalHistory(Long historyId, Long procedureId) {
-        ClinicalHistory history = clinicalHistoryRepository.findById(historyId)
-                .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada con ID: " + historyId));
+    public String removeProcedures(Long id, List<Long> procedureIds) {
+        ClinicalHistory history = getById(id);
 
-        DentalProcedure procedure = dentalProcedureRepository.findById(procedureId)
-                .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + procedureId));
-
-        boolean existia = history.getProcedures().removeIf(p -> p.getId().equals(procedureId));
-        if (!existia) {
-            return "El procedimiento no estaba asignado a la historia clínica.";
+        Set<Long> uniqueRequestIds = new HashSet<>(procedureIds);
+        if (uniqueRequestIds.size() < procedureIds.size()) {
+            throw new RuntimeException("Hay procedimientos repetidos en el request.");
         }
 
-        history.removeProcedure(procedure);
+        Set<Long> currentProcedureIds = history.getProcedures().stream()
+                .map(DentalProcedure::getId)
+                .collect(Collectors.toSet());
+
+        boolean algunEliminado = false;
+
+        for (Long pid : uniqueRequestIds) {
+            if (!currentProcedureIds.contains(pid)) continue;
+
+            DentalProcedure procedure = dentalProcedureRepository.findById(pid)
+                    .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid));
+
+            history.removeProcedure(procedure);
+            algunEliminado = true;
+        }
+
+        if (!algunEliminado) {
+            throw new NoChangesDetectedException("Ninguno de los procedimientos estaba asociado a la historia clínica.");
+        }
+
         clinicalHistoryRepository.save(history);
-        return "Procedimiento eliminado de la historia clínica.";
+        return "Procedimientos eliminados correctamente.";
     }
+
 }

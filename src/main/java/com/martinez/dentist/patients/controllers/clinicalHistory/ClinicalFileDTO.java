@@ -1,4 +1,4 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.clinicalHistory;
 
 public class ClinicalFileDTO {
 
