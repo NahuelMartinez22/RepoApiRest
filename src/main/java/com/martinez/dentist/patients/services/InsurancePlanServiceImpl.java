@@ -1,7 +1,7 @@
 package com.martinez.dentist.patients.services;
 
-import com.martinez.dentist.patients.controllers.InsurancePlanRequestDTO;
-import com.martinez.dentist.patients.controllers.InsurancePlanResponseDTO;
+import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanRequestDTO;
+import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanResponseDTO;
 import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.models.InsurancePlan;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;

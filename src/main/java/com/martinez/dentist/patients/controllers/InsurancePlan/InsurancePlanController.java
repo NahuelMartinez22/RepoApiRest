@@ -1,4 +1,4 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.InsurancePlan;
 
 import com.martinez.dentist.patients.services.InsurancePlanService;
 import jakarta.validation.Valid;

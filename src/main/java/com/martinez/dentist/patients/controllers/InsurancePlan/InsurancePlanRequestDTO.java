@@ -1,4 +1,4 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.InsurancePlan;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

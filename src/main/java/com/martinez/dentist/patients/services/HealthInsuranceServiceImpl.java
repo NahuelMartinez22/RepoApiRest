@@ -2,7 +2,7 @@ package com.martinez.dentist.patients.services;
 
 import com.martinez.dentist.patients.controllers.healthInsurance.HealthInsuranceRequestDTO;
 import com.martinez.dentist.patients.controllers.healthInsurance.HealthInsuranceResponseDTO;
-import com.martinez.dentist.patients.controllers.InsurancePlanDTO;
+import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanDTO;
 import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import org.springframework.beans.factory.annotation.Autowired;

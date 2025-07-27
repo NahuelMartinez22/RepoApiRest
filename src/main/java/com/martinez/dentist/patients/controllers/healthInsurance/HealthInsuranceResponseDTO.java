@@ -1,6 +1,6 @@
 package com.martinez.dentist.patients.controllers.healthInsurance;
 
-import com.martinez.dentist.patients.controllers.InsurancePlanDTO;
+import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanDTO;
 
 import java.util.List;
 
