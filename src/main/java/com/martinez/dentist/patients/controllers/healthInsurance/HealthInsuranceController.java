@@ -1,6 +1,5 @@
-package com.martinez.dentist.patients.controllers;
+package com.martinez.dentist.patients.controllers.healthInsurance;
 
-import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.models.InsurancePlan;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
@@ -25,10 +24,6 @@ public class HealthInsuranceController {
     @Autowired
     private HealthInsuranceService service;
 
-    @GetMapping
-    public List<HealthInsurance> getAllHealthInsurances() {
-        return (List<HealthInsurance>) healthInsuranceRepository.findAll();
-    }
 
     @GetMapping("/{id}/plans")
     public List<InsurancePlan> getPlansByHealthInsurance(@PathVariable Long id) {
@@ -53,15 +48,25 @@ public class HealthInsuranceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HealthInsurance> getById(@PathVariable Long id) {
-        HealthInsurance hi = healthInsuranceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
-        return ResponseEntity.ok(hi);
+    public ResponseEntity<HealthInsuranceResponseDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<HealthInsuranceResponseDTO>> getAll() {
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/active")
-    public List<HealthInsurance> getActiveHealthInsurances() {
-        return healthInsuranceRepository.findAllByIsActiveTrue();
+    public ResponseEntity<List<HealthInsuranceResponseDTO>> getAllActive() {
+        List<HealthInsuranceResponseDTO> list = service.findAllActive();
+        return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<HealthInsuranceResponseDTO> update(@PathVariable Long id, @RequestBody HealthInsuranceRequestDTO dto) {
+        HealthInsuranceResponseDTO response = service.update(id, dto);
+        return ResponseEntity.ok(response);
     }
 
 }

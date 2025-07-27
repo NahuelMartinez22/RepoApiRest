@@ -3,6 +3,8 @@ package com.martinez.dentist.patients.models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
+import com.martinez.dentist.patients.models.InsurancePlan;
+
 
 @Entity
 @Table(name = "health_insurances")
@@ -43,31 +45,55 @@ public class HealthInsurance {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getContactEmail() {
         return contactEmail;
     }
 
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getNote() {
         return note;
     }
 
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public void setPlans(List<InsurancePlan> plans) {
+        this.plans = plans;
+    }
+
     public Boolean getIsActive() {
         return isActive;
     }
-
     public void setIsActive(Boolean active) {
+
         this.isActive = active;
     }
 
-    public List<com.martinez.dentist.patients.models.InsurancePlan> getPlans() {
+    public List<InsurancePlan> getPlans() {
         return plans;
     }
 }

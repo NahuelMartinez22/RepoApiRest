@@ -32,6 +32,35 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
     }
 
     @Override
+    public InsurancePlanResponseDTO update(Long id, InsurancePlanRequestDTO dto) {
+        InsurancePlan plan = planRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+
+        boolean hasChanges = false;
+
+        if (!plan.getName().equals(dto.getName())) {
+            plan.setName(dto.getName());
+            hasChanges = true;
+        }
+
+        if (!plan.getHealthInsurance().getId().equals(dto.getHealthInsuranceId())) {
+            HealthInsurance newHI = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
+                    .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
+            plan.setHealthInsurance(newHI);
+            hasChanges = true;
+        }
+
+        if (!hasChanges) {
+            throw new RuntimeException("No se detectaron cambios para actualizar");
+        }
+
+        planRepository.save(plan);
+
+        return toResponseDTO(plan);
+    }
+
+
+    @Override
     public List<InsurancePlanResponseDTO> getAll() {
         return StreamSupport.stream(planRepository.findAll().spliterator(), false)
                 .map(this::toResponseDTO)
@@ -60,4 +89,5 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
         }
         planRepository.deleteById(id);
     }
+
 }

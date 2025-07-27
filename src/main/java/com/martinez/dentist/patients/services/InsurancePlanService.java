@@ -10,4 +10,6 @@ public interface InsurancePlanService {
     List<InsurancePlanResponseDTO> getAll();
     List<InsurancePlanResponseDTO> getByHealthInsuranceId(Long id);
     void deleteById(Long id);
+    InsurancePlanResponseDTO update(Long id, InsurancePlanRequestDTO dto);
+
 }

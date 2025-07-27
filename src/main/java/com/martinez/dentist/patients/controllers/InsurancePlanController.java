@@ -20,6 +20,12 @@ public class InsurancePlanController {
         return ResponseEntity.ok(service.create(dto));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<InsurancePlanResponseDTO> update(@PathVariable Long id, @RequestBody InsurancePlanRequestDTO dto) {
+        InsurancePlanResponseDTO updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping
     public List<InsurancePlanResponseDTO> getAllPlans() {
         return service.getAll();
