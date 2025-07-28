@@ -170,7 +170,8 @@ public class ProfessionalServiceImpl implements ProfessionalService {
                 professional.getPhone(),
                 scheduleDTOs,
                 specialtyNames,
-                professional.getProfessionalState().toString()
+                professional.getProfessionalState().toString(),
+                professional.getAvailable()
         );
     }
 
@@ -192,11 +193,12 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     @Override
-    public List<Professional> getAvailableProfessionals() {
-        return professionalRepository.findByAvailableTrue()
-                .stream()
+    public List<ProfessionalResponseDTO> getAvailableProfessionals() {
+        return professionalRepository.findByAvailableTrue().stream()
                 .filter(p -> p.getProfessionalState() == ProfessionalState.ACTIVE)
+                .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
+
 
 }

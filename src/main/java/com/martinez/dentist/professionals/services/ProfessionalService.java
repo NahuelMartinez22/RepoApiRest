@@ -22,5 +22,5 @@ public interface ProfessionalService {
     List<ProfessionalResponseDTO> findAllActive();
 
     void setAvailable(Long professionalId, boolean available);
-    List<Professional> getAvailableProfessionals();
+    List<ProfessionalResponseDTO> getAvailableProfessionals();
 }

@@ -12,12 +12,14 @@ public class ProfessionalResponseDTO {
     private List<ScheduleResponseDTO> schedules;
     private List<String> specialties;
     private String professionalState;
+    private Boolean available;
 
     public ProfessionalResponseDTO(Long id, String fullName, String documentType,
                                    String documentNumber, String phone,
                                    List<ScheduleResponseDTO> schedules,
                                    List<String> specialties,
-                                   String professionalState) {
+                                   String professionalState,
+                                   Boolean available) {
         this.id = id;
         this.fullName = fullName;
         this.documentType = documentType;
@@ -26,6 +28,7 @@ public class ProfessionalResponseDTO {
         this.schedules = schedules;
         this.specialties = specialties;
         this.professionalState = professionalState;
+        this.available = available;
     }
 
     public Long getId() { return id; }
@@ -36,4 +39,5 @@ public class ProfessionalResponseDTO {
     public List<ScheduleResponseDTO> getSchedules() { return schedules; }
     public List<String> getSpecialties() { return specialties; }
     public String getProfessionalState() { return professionalState; }
+    public Boolean getAvailable() { return available; }
 }

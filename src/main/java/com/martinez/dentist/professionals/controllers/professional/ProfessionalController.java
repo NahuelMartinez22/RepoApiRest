@@ -67,7 +67,7 @@ public class ProfessionalController {
     }
 
     @GetMapping("/available")
-    public ResponseEntity<List<Professional>> getAvailableProfessionals() {
+    public ResponseEntity<List<ProfessionalResponseDTO>> getAvailableProfessionals() {
         return ResponseEntity.ok(professionalService.getAvailableProfessionals());
     }
 }
