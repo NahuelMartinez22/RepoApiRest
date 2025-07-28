@@ -14,7 +14,9 @@ import com.martinez.dentist.patients.repositories.DentalProcedureRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -277,6 +279,27 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
             savedFiles.add(clinicalFileRepository.save(clinicalFile));
         }
         return savedFiles;
+    }
+
+    @Override
+    public void downloadFile(Long fileId, HttpServletResponse response) throws IOException {
+        ClinicalFile file = clinicalFileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("Archivo no encontrado"));
+
+        response.setContentType(file.getFileType());
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"");
+        response.getOutputStream().write(file.getData());
+        response.getOutputStream().flush();
+    }
+
+    @Override
+    public ResponseEntity<String> deleteFile(Long fileId) {
+        if (!clinicalFileRepository.existsById(fileId)) {
+            return ResponseEntity.status(404).body("El archivo no existe o ya fue eliminado");
+        }
+
+        clinicalFileRepository.deleteById(fileId);
+        return ResponseEntity.ok("Archivo eliminado correctamente.");
     }
 
 }

@@ -5,6 +5,8 @@ import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistory
 import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryResponseDTO;
 import com.martinez.dentist.patients.models.ClinicalFile;
 import com.martinez.dentist.patients.models.ClinicalHistory;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,5 +23,8 @@ public interface ClinicalHistoryService {
     String removeProcedures(Long historyId, List<Long> procedureIds);
 
     List<ClinicalFile> uploadFiles(Long historyId, List<MultipartFile> files) throws IOException;
+    void downloadFile(Long fileId, HttpServletResponse response) throws IOException;
+    ResponseEntity<String> deleteFile(Long fileId);
+
 
 }

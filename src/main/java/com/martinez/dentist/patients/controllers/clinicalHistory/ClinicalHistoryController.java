@@ -57,19 +57,12 @@ public class ClinicalHistoryController {
 
     @GetMapping("/files/{fileId}/download")
     public void downloadFile(@PathVariable Long fileId, HttpServletResponse response) throws IOException {
-        ClinicalFile file = clinicalFileRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("Archivo no encontrado"));
-
-        response.setContentType(file.getFileType());
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"");
-        response.getOutputStream().write(file.getData());
-        response.getOutputStream().flush();
+        clinicalHistoryService.downloadFile(fileId, response);
     }
 
     @DeleteMapping("/files/{fileId}")
     public ResponseEntity<String> deleteFile(@PathVariable Long fileId) {
-        clinicalFileRepository.deleteById(fileId);
-        return ResponseEntity.ok("Archivo eliminado.");
+        return clinicalHistoryService.deleteFile(fileId);
     }
 
     @DeleteMapping("/{id}")
