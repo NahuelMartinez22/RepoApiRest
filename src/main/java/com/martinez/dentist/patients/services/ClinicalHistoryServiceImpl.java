@@ -110,6 +110,39 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
     }
 
     @Override
+    public List<ClinicalHistoryResponseDTO> getAll() {
+        List<ClinicalHistory> histories = clinicalHistoryRepository.findAll();
+
+        return histories.stream().map(history -> {
+            List<ClinicalFileDTO> fileDTOs = history.getFiles().stream()
+                    .map(file -> new ClinicalFileDTO(
+                            file.getId(),
+                            file.getFileName(),
+                            file.getFileType()
+                    )).toList();
+
+            List<Long> procedureIds = history.getProcedures().stream()
+                    .map(DentalProcedure::getId)
+                    .toList();
+
+            List<String> procedureNames = history.getProcedures().stream()
+                    .map(DentalProcedure::getName)
+                    .toList();
+
+            return new ClinicalHistoryResponseDTO(
+                    history.getId(),
+                    history.getPatient().getFullName(),
+                    history.getProfessional().getFullName(),
+                    history.getDateTime(),
+                    history.getDescription(),
+                    procedureIds,
+                    procedureNames,
+                    fileDTOs
+            );
+        }).toList();
+    }
+
+    @Override
     public ClinicalHistory getById(Long id) {
         return clinicalHistoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada"));

@@ -10,6 +10,7 @@ import java.util.List;
 public interface ClinicalHistoryService {
     String createClinicalHistory(ClinicalHistoryRequestDTO dto);
     List<ClinicalHistoryResponseDTO> getClinicalHistoryByPatient(String documentNumber);
+    List<ClinicalHistoryResponseDTO> getAll();
     ClinicalHistory getById(Long id);
     void deleteClinicalHistory(Long id);
     String updateClinicalHistoryDescription(Long id, ClinicalHistoryRequestDTO dto);

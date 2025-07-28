@@ -35,6 +35,11 @@ public class ClinicalHistoryController {
         return ResponseEntity.ok(clinicalHistoryService.getClinicalHistoryByPatient(documentNumber));
     }
 
+    @GetMapping
+    public ResponseEntity<List<ClinicalHistoryResponseDTO>> getAllClinicalHistories() {
+        return ResponseEntity.ok(clinicalHistoryService.getAll());
+    }
+
 
     @PostMapping("/{id}/upload")
     public ResponseEntity<String> uploadFile(
