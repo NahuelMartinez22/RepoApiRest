@@ -1,5 +1,6 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
+import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.services.ProfessionalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,5 +57,17 @@ public class ProfessionalController {
     public ResponseEntity<String> enableProfessionalByDocument(@PathVariable String documentNumber) {
         professionalService.enableByDocumentNumber(documentNumber);
         return ResponseEntity.ok("Profesional habilitado con éxito.");
+    }
+
+    @PatchMapping("/{id}/available")
+    public ResponseEntity<String> setAvailable(@PathVariable Long id, @RequestParam boolean available) {
+        professionalService.setAvailable(id, available);
+        String estado = available ? "disponible" : "no disponible";
+        return ResponseEntity.ok("Disponibilidad actualizada: el profesional ahora está " + estado + ".");
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<Professional>> getAvailableProfessionals() {
+        return ResponseEntity.ok(professionalService.getAvailableProfessionals());
     }
 }

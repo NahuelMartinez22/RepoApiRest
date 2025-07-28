@@ -20,4 +20,7 @@ public interface ProfessionalService {
     List<ProfessionalResponseDTO> findAll();
 
     List<ProfessionalResponseDTO> findAllActive();
+
+    void setAvailable(Long professionalId, boolean available);
+    List<Professional> getAvailableProfessionals();
 }

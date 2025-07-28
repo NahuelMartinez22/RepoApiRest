@@ -32,6 +32,9 @@ public class Professional {
     @Column(name = "state", nullable = false)
     private ProfessionalState professionalState;
 
+    @Column(nullable = false)
+    private Boolean available = true;
+
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProfessionalSchedule> schedules = new ArrayList<>();
 
@@ -91,4 +94,12 @@ public class Professional {
     public ProfessionalState getProfessionalState() { return professionalState; }
     public List<ProfessionalSchedule> getSchedules() { return schedules; }
     public List<ProfessionalSpecialty> getProfessionalSpecialties() {return professionalSpecialties;}
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
 }

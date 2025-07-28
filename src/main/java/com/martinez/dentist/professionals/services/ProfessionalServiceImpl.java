@@ -173,4 +173,30 @@ public class ProfessionalServiceImpl implements ProfessionalService {
                 professional.getProfessionalState().toString()
         );
     }
+
+    @Override
+    public void setAvailable(Long professionalId, boolean available) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new RuntimeException("Profesional no encontrado con ID: " + professionalId));
+
+        if (professional.getProfessionalState() == ProfessionalState.DEACTIVATED) {
+            throw new RuntimeException("No se puede modificar la disponibilidad de un profesional desactivado.");
+        }
+
+        if (professional.getAvailable().equals(available)) {
+            throw new RuntimeException("El profesional ya tiene el estado de disponibilidad solicitado.");
+        }
+
+        professional.setAvailable(available);
+        professionalRepository.save(professional);
+    }
+
+    @Override
+    public List<Professional> getAvailableProfessionals() {
+        return professionalRepository.findByAvailableTrue()
+                .stream()
+                .filter(p -> p.getProfessionalState() == ProfessionalState.ACTIVE)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -11,4 +11,5 @@ public interface ProfessionalRepository extends CrudRepository<Professional, Lon
 
     Optional<Professional> findByDocumentNumber(String documentNumber);
     List<Professional> findAllByProfessionalState(ProfessionalState professionalState);
+    List<Professional> findByAvailableTrue();
 }
