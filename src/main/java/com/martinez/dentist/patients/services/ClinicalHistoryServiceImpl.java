@@ -4,9 +4,11 @@ import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalFileDTO;
 import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryRequestDTO;
 import com.martinez.dentist.patients.controllers.clinicalHistory.ClinicalHistoryResponseDTO;
+import com.martinez.dentist.patients.models.ClinicalFile;
 import com.martinez.dentist.patients.models.ClinicalHistory;
 import com.martinez.dentist.patients.models.DentalProcedure;
 import com.martinez.dentist.patients.models.Patient;
+import com.martinez.dentist.patients.repositories.ClinicalFileRepository;
 import com.martinez.dentist.patients.repositories.ClinicalHistoryRepository;
 import com.martinez.dentist.patients.repositories.DentalProcedureRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
@@ -14,12 +16,11 @@ import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +37,10 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
 
     @Autowired
     private DentalProcedureRepository dentalProcedureRepository;
+
+    @Autowired
+    private ClinicalFileRepository clinicalFileRepository;
+
 
     @Override
     public String createClinicalHistory(ClinicalHistoryRequestDTO dto) {
@@ -85,7 +90,8 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
                     .map(file -> new ClinicalFileDTO(
                             file.getId(),
                             file.getFileName(),
-                            file.getFileType()
+                            file.getFileType(),
+                            (long) file.getData().length
                     )).toList();
 
             List<Long> procedureIds = history.getProcedures().stream()
@@ -118,7 +124,8 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
                     .map(file -> new ClinicalFileDTO(
                             file.getId(),
                             file.getFileName(),
-                            file.getFileType()
+                            file.getFileType(),
+                            (long) file.getData().length
                     )).toList();
 
             List<Long> procedureIds = history.getProcedures().stream()
@@ -236,6 +243,40 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
 
         clinicalHistoryRepository.save(history);
         return "Procedimientos eliminados correctamente.";
+    }
+
+    @Override
+    public List<ClinicalFile> uploadFiles(Long historyId, List<MultipartFile> files) throws IOException {
+        ClinicalHistory history = getById(historyId);
+        List<ClinicalFile> savedFiles = new ArrayList<>();
+
+        List<String> tiposPermitidos = List.of("image/jpeg", "image/png", "application/pdf");
+
+        for (MultipartFile file : files) {
+            if (!tiposPermitidos.contains(file.getContentType())) {
+                throw new RuntimeException("Tipo de archivo no permitido: " + file.getContentType());
+            }
+
+            boolean yaExiste = history.getFiles().stream().anyMatch(existing -> {
+                try {
+                    return existing.getFileName().equals(file.getOriginalFilename()) &&
+                            Arrays.equals(existing.getData(), file.getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException("Error al leer el archivo para verificar duplicado", e);
+                }
+            });
+
+            if (yaExiste) continue;
+
+            ClinicalFile clinicalFile = new ClinicalFile(
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    file.getBytes(),
+                    history
+            );
+            savedFiles.add(clinicalFileRepository.save(clinicalFile));
+        }
+        return savedFiles;
     }
 
 }

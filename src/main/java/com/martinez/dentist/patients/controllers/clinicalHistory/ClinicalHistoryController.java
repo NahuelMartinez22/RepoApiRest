@@ -42,21 +42,17 @@ public class ClinicalHistoryController {
 
 
     @PostMapping("/{id}/upload")
-    public ResponseEntity<String> uploadFile(
+    public ResponseEntity<UploadResponseDTO> uploadFile(
             @PathVariable Long id,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestParam("file") List<MultipartFile> files) throws IOException {
 
-        ClinicalHistory history = clinicalHistoryService.getById(id);
+        List<ClinicalFile> uploaded = clinicalHistoryService.uploadFiles(id, files);
 
-        ClinicalFile clinicalFile = new ClinicalFile(
-                file.getOriginalFilename(),
-                file.getContentType(),
-                file.getBytes(),
-                history
-        );
+        List<UploadedFileResponseDTO> fileDTOs = uploaded.stream()
+                .map(f -> new UploadedFileResponseDTO(f.getId(), f.getFileName()))
+                .toList();
 
-        clinicalFileRepository.save(clinicalFile);
-        return ResponseEntity.ok("Archivo subido correctamente.");
+        return ResponseEntity.ok(new UploadResponseDTO("Archivos subidos correctamente.", fileDTOs));
     }
 
     @GetMapping("/files/{fileId}/download")
