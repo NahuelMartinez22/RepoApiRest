@@ -3,6 +3,7 @@ package com.martinez.dentist.appointments.services;
 import com.martinez.dentist.appointments.controllers.AppointmentRequestDTO;
 import com.martinez.dentist.appointments.controllers.AppointmentResponseDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -22,4 +23,7 @@ public interface AppointmentService {
 
     boolean confirmByToken(String token);
     boolean cancelByToken(String token);
+
+    List<AppointmentResponseDTO> getAppointmentsByDay(LocalDate date);
+
 }

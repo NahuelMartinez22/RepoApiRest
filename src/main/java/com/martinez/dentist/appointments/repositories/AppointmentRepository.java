@@ -55,4 +55,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     Optional<Appointment> findByCancelToken(String cancelToken);
     Optional<Appointment> findByConfirmToken(String confirmToken);
+
+    List<Appointment> findAllByDateTimeBetween(LocalDateTime start, LocalDateTime end);
+
 }

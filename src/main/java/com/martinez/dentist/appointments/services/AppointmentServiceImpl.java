@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -296,7 +297,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
         turno.updateState(AppointmentState.CONFIRMADO);
         appointmentRepository.save(turno);
-        return "✅ ¡Tu turno fue confirmado con éxito!";
+        return "Tu turno fue confirmado con éxito!";
     }
 
     @Override
@@ -305,7 +306,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
         turno.updateState(AppointmentState.CANCELADO);
         appointmentRepository.save(turno);
-        return "❌ Tu turno fue cancelado correctamente.";
+        return "Tu turno fue cancelado correctamente.";
     }
 
 
@@ -395,6 +396,33 @@ public class AppointmentServiceImpl implements AppointmentService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<AppointmentResponseDTO> getAppointmentsByDay(LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+        List<Appointment> appointments = appointmentRepository.findAllByDateTimeBetween(startOfDay, endOfDay);
+
+        return appointments.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private AppointmentResponseDTO toResponseDTO(Appointment appointment) {
+        Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                .orElse(null);
+        PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
+
+        return new AppointmentResponseDTO(
+                appointment.getId(),
+                patientDTO,
+                appointment.getDateTime(),
+                appointment.getProfessional().getFullName(),
+                appointment.getReason(),
+                appointment.getState().name()
+        );
     }
 
 
