@@ -45,7 +45,7 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
 
 
     @Override
-    public String createClinicalHistory(ClinicalHistoryRequestDTO dto) {
+    public ClinicalHistoryResponseDTO createClinicalHistory(ClinicalHistoryRequestDTO dto) {
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDocumentNumber())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado con DNI: " + dto.getPatientDocumentNumber()));
 
@@ -76,7 +76,20 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
         clinicalHistory.setProcedures(procedures);
         clinicalHistoryRepository.save(clinicalHistory);
 
-        return "Historia clínica creada correctamente.";
+        // Armado de DTO para la respuesta
+        List<Long> procedureIds = procedures.stream().map(DentalProcedure::getId).toList();
+        List<String> procedureNames = procedures.stream().map(DentalProcedure::getName).toList();
+
+        return new ClinicalHistoryResponseDTO(
+                clinicalHistory.getId(),
+                patient.getFullName(),
+                professional.getFullName(),
+                clinicalHistory.getDateTime(),
+                clinicalHistory.getDescription(),
+                procedureIds,
+                procedureNames,
+                List.of()
+        );
     }
 
 

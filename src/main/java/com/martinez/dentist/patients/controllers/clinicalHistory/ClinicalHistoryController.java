@@ -26,8 +26,9 @@ public class ClinicalHistoryController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> createClinicalHistory(@RequestBody ClinicalHistoryRequestDTO dto) {
-        return ResponseEntity.ok(clinicalHistoryService.createClinicalHistory(dto));
+    public ResponseEntity<ClinicalHistoryResponseDTO> createClinicalHistory(@RequestBody ClinicalHistoryRequestDTO dto) {
+        ClinicalHistoryResponseDTO response = clinicalHistoryService.createClinicalHistory(dto);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/patient/{documentNumber}")

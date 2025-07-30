@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ClinicalHistoryService {
-    String createClinicalHistory(ClinicalHistoryRequestDTO dto);
+    ClinicalHistoryResponseDTO createClinicalHistory(ClinicalHistoryRequestDTO dto);
     List<ClinicalHistoryResponseDTO> getClinicalHistoryByPatient(String documentNumber);
     List<ClinicalHistoryResponseDTO> getAll();
     ClinicalHistory getById(Long id);
