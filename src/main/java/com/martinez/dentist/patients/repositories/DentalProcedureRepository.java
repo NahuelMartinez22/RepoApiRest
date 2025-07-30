@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface DentalProcedureRepository extends CrudRepository<DentalProcedure, Long> {
     List<DentalProcedure> findAllByIsActiveTrue();
+    boolean existsByCode(String code);
 }
