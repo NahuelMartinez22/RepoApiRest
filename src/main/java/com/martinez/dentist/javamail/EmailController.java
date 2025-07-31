@@ -52,7 +52,7 @@ public class EmailController {
         token.setExpirationDate(expiration);
         tokenRepository.save(token);
 
-        String resetLink = "http://localhost:3000/cambiar-contrasena?token=" + tokenStr;
+        String resetLink = "https://www.odonto-turno.up.railway.app/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
         dto.setDestinatario(user.getEmail());
