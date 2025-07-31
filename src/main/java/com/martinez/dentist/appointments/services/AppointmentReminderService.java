@@ -27,7 +27,7 @@ public class AppointmentReminderService {
     @Autowired
     private WhatsAppService whatsappService;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 86400000)//30000 = 30s ----- 86400000 = 24hs
     public void enviarRecordatorios() {
         LocalDateTime ahora = LocalDateTime.now();
         LocalDateTime en24Horas = ahora.plusHours(24);
