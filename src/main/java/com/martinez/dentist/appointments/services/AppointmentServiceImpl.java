@@ -128,23 +128,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentResponseDTO> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
-
-        return appointments.stream().map(appointment -> {
-            Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
-                    .orElse(null);
-            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
-
-            String professionalFullName = appointment.getProfessional().getFullName();
-
-            return new AppointmentResponseDTO(
-                    appointment.getId(),
-                    patientDTO,
-                    appointment.getDateTime(),
-                    professionalFullName,
-                    appointment.getReason(),
-                    appointment.getState().name()
-            );
-        }).toList();
+        return appointments.stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Override
@@ -190,10 +176,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                         Objects.equals(appointment.getDateTime(), dto.getDateTime()) &&
                         Objects.equals(appointment.getProfessional().getId(), professional.getId()) &&
                         Objects.equals(appointment.getReason(), dto.getReason()) &&
-                        Objects.equals(appointment.getState(), dto.getState());
+                        Objects.equals(appointment.getState(), dto.getState()) &&
+                        Objects.equals(patient.getNote(), dto.getNote());
 
         if (noChanges) {
             throw new NoChangesDetectedException("No se detectaron cambios en los datos del turno.");
+        }
+
+        if (dto.getNote() != null && !Objects.equals(patient.getNote(), dto.getNote())) {
+            patient.setNote(dto.getNote());
+            patientRepository.save(patient);
         }
 
         appointment.updateData(
@@ -217,44 +209,18 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("No se encontraron turnos con el DNI: " + dni);
         }
 
-        return appointments.stream().map(appointment -> {
-            Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
-                    .orElse(null);
-            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
-
-            String professionalFullName = appointment.getProfessional().getFullName();
-
-            return new AppointmentResponseDTO(
-                    appointment.getId(),
-                    patientDTO,
-                    appointment.getDateTime(),
-                    professionalFullName,
-                    appointment.getReason(),
-                    appointment.getState().name()
-            );
-        }).toList();
+        return appointments.stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     @Override
     public List<AppointmentResponseDTO> getAppointmentsByProfessionalDni(String dni) {
         List<Appointment> appointments = appointmentRepository.findByProfessionalDocumentNumber(dni);
 
-        return appointments.stream().map(appointment -> {
-            Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
-                    .orElse(null);
-            PatientResponseDTO patientDTO = (patient != null) ? convertToPatientResponseDTO(patient) : null;
-
-            String professionalFullName = appointment.getProfessional().getFullName();
-
-            return new AppointmentResponseDTO(
-                    appointment.getId(),
-                    patientDTO,
-                    appointment.getDateTime(),
-                    professionalFullName,
-                    appointment.getReason(),
-                    appointment.getState().name()
-            );
-        }).toList();
+        return appointments.stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
 
@@ -417,10 +383,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return new AppointmentResponseDTO(
                 appointment.getId(),
+                patient != null ? patient.getId() : null,
                 patientDTO,
                 appointment.getDateTime(),
                 appointment.getProfessional().getFullName(),
                 appointment.getReason(),
+                patient != null ? patient.getNote() : null,
                 appointment.getState().name()
         );
     }

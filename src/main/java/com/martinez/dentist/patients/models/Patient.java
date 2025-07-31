@@ -148,6 +148,10 @@ public class Patient {
         return note;
     }
 
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public PatientState getPatientState() {
         return patientState;
     }

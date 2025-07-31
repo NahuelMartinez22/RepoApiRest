@@ -10,17 +10,19 @@ public class AppointmentRequestDTO {
     private LocalDateTime dateTime;
     private Long professionalId;
     private String reason;
+    private String note;
     private AppointmentState state;
 
     public AppointmentRequestDTO() {}
 
     public AppointmentRequestDTO(String patientDni, LocalDateTime dateTime,
                                  Long professionalId, String reason,
-                                 AppointmentState state) {
+                                 String note, AppointmentState state) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
         this.professionalId = professionalId;
         this.reason = reason;
+        this.note = note;
         this.state = state;
     }
 
@@ -54,6 +56,14 @@ public class AppointmentRequestDTO {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public AppointmentState getState() {
