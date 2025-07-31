@@ -17,23 +17,33 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ❗ 304 - Sin cambios
+    // ❗ 400  - Sin cambios
     @ExceptionHandler(NoChangesDetectedException.class)
-    public ResponseEntity<Void> handleNoChangesDetected(NoChangesDetectedException ex) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Message", ex.getMessage());
-        return new ResponseEntity<>(headers, HttpStatus.NOT_MODIFIED);
+    public ResponseEntity<Map<String, Object>> handleNoChangesDetected(NoChangesDetectedException ex, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 400);
+        response.put("error", ex.getMessage());
+        response.put("path", request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // ❗ 400 - Errores comunes de lógica
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex, HttpServletRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", 400,
-                "error", ex.getMessage(),
-                "path", request.getRequestURI()
-        ));
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 400);
+        response.put("error", "Error de validación");
+        response.put("validationErrors", fieldErrors);
+        response.put("path", request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // ❗ 404 - Recurso no encontrado
@@ -45,18 +55,6 @@ public class GlobalExceptionHandler {
                 "error", "Recurso no encontrado: " + ex.getMessage(),
                 "path", request.getRequestURI()
         ));
-    }
-
-    // ❗ 400 - Errores de validación
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
     // ❗ 403 - Acceso denegado (sin rol adecuado)

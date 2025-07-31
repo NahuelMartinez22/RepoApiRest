@@ -1,5 +1,6 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.appointments.repositories.AppointmentRepository;
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
@@ -25,6 +26,9 @@ public class PatientServiceImpl implements PatientService {
 
     @Autowired
     private InsurancePlanRepository insurancePlanRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @Override
     public String save(PatientRequestDTO dto) {
@@ -78,6 +82,13 @@ public class PatientServiceImpl implements PatientService {
         }
 
         String trimmedAffiliate = dto.getAffiliateNumber() != null ? dto.getAffiliateNumber().trim() : null;
+
+        if (!Objects.equals(patient.getDocumentNumber(), dto.getDocumentNumber())) {
+            boolean tieneTurnos = appointmentRepository.existsByPatientDni(patient.getDocumentNumber());
+            if (tieneTurnos) {
+                throw new RuntimeException("No se puede cambiar el DNI porque el paciente tiene turnos asociados.");
+            }
+        }
 
         boolean noChanges =
                 Objects.equals(patient.getFullName(), dto.getFullName()) &&
