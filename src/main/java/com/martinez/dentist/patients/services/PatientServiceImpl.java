@@ -31,7 +31,7 @@ public class PatientServiceImpl implements PatientService {
     private AppointmentRepository appointmentRepository;
 
     @Override
-    public String save(PatientRequestDTO dto) {
+    public PatientResponseDTO save(PatientRequestDTO dto) {
         if (repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
             throw new RuntimeException("Ya existe un paciente con ese DNI");
         }
@@ -62,8 +62,9 @@ public class PatientServiceImpl implements PatientService {
                 dto.getNote()
         );
 
-        repository.save(patient);
-        return "Paciente creado con éxito.";
+        Patient savedPatient = repository.save(patient);
+
+        return toResponseDTO(savedPatient);
     }
 
     @Override

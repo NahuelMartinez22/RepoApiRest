@@ -20,7 +20,7 @@ public class PatientController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> save(@RequestBody PatientRequestDTO dto) {
+    public ResponseEntity<PatientResponseDTO> save(@RequestBody PatientRequestDTO dto) {
         return ResponseEntity.ok(service.save(dto));
     }
 

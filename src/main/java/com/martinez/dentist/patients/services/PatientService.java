@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface PatientService {
 
-    String save(PatientRequestDTO dto);
+    PatientResponseDTO save(PatientRequestDTO dto);
 
     PatientResponseDTO findById(Long id);
 
