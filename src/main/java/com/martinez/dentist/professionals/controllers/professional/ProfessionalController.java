@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/professionals")
@@ -30,21 +31,31 @@ public class ProfessionalController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> saveProfessional(@RequestBody ProfessionalRequestDTO dto) {
+    public ResponseEntity<?> saveProfessional(@RequestBody ProfessionalRequestDTO dto) {
         try {
-            professionalService.create(dto);
-            return ResponseEntity.ok("Profesional creado con éxito.");
+            Long id = professionalService.create(dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Profesional creado con éxito.",
+                    "id", id
+            ));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
+
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> updateProfessionalById(@PathVariable Long id,
-                                                    @RequestBody ProfessionalRequestDTO dto) {
-        professionalService.updateById(id, dto);
-        return ResponseEntity.ok("Profesional actualizado.");
+    public ResponseEntity<?> updateProfessional(@PathVariable Long id, @RequestBody ProfessionalRequestDTO dto) {
+        try {
+            Long updatedId = professionalService.updateById(id, dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Profesional actualizado con éxito.",
+                    "id", updatedId
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PatchMapping("/document/{documentNumber}/disable")

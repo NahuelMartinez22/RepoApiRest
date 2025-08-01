@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -20,8 +21,31 @@ public class PatientController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<PatientResponseDTO> save(@RequestBody PatientRequestDTO dto) {
-        return ResponseEntity.ok(service.save(dto));
+    public ResponseEntity<?> save(@RequestBody PatientRequestDTO dto) {
+        try {
+            Long id = service.save(dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Paciente creado con éxito.",
+                    "id", id
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> updatePatient(@PathVariable Long id,
+                                           @RequestBody PatientRequestDTO dto) {
+        try {
+            Long updatedId = service.update(id, dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Paciente actualizado con éxito.",
+                    "id", updatedId
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
 
@@ -57,13 +81,5 @@ public class PatientController {
     public ResponseEntity<String> enablePatient(@PathVariable Long id) {
         service.enable(id);
         return ResponseEntity.ok("Paciente habilitado.");
-    }
-
-
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<PatientResponseDTO> updatePatient(@PathVariable Long id,
-                                                            @RequestBody PatientRequestDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
     }
 }

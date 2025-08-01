@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface ProfessionalService {
 
-    Professional create(ProfessionalRequestDTO dto);
+    Long create(ProfessionalRequestDTO dto);
 
-    Professional updateById(Long id, ProfessionalRequestDTO dto);
+    Long updateById(Long id, ProfessionalRequestDTO dto);
 
     Professional disableByDocumentNumber(String documentNumber);
 

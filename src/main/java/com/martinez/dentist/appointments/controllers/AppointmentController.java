@@ -22,8 +22,31 @@ public class AppointmentController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<String> createAppointment(@RequestBody AppointmentRequestDTO dto) {
-        return ResponseEntity.ok(appointmentService.createAppointment(dto));
+    public ResponseEntity<?> createAppointment(@RequestBody AppointmentRequestDTO dto) {
+        try {
+            Long id = appointmentService.createAppointment(dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Turno creado con éxito.",
+                    "id", id
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> updateAppointment(@PathVariable Long id,
+                                               @RequestBody AppointmentRequestDTO dto) {
+        try {
+            Long updatedId = appointmentService.updateAppointment(id, dto);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Turno actualizado correctamente.",
+                    "id", updatedId
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping
@@ -42,13 +65,6 @@ public class AppointmentController {
     public ResponseEntity<String> updateAppointmentState(@PathVariable Long id,
                                                          @RequestParam String state) {
         return ResponseEntity.ok(appointmentService.updateAppointmentState(id, state));
-    }
-
-    @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<String> updateAppointment(@PathVariable Long id,
-                                                    @RequestBody AppointmentRequestDTO dto) {
-        return ResponseEntity.ok(appointmentService.updateAppointment(id, dto));
     }
 
     @GetMapping("/dni/{dni}")

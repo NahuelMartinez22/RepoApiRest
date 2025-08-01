@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface PatientService {
 
-    PatientResponseDTO save(PatientRequestDTO dto);
+    Long save(PatientRequestDTO dto);
+
+    Long update(Long id, PatientRequestDTO dto);
 
     PatientResponseDTO findById(Long id);
 
     List<PatientResponseDTO> findAll();
 
     List<PatientResponseDTO> findByState(PatientState state);
-
-    PatientResponseDTO update(Long id, PatientRequestDTO dto);
 
     void disable(Long id);
 

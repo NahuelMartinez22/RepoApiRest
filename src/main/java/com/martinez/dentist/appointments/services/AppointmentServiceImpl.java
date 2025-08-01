@@ -42,7 +42,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private DentalProcedureRepository dentalProcedureRepository;
 
     @Override
-    public String createAppointment(AppointmentRequestDTO dto) {
+    public Long createAppointment(AppointmentRequestDTO dto) {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
@@ -80,9 +80,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setCancelToken(UUID.randomUUID().toString());
         appointment.setConfirmToken(UUID.randomUUID().toString());
 
-        appointmentRepository.save(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
 
-        // Email en background
         if (patient.getEmail() != null && !patient.getEmail().isBlank()) {
             String dia = dto.getDateTime().getDayOfWeek()
                     .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
@@ -116,48 +115,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 try {
                     EmailService.enviar(email);
                 } catch (Exception e) {
+                    // Log o manejo del error
                 }
             }).start();
         }
 
-        return "Turno creado con éxito.";
-    }
-
-
-
-    @Override
-    public List<AppointmentResponseDTO> getAllAppointments() {
-        List<Appointment> appointments = appointmentRepository.findAll();
-        return appointments.stream()
-                .map(this::toResponseDTO)
-                .toList();
+        return saved.getId();
     }
 
     @Override
-    public String updateAppointmentState(Long id, String state) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
-
-        try {
-            AppointmentState newState = AppointmentState.valueOf(state.toUpperCase());
-            appointment.updateState(newState);
-
-            if (newState == AppointmentState.ATENDIDO) {
-                Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
-                        .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
-                patient.setLastVisitDate(LocalDate.now());
-                patientRepository.save(patient);
-            }
-
-            appointmentRepository.save(appointment);
-            return "Estado del turno actualizado a: " + newState.name();
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Estado inválido: " + state);
-        }
-    }
-
-    @Override
-    public String updateAppointment(Long id, AppointmentRequestDTO dto) {
+    public Long updateAppointment(Long id, AppointmentRequestDTO dto) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
 
@@ -196,10 +163,42 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getState()
         );
 
-        appointmentRepository.save(appointment);
-        return "Turno actualizado correctamente.";
+        Appointment saved = appointmentRepository.save(appointment);
+        return saved.getId();
     }
 
+
+
+    @Override
+    public List<AppointmentResponseDTO> getAllAppointments() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+        return appointments.stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    @Override
+    public String updateAppointmentState(Long id, String state) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Turno no encontrado"));
+
+        try {
+            AppointmentState newState = AppointmentState.valueOf(state.toUpperCase());
+            appointment.updateState(newState);
+
+            if (newState == AppointmentState.ATENDIDO) {
+                Patient patient = patientRepository.findByDocumentNumber(appointment.getPatientDni())
+                        .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+                patient.setLastVisitDate(LocalDate.now());
+                patientRepository.save(patient);
+            }
+
+            appointmentRepository.save(appointment);
+            return "Estado del turno actualizado a: " + newState.name();
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Estado inválido: " + state);
+        }
+    }
 
     @Override
     public List<AppointmentResponseDTO> findAppointmentsByDni(String dni) {
