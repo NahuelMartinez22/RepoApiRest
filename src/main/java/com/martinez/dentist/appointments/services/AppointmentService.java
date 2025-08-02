@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface AppointmentService {
-    String createAppointment(AppointmentRequestDTO dto);
+    Long createAppointment(AppointmentRequestDTO dto);
+    Long updateAppointment(Long id, AppointmentRequestDTO dto);
     List<AppointmentResponseDTO> getAllAppointments();
     String updateAppointmentState(Long id, String state);
-    String updateAppointment(Long id, AppointmentRequestDTO dto);
     List<AppointmentResponseDTO> findAppointmentsByDni(String dni);
     List<AppointmentResponseDTO> getAppointmentsByProfessionalDni(String dni);
     String deleteAppointment(Long id);

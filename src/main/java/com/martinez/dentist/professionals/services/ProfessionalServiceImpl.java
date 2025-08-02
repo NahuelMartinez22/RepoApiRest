@@ -23,7 +23,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     private ProfessionalRepository professionalRepository;
 
     @Override
-    public Professional create(ProfessionalRequestDTO dto) {
+    public Long create(ProfessionalRequestDTO dto) {
         if (professionalRepository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
             throw new RuntimeException("Ya existe un profesional con el mismo número de documento.");
         }
@@ -48,11 +48,12 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        return professionalRepository.save(professional);
+        Professional saved = professionalRepository.save(professional);
+        return saved.getId();
     }
 
     @Override
-    public Professional updateById(Long id, ProfessionalRequestDTO dto) {
+    public Long updateById(Long id, ProfessionalRequestDTO dto) {
         Professional professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
@@ -84,7 +85,8 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        return professionalRepository.save(professional);
+        Professional saved = professionalRepository.save(professional);
+        return saved.getId();
     }
 
     private boolean schedulesAreEqual(List<ProfessionalSchedule> current, List<ScheduleRequestDTO> incoming) {

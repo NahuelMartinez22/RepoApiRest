@@ -31,7 +31,7 @@ public class PatientServiceImpl implements PatientService {
     private AppointmentRepository appointmentRepository;
 
     @Override
-    public PatientResponseDTO save(PatientRequestDTO dto) {
+    public Long save(PatientRequestDTO dto) {
         if (repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
             throw new RuntimeException("Ya existe un paciente con ese DNI");
         }
@@ -64,11 +64,11 @@ public class PatientServiceImpl implements PatientService {
 
         Patient savedPatient = repository.save(patient);
 
-        return toResponseDTO(savedPatient);
+        return savedPatient.getId();
     }
 
     @Override
-    public PatientResponseDTO update(Long id, PatientRequestDTO dto) {
+    public Long update(Long id, PatientRequestDTO dto) {
         Patient patient = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
@@ -111,9 +111,9 @@ public class PatientServiceImpl implements PatientService {
         }
 
         patient.updateData(dto, healthInsurance, plan);
-        repository.save(patient);
+        Patient saved = repository.save(patient);
 
-        return toResponseDTO(patient);
+        return saved.getId();
     }
 
     @Override
