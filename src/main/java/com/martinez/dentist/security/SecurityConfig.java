@@ -61,7 +61,7 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/api/v1/user/login",
                                 "/api/enviar",
-                                "/cambiar-contrasena"
+                                "/api/cambiar-contrasena"
                         ).permitAll()
                         // Permitir preflight CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
