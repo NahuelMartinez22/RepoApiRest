@@ -304,4 +304,40 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
         return ResponseEntity.ok("Archivo eliminado correctamente.");
     }
 
+    @Override
+    public String updateProcedures(Long historyId, List<Long> procedureIds) {
+
+        ClinicalHistory history = clinicalHistoryRepository.findById(historyId)
+                .orElseThrow(() -> new RuntimeException("Historia clínica no encontrada con ID: " + historyId));
+
+        if (procedureIds == null || procedureIds.isEmpty()) {
+            throw new RuntimeException("Debe ingresar al menos un procedimiento.");
+        }
+        Set<Long> uniqueIds = new HashSet<>(procedureIds);
+        if (uniqueIds.size() < procedureIds.size()) {
+            throw new RuntimeException("Hay procedimientos duplicados en el request.");
+        }
+
+        List<DentalProcedure> newProcedures = uniqueIds.stream()
+                .map(id -> dentalProcedureRepository.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + id)))
+                .toList();
+
+        Set<Long> currentIds = history.getProcedures().stream()
+                .map(DentalProcedure::getId)
+                .collect(Collectors.toSet());
+        Set<Long> newIds     = newProcedures.stream()
+                .map(DentalProcedure::getId)
+                .collect(Collectors.toSet());
+
+        if (currentIds.equals(newIds)) {
+            throw new NoChangesDetectedException("La lista de procedimientos es idéntica a la actual; no se detectaron cambios.");
+        }
+
+        history.setProcedures(newProcedures);
+        clinicalHistoryRepository.save(history);
+
+        return "Procedimientos de la historia clínica actualizados correctamente.";
+    }
+
 }

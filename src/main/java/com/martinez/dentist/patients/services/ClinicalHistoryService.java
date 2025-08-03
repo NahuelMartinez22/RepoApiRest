@@ -26,5 +26,7 @@ public interface ClinicalHistoryService {
     void downloadFile(Long fileId, HttpServletResponse response) throws IOException;
     ResponseEntity<String> deleteFile(Long fileId);
 
+    String updateProcedures(Long historyId, List<Long> procedureIds);
+
 
 }

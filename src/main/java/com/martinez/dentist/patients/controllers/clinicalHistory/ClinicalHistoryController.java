@@ -92,4 +92,12 @@ public class ClinicalHistoryController {
             @RequestBody ProcedureIdsRequestDTO dto) {
         return ResponseEntity.ok(clinicalHistoryService.removeProcedures(id, dto.getProcedureIds()));
     }
+
+    @PutMapping("/{id}/procedures")
+    public ResponseEntity<String> updateProcedures(
+            @PathVariable Long id,
+            @RequestBody ProcedureIdsRequestDTO dto) {
+        String mensaje = clinicalHistoryService.updateProcedures(id, dto.getProcedureIds());
+        return ResponseEntity.ok(mensaje);
+    }
 }
