@@ -150,4 +150,13 @@ public class UserServiceImpl implements UserService {
                 profName
         );
     }
+
+    @Override
+    public String deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+        userRepository.delete(user);
+        return "Usuario eliminado correctamente.";
+    }
+
 }

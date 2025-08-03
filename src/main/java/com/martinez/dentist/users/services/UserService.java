@@ -14,4 +14,5 @@ public interface UserService {
     String updateUser(Long id, UserRequestDTO dto);
     UserResponseDTO getUserById(Long id);
     LoginResponseDTO loginUser(LoginDTO loginDTO);
+    String deleteUser(Long id);
 }
