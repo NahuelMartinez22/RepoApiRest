@@ -16,6 +16,7 @@ import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -265,32 +266,20 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
         ClinicalHistory history = getById(historyId);
         List<ClinicalFile> savedFiles = new ArrayList<>();
 
-        List<String> tiposPermitidos = List.of("image/jpeg", "image/png", "application/pdf");
-
         for (MultipartFile file : files) {
-            if (!tiposPermitidos.contains(file.getContentType())) {
-                throw new RuntimeException("Tipo de archivo no permitido: " + file.getContentType());
-            }
-
-            boolean yaExiste = history.getFiles().stream().anyMatch(existing -> {
-                try {
-                    return existing.getFileName().equals(file.getOriginalFilename()) &&
-                            Arrays.equals(existing.getData(), file.getBytes());
-                } catch (IOException e) {
-                    throw new RuntimeException("Error al leer el archivo para verificar duplicado", e);
-                }
-            });
-
-            if (yaExiste) continue;
+            String originalName = file.getOriginalFilename();
+            String contentType  = file.getContentType();
+            byte[] bytes        = file.getBytes();
 
             ClinicalFile clinicalFile = new ClinicalFile(
-                    file.getOriginalFilename(),
-                    file.getContentType(),
-                    file.getBytes(),
+                    originalName,
+                    contentType,
+                    bytes,
                     history
             );
             savedFiles.add(clinicalFileRepository.save(clinicalFile));
         }
+
         return savedFiles;
     }
 
