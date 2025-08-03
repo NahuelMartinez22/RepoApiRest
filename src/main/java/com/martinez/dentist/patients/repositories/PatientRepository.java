@@ -23,4 +23,6 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
             "AND p.patientState = com.martinez.dentist.patients.models.PatientState.ACTIVE " +
             "GROUP BY FUNCTION('MONTH', p.registrationDate)")
     List<Object[]> countNewPatientsPerMonth(@Param("desde") LocalDate desde);
+
+    List<Patient> findByIsGuestTrue();
 }

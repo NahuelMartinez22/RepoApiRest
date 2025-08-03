@@ -21,4 +21,6 @@ public interface PatientService {
     void disable(Long id);
 
     void enable(Long id);
+
+    List<PatientResponseDTO> findAllGuests();
 }

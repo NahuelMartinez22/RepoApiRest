@@ -59,7 +59,8 @@ public class PatientServiceImpl implements PatientService {
                 dto.getEmail(),
                 dto.getRegistrationDate(),
                 dto.getLastVisitDate(),
-                dto.getNote()
+                dto.getNote(),
+                dto.getIsGuest() != null ? dto.getIsGuest() : false
         );
 
         Patient savedPatient = repository.save(patient);
@@ -104,7 +105,8 @@ public class PatientServiceImpl implements PatientService {
                                         Objects.equals(patient.getInsurancePlan().getId(), plan.getId()))) &&
                         ((patient.getHealthInsurance() == null && healthInsurance == null) ||
                                 (patient.getHealthInsurance() != null && healthInsurance != null &&
-                                        Objects.equals(patient.getHealthInsurance().getId(), healthInsurance.getId())));
+                                        Objects.equals(patient.getHealthInsurance().getId(), healthInsurance.getId()))) &&
+                        Objects.equals(patient.getIsGuest(), dto.getIsGuest());
 
         if (noChanges) {
             throw new NoChangesDetectedException("No se detectaron cambios en los datos del paciente.");
@@ -216,7 +218,16 @@ public class PatientServiceImpl implements PatientService {
                 patient.getRegistrationDate(),
                 patient.getLastVisitDate(),
                 patient.getNote(),
-                patient.getPatientState().getDisplayName()
+                patient.getPatientState().getDisplayName(),
+                patient.getIsGuest()
         );
+    }
+
+    @Override
+    public List<PatientResponseDTO> findAllGuests() {
+        return repository.findByIsGuestTrue()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 }

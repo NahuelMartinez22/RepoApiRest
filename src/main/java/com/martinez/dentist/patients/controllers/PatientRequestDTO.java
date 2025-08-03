@@ -27,6 +27,7 @@ public class PatientRequestDTO {
 
     private String note;
 
+    private Boolean isGuest;
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
@@ -60,4 +61,12 @@ public class PatientRequestDTO {
 
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+
+    public Boolean getIsGuest() {
+        return isGuest;
+    }
+
+    public void setIsGuest(Boolean isGuest) {
+        this.isGuest = isGuest;
+    }
 }

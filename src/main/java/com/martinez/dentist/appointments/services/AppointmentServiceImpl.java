@@ -115,7 +115,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 try {
                     EmailService.enviar(email);
                 } catch (Exception e) {
-                    // Log o manejo del error
                 }
             }).start();
         }
@@ -243,7 +242,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 patient.getRegistrationDate(),
                 patient.getLastVisitDate(),
                 patient.getNote(),
-                patient.getPatientState().getDisplayName()
+                patient.getPatientState().getDisplayName(),
+                patient.getIsGuest()
         );
     }
 

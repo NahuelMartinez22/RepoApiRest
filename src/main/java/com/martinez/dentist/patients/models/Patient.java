@@ -52,11 +52,23 @@ public class Patient {
     @Column(name = "state", nullable = false)
     private PatientState patientState;
 
+    @Column(name = "is_guest", nullable = false)
+    private Boolean isGuest = false;
+
     protected Patient() {}
 
-    public Patient(String fullName, String documentType, String documentNumber,
-                   HealthInsurance healthInsurance, InsurancePlan insurancePlan, String affiliateNumber,
-                   String phone, String email, LocalDate registrationDate, LocalDate lastVisitDate, String note) {
+    public Patient(String fullName,
+                   String documentType,
+                   String documentNumber,
+                   HealthInsurance healthInsurance,
+                   InsurancePlan insurancePlan,
+                   String affiliateNumber,
+                   String phone,
+                   String email,
+                   LocalDate registrationDate,
+                   LocalDate lastVisitDate,
+                   String note,
+                   Boolean isGuest) {
         this.fullName = fullName;
         this.documentType = documentType;
         this.documentNumber = documentNumber;
@@ -69,6 +81,7 @@ public class Patient {
         this.lastVisitDate = lastVisitDate;
         this.note = note;
         this.patientState = PatientState.ACTIVE;
+        this.isGuest = isGuest != null ? isGuest : false;
     }
 
     @PrePersist
@@ -78,7 +91,9 @@ public class Patient {
         }
     }
 
-    public void updateData(PatientRequestDTO dto, HealthInsurance healthInsurance, InsurancePlan insurancePlan) {
+    public void updateData(PatientRequestDTO dto,
+                           HealthInsurance healthInsurance,
+                           InsurancePlan insurancePlan) {
         this.fullName = dto.getFullName();
         this.documentType = dto.getDocumentType();
         this.documentNumber = dto.getDocumentNumber();
@@ -90,6 +105,7 @@ public class Patient {
         this.registrationDate = dto.getRegistrationDate();
         this.lastVisitDate = dto.getLastVisitDate();
         this.note = dto.getNote();
+        this.isGuest = dto.getIsGuest() != null ? dto.getIsGuest() : this.isGuest;
     }
 
     public Long getId() {
@@ -162,5 +178,13 @@ public class Patient {
 
     public void enablePatient() {
         this.patientState = PatientState.ACTIVE;
+    }
+
+    public Boolean getIsGuest() {
+        return isGuest;
+    }
+
+    public void setIsGuest(Boolean isGuest) {
+        this.isGuest = isGuest;
     }
 }

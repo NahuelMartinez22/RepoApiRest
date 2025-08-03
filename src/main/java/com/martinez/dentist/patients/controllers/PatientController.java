@@ -82,4 +82,9 @@ public class PatientController {
         service.enable(id);
         return ResponseEntity.ok("Paciente habilitado.");
     }
+
+    @GetMapping("/guests")
+    public ResponseEntity<List<PatientResponseDTO>> getGuestPatients() {
+        return ResponseEntity.ok(service.findAllGuests());
+    }
 }
