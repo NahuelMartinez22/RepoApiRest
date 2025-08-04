@@ -7,6 +7,7 @@ import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -18,6 +19,7 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
     private HealthInsuranceRepository repository;
 
     @Override
+    @Transactional
     public String create(HealthInsuranceRequestDTO dto) {
         if (repository.existsByName(dto.getName())) {
             throw new RuntimeException("Ya existe una obra social con ese nombre");
@@ -35,6 +37,7 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
     }
 
     @Override
+    @Transactional
     public void disable(Long id) {
         HealthInsurance hi = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
@@ -42,7 +45,9 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
         hi.setIsActive(false);
         repository.save(hi);
     }
+
     @Override
+    @Transactional
     public void enable(Long id) {
         HealthInsurance hi = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
@@ -52,6 +57,7 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
     }
 
     @Override
+    @Transactional
     public HealthInsuranceResponseDTO update(Long id, HealthInsuranceRequestDTO dto) {
         HealthInsurance hi = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
@@ -86,60 +92,36 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
         }
 
         repository.save(hi);
-
-        return new HealthInsuranceResponseDTO(
-                hi.getId(),
-                hi.getName(),
-                hi.getContactEmail(),
-                hi.getPhone(),
-                hi.getNote(),
-                hi.getIsActive(),
-                hi.getPlans().stream()
-                        .map(plan -> new InsurancePlanDTO(plan.getId(), plan.getName()))
-                        .toList()
-        );
+        return toDto(hi);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HealthInsuranceResponseDTO> findAll() {
         return StreamSupport.stream(repository.findAll().spliterator(), false)
-                .map(hi -> new HealthInsuranceResponseDTO(
-                        hi.getId(),
-                        hi.getName(),
-                        hi.getContactEmail(),
-                        hi.getPhone(),
-                        hi.getNote(),
-                        hi.getIsActive(),
-                        hi.getPlans().stream()
-                                .map(plan -> new InsurancePlanDTO(plan.getId(), plan.getName()))
-                                .toList()
-                ))
+                .map(this::toDto)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<HealthInsuranceResponseDTO> findAllActive() {
         return repository.findAllByIsActiveTrue()
                 .stream()
-                .map(hi -> new HealthInsuranceResponseDTO(
-                        hi.getId(),
-                        hi.getName(),
-                        hi.getContactEmail(),
-                        hi.getPhone(),
-                        hi.getNote(),
-                        hi.getIsActive(),
-                        hi.getPlans().stream()
-                                .map(plan -> new InsurancePlanDTO(plan.getId(), plan.getName()))
-                                .toList()
-                ))
+                .map(this::toDto)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public HealthInsuranceResponseDTO findById(Long id) {
         HealthInsurance hi = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
 
+        return toDto(hi);
+    }
+
+    private HealthInsuranceResponseDTO toDto(HealthInsurance hi) {
         return new HealthInsuranceResponseDTO(
                 hi.getId(),
                 hi.getName(),
@@ -148,12 +130,8 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
                 hi.getNote(),
                 hi.getIsActive(),
                 hi.getPlans().stream()
-                        .map(plan -> new InsurancePlanDTO(plan.getId(), plan.getName()))
+                        .map(p -> new InsurancePlanDTO(p.getId(), p.getName()))
                         .toList()
         );
     }
-
-
-
 }
-

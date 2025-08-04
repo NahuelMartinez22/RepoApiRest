@@ -6,6 +6,7 @@ import com.martinez.dentist.patients.models.HealthInsurance;
 import com.martinez.dentist.patients.models.InsurancePlan;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
     private HealthInsuranceRepository healthInsuranceRepository;
 
     @Override
+    @Transactional
     public String create(InsurancePlanRequestDTO dto) {
         HealthInsurance hi = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
@@ -32,6 +34,7 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
     }
 
     @Override
+    @Transactional
     public InsurancePlanResponseDTO update(Long id, InsurancePlanRequestDTO dto) {
         InsurancePlan plan = planRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
@@ -61,6 +64,7 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
 
 
     @Override
+    @Transactional
     public List<InsurancePlanResponseDTO> getAll() {
         return StreamSupport.stream(planRepository.findAll().spliterator(), false)
                 .map(this::toResponseDTO)
@@ -68,6 +72,7 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
     }
 
     @Override
+    @Transactional
     public List<InsurancePlanResponseDTO> getByHealthInsuranceId(Long id) {
         return planRepository.findByHealthInsuranceId(id).stream()
                 .map(this::toResponseDTO)
@@ -83,6 +88,7 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         if (!planRepository.existsById(id)) {
             throw new RuntimeException("El plan con ID " + id + " no existe.");
