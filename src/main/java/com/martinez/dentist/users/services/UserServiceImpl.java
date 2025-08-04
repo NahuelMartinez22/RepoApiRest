@@ -69,17 +69,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateUser(Long id, UserRequestDTO dto) {
-        // 1. Cargo al usuario que voy a actualizar
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // 2. Obtengo el usuario que hace la petición desde el contexto de seguridad
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = auth.getName();
-        User currentUser = userRepository.findByUsername(currentUsername)
+        User currentUser = userRepository.findByUsername(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuario actual no válido"));
 
-        // 3. Sólo si el target es el mismo currentUser Y es ADMIN, impido que cambie su rol
         UserRole rolOriginal = user.getRole();
         UserRole rolSolicitado = dto.getRole();
         if (user.getId().equals(currentUser.getId())
@@ -88,10 +84,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("No puedes cambiar tu propio rol.");
         }
 
-        // 4. Actualizo datos
         user.updateData(dto.getUsername(), dto.getEmail(), rolSolicitado);
 
-        // 5. Lógica de vinculación a profesional (igual que antes)
         if (dto.getProfessionalId() != null) {
             if (!rolSolicitado.equals(UserRole.USUARIO)) {
                 throw new RuntimeException("Solo los usuarios con rol USUARIO pueden ser vinculados a un profesional.");
@@ -103,6 +97,9 @@ public class UserServiceImpl implements UserService {
             Professional prof = professionalRepository.findById(dto.getProfessionalId())
                     .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
             user.setProfessional(prof);
+
+        } else {
+            user.setProfessional(null);
         }
 
         userRepository.save(user);
