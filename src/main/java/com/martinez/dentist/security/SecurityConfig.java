@@ -40,36 +40,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CORS y CSRF
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
-
-                // Stateless session
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-                // Manejador personalizado de 401
                 .exceptionHandling(exceptions ->
                         exceptions.authenticationEntryPoint(authEntryPoint)
                 )
-
-                // Rutas públicas y protegidas
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir login y registro sin token
+                        // Rutas públicas
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/v1/user/login",
                                 "/api/enviar",
                                 "/api/cambiar-contrasena"
                         ).permitAll()
-                        // Permitir preflight CORS
+                        // Permitir confirm y cancel por email sin auth
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/appointments/confirm/**",
+                                "/api/appointments/cancel/**"
+                        ).permitAll()
+                        // Preflight CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // El resto sí requiere token válido
+                        // El resto requiere token
                         .anyRequest().authenticated()
                 )
-
-                // Insertar el filtro JWT
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

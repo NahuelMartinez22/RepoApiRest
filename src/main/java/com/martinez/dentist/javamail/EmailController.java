@@ -94,13 +94,12 @@ public class EmailController {
     }
 
     // Confirmar turno por email
-    @GetMapping("/appointments/confirm/{token}")
+    @PatchMapping("/appointments/confirm/{token}")
     @Transactional
     public ResponseEntity<String> confirmTurno(@PathVariable String token) {
         boolean confirmado = appointmentService.confirmByToken(token);
         if (confirmado) {
-            return ResponseEntity
-                    .ok("✅ Tu turno ha sido confirmado. ¡Te esperamos!");
+            return ResponseEntity.ok("✅ Tu turno ha sido confirmado. ¡Te esperamos!");
         } else {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -109,13 +108,12 @@ public class EmailController {
     }
 
     // Cancelar turno por email
-    @GetMapping("/appointments/cancel/{token}")
+    @PatchMapping("/appointments/cancel/{token}")
     @Transactional
     public ResponseEntity<String> cancelTurno(@PathVariable String token) {
         boolean cancelado = appointmentService.cancelByToken(token);
         if (cancelado) {
-            return ResponseEntity
-                    .ok("❌ Tu turno ha sido cancelado correctamente.");
+            return ResponseEntity.ok("❌ Tu turno ha sido cancelado correctamente.");
         } else {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
