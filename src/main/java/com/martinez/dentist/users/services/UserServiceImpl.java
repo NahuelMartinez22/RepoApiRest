@@ -10,6 +10,8 @@ import com.martinez.dentist.users.models.User;
 import com.martinez.dentist.users.models.UserRole;
 import com.martinez.dentist.users.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -67,24 +69,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String updateUser(Long id, UserRequestDTO dto) {
+        // 1. Cargo al usuario que voy a actualizar
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        user.updateData(dto.getUsername(), dto.getEmail(), dto.getRole());
+        // 2. Obtengo el usuario que hace la petición desde el contexto de seguridad
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = auth.getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario actual no válido"));
 
+        // 3. Sólo si el target es el mismo currentUser Y es ADMIN, impido que cambie su rol
+        UserRole rolOriginal = user.getRole();
+        UserRole rolSolicitado = dto.getRole();
+        if (user.getId().equals(currentUser.getId())
+                && rolOriginal == UserRole.ADMIN
+                && !rolSolicitado.equals(rolOriginal)) {
+            throw new RuntimeException("No puedes cambiar tu propio rol.");
+        }
+
+        // 4. Actualizo datos
+        user.updateData(dto.getUsername(), dto.getEmail(), rolSolicitado);
+
+        // 5. Lógica de vinculación a profesional (igual que antes)
         if (dto.getProfessionalId() != null) {
-            if (!dto.getRole().equals(UserRole.USUARIO)) {
+            if (!rolSolicitado.equals(UserRole.USUARIO)) {
                 throw new RuntimeException("Solo los usuarios con rol USUARIO pueden ser vinculados a un profesional.");
             }
-
             if (userRepository.existsByProfessionalId(dto.getProfessionalId()) &&
                     (user.getProfessional() == null || !user.getProfessional().getId().equals(dto.getProfessionalId()))) {
                 throw new RuntimeException("Este profesional ya está vinculado a otro usuario.");
             }
-
             Professional prof = professionalRepository.findById(dto.getProfessionalId())
                     .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
-
             user.setProfessional(prof);
         }
 
