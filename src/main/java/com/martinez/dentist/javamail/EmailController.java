@@ -1,5 +1,6 @@
 package com.martinez.dentist.javamail;
 
+import com.martinez.dentist.appointments.services.AppointmentService;
 import com.martinez.dentist.users.models.Token;
 import com.martinez.dentist.users.models.User;
 import com.martinez.dentist.users.repositories.TokenRepository;
@@ -31,6 +32,9 @@ public class EmailController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private AppointmentService appointmentService;
 
     @PostMapping("/enviar")
     public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
@@ -88,4 +92,35 @@ public class EmailController {
 
         return ResponseEntity.ok("Contraseña cambiada correctamente.");
     }
+
+    // Confirmar turno por email
+    @GetMapping("/appointments/confirm/{token}")
+    @Transactional
+    public ResponseEntity<String> confirmTurno(@PathVariable String token) {
+        boolean confirmado = appointmentService.confirmByToken(token);
+        if (confirmado) {
+            return ResponseEntity
+                    .ok("✅ Tu turno ha sido confirmado. ¡Te esperamos!");
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("❌ No se pudo confirmar el turno. Token inválido o ya confirmado.");
+        }
+    }
+
+    // Cancelar turno por email
+    @GetMapping("/appointments/cancel/{token}")
+    @Transactional
+    public ResponseEntity<String> cancelTurno(@PathVariable String token) {
+        boolean cancelado = appointmentService.cancelByToken(token);
+        if (cancelado) {
+            return ResponseEntity
+                    .ok("❌ Tu turno ha sido cancelado correctamente.");
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("❌ No se pudo cancelar el turno. Token inválido o ya cancelado.");
+        }
+    }
+
 }
