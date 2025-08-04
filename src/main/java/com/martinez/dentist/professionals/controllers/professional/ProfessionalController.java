@@ -1,6 +1,5 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
-import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.services.ProfessionalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,5 +79,19 @@ public class ProfessionalController {
     @GetMapping("/available")
     public ResponseEntity<List<ProfessionalResponseDTO>> getAvailableProfessionals() {
         return ResponseEntity.ok(professionalService.getAvailableProfessionals());
+    }
+
+    @PutMapping("/{id}/license")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> assignLicenseDates(
+            @PathVariable("id") Long id,
+            @RequestBody LicenseDatesDTO dto) {
+        professionalService.assignLicenseDates(id, dto.getStartDate(), dto.getEndDate());
+        return ResponseEntity.ok(Map.of(
+                "message",   "Fechas de licencia asignadas correctamente.",
+                "id",        id,
+                "startDate", dto.getStartDate(),
+                "endDate",   dto.getEndDate()
+        ));
     }
 }

@@ -11,6 +11,7 @@ import com.martinez.dentist.professionals.repositories.SpecialtyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -30,7 +31,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             throw new RuntimeException("Ya existe un profesional con el mismo número de documento.");
         }
 
-        // 1) Creo la entidad básica
         Professional professional = new Professional(
                 dto.getFullName(),
                 dto.getDocumentType(),
@@ -38,7 +38,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
                 dto.getPhone()
         );
 
-        // 2) Agrego horarios si vienen
         if (dto.getSchedules() != null && !dto.getSchedules().isEmpty()) {
             List<ProfessionalSchedule> schedules = dto.getSchedules().stream()
                     .map(scheduleDTO -> new ProfessionalSchedule(
@@ -51,9 +50,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        // 3) Agrego especialidades en bloque
         if (dto.getSpecialtyIds() != null && !dto.getSpecialtyIds().isEmpty()) {
-            // Validamos duplicados en la lista de IDs
             Set<Long> uniqueSpecIds = new HashSet<>(dto.getSpecialtyIds());
             if (uniqueSpecIds.size() < dto.getSpecialtyIds().size()) {
                 throw new RuntimeException("Hay IDs de especialidades duplicados en el request.");
@@ -69,7 +66,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             }
         }
 
-        // 4) Guardo y retorno
         Professional saved = professionalRepository.save(professional);
         return saved.getId();
     }
@@ -79,7 +75,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
         Professional professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
-        // 1) Detectar cambios en datos personales y en horarios
         boolean personalDataUnchanged =
                 Objects.equals(professional.getFullName(), dto.getFullName()) &&
                         Objects.equals(professional.getPhone(), dto.getPhone()) &&
@@ -88,7 +83,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
 
         boolean schedulesUnchanged = schedulesAreEqual(professional.getSchedules(), dto.getSchedules());
 
-        // 2) Detectar cambios también en especialidades
         List<Long> newSpecialtyIds = dto.getSpecialtyIds() != null
                 ? dto.getSpecialtyIds()
                 : List.of();
@@ -101,10 +95,8 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             throw new NoChangesDetectedException("No se detectaron cambios en los datos del profesional.");
         }
 
-        // 3) Actualizo datos básicos
         professional.updateData(dto);
 
-        // 4) Actualizo horarios
         if (dto.getSchedules() != null) {
             professional.getSchedules().clear();
             List<ProfessionalSchedule> schedules = dto.getSchedules().stream()
@@ -117,7 +109,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        // 5) Actualizo especialidades “en bloque”
         if (dto.getSpecialtyIds() != null) {
             professional.getProfessionalSpecialties().clear();
             for (Long specId : newSpecialtyIds) {
@@ -130,7 +121,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             }
         }
 
-        // 6) Guardo y retorno el ID
         Professional saved = professionalRepository.save(professional);
         return saved.getId();
     }
@@ -198,7 +188,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     private ProfessionalResponseDTO toResponseDTO(Professional professional) {
-        // Mapeo de horarios
         List<ScheduleResponseDTO> scheduleDTOs = professional.getSchedules().stream()
                 .map(schedule -> new ScheduleResponseDTO(
                         schedule.getDayOfWeek(),
@@ -207,7 +196,6 @@ public class ProfessionalServiceImpl implements ProfessionalService {
                 ))
                 .toList();
 
-        // Recojo IDs y nombres de especialidades, eliminando duplicados
         List<Long> specialtyIds = professional.getProfessionalSpecialties().stream()
                 .map(ps -> ps.getSpecialty().getId())
                 .distinct()
@@ -257,5 +245,26 @@ public class ProfessionalServiceImpl implements ProfessionalService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void assignLicenseDates(Long professionalId, LocalDate startDate, LocalDate endDate) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new RuntimeException("Profesional no encontrado con ID: " + professionalId));
+
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Las fechas de licencia no pueden ser nulas");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("La fecha de inicio debe ser anterior o igual a la fecha de fin");
+        }
+
+        if (Objects.equals(professional.getLicenseStartDate(), startDate) &&
+                Objects.equals(professional.getLicenseEndDate(),   endDate)) {
+            throw new NoChangesDetectedException("No hubo cambios en las fechas de licencia");
+        }
+
+        professional.setLicenseStartDate(startDate);
+        professional.setLicenseEndDate(endDate);
+        professionalRepository.save(professional);
+    }
 
 }

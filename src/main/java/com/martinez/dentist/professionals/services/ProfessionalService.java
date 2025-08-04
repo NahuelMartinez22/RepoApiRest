@@ -5,6 +5,7 @@ import com.martinez.dentist.professionals.controllers.professional.ProfessionalR
 
 import com.martinez.dentist.professionals.models.Professional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ProfessionalService {
@@ -23,4 +24,7 @@ public interface ProfessionalService {
 
     void setAvailable(Long professionalId, boolean available);
     List<ProfessionalResponseDTO> getAvailableProfessionals();
+
+    void assignLicenseDates(Long professionalId, LocalDate startDate, LocalDate endDate);
+
 }

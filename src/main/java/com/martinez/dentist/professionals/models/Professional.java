@@ -2,6 +2,8 @@ package com.martinez.dentist.professionals.models;
 
 import com.martinez.dentist.professionals.controllers.professional.ProfessionalRequestDTO;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
@@ -34,6 +36,12 @@ public class Professional {
 
     @Column(nullable = false)
     private Boolean available = true;
+
+    @Column(name = "license_start_date")
+    private LocalDate licenseStartDate;
+
+    @Column(name = "license_end_date")
+    private LocalDate licenseEndDate;
 
     @OneToMany(mappedBy = "professional", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProfessionalSchedule> schedules = new ArrayList<>();
@@ -101,5 +109,21 @@ public class Professional {
 
     public void setAvailable(Boolean available) {
         this.available = available;
+    }
+
+    public LocalDate getLicenseStartDate() {
+        return licenseStartDate;
+    }
+
+    public void setLicenseStartDate(LocalDate licenseStartDate) {
+        this.licenseStartDate = licenseStartDate;
+    }
+
+    public LocalDate getLicenseEndDate() {
+        return licenseEndDate;
+    }
+
+    public void setLicenseEndDate(LocalDate licenseEndDate) {
+        this.licenseEndDate = licenseEndDate;
     }
 }
