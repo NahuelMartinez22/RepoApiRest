@@ -87,8 +87,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
             String hora = dto.getDateTime().toLocalTime().toString();
 
-            String cancelUrl = "https://tusitio.com/appointments/cancel/" + appointment.getCancelToken();
-            String confirmUrl = "https://tusitio.com/appointments/confirm/" + appointment.getConfirmToken();
+            String cancelUrl = "https://odonto-turno.up.railway.app/appointments/cancel/" + appointment.getCancelToken();
+            String confirmUrl = "https://odonto-turno.up.railway.app/appointments/confirm/" + appointment.getConfirmToken();
 
             String cuerpo = String.format(
                     "Hola %s,\n\nTu turno fue creado con éxito. Te esperamos el %s a las %s con el profesional %s.\n" +

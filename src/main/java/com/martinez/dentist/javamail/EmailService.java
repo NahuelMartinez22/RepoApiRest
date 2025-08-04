@@ -9,7 +9,7 @@ import java.util.Properties;
 
 @Service
 public class EmailService {
-    public static void enviar(EmailDTO email) throws MessagingException {
+    public static void enviar(EmailDTO email) throws MessagingException, UnsupportedEncodingException {
         String remitente = "nahuel.martinez.243@gmail.com";
         String contraseña = "yjpe jspd halk vmgs";
         Properties props = new Properties();
@@ -24,11 +24,21 @@ public class EmailService {
             }
         });
 
-        Message mensaje = new MimeMessage(session);
-        mensaje.setFrom(new InternetAddress(remitente));
-        mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.destinatario));
-        mensaje.setSubject(email.asunto);
-        mensaje.setText(email.cuerpo);
+        MimeMessage mensaje = new MimeMessage(session);
+
+        mensaje.setFrom(new InternetAddress(remitente, "Tu Clínica", "UTF-8"));
+
+        mensaje.setRecipients(
+                Message.RecipientType.TO,
+                InternetAddress.parse(email.getDestinatario())
+        );
+
+        mensaje.setSubject(email.getAsunto(), "UTF-8");
+
+        mensaje.setHeader("Content-Type", "text/plain; charset=UTF-8");
+        mensaje.setHeader("Content-Transfer-Encoding", "8bit");
+
+        mensaje.setText(email.getCuerpo(), "UTF-8");
 
         Transport.send(mensaje);
     }
