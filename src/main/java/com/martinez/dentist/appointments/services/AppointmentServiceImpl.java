@@ -57,8 +57,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        if (dto.getDateTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("No se puede crear un turno en una fecha/hora que ya pasó.");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime threeHoursAgo = now.minusHours(3);
+
+        if (dto.getDateTime().isBefore(now) && dto.getDateTime().isAfter(threeHoursAgo)) {
+            throw new RuntimeException("No se puede asignar un turno en una fecha/hora pasada.");
         }
 
         if (appointmentRepository.existsByProfessionalIdAndDateTime(professional.getId(), dto.getDateTime())) {
@@ -133,8 +136,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        if (dto.getDateTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("No se puede asignar un turno en una fecha/hora pasada.");
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime threeHoursAgo = now.minusHours(3);
+        if (dto.getDateTime().isBefore(now) && dto.getDateTime().isAfter(threeHoursAgo)) {
+            throw new RuntimeException(
+                    "No se puede asignar un turno en una fecha/hora pasada."
+            );
         }
 
         boolean noChanges =
