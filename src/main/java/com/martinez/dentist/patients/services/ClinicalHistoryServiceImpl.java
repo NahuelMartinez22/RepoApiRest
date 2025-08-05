@@ -208,8 +208,7 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
                         .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid)))
                 .collect(Collectors.toList());
 
-        history.getProcedures().clear();
-        newProcedures.forEach(history::addProcedure);
+        history.setProcedures(newProcedures);
 
         clinicalHistoryRepository.save(history);
         return "Procedimientos actualizados correctamente.";
