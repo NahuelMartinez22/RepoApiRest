@@ -19,7 +19,7 @@ public interface ClinicalHistoryService {
     ClinicalHistory getById(Long id);
     void deleteClinicalHistory(Long id);
     String updateClinicalHistoryDescription(Long id, ClinicalHistoryRequestDTO dto);
-    String addProcedures(Long historyId, List<Long> procedureIds);
+    String patchProcedures(Long historyId, List<Long> procedureIds);
     String removeProcedures(Long historyId, List<Long> procedureIds);
 
     List<ClinicalFile> uploadFiles(Long historyId, List<MultipartFile> files) throws IOException;

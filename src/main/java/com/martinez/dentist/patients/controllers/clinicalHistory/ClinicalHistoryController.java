@@ -79,11 +79,12 @@ public class ClinicalHistoryController {
         return ResponseEntity.ok(clinicalHistoryService.updateClinicalHistoryDescription(id, dto));
     }
 
-    @PostMapping("/{id}/procedures")
-    public ResponseEntity<String> addMultipleProcedures(
+    @PatchMapping("/{id}/procedures")
+    public ResponseEntity<String> patchProcedures(
             @PathVariable Long id,
             @RequestBody ProcedureIdsRequestDTO dto) {
-        return ResponseEntity.ok(clinicalHistoryService.addProcedures(id, dto.getProcedureIds()));
+        String result = clinicalHistoryService.patchProcedures(id, dto.getProcedureIds());
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}/procedures")

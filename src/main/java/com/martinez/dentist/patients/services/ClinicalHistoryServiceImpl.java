@@ -195,7 +195,7 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
     }
 
     @Override
-    public String addProcedures(Long id, List<Long> procedureIds) {
+    public String patchProcedures(Long id, List<Long> procedureIds) {
         ClinicalHistory history = getById(id);
 
         Set<Long> uniqueRequestIds = new HashSet<>(procedureIds);
@@ -203,28 +203,16 @@ public class ClinicalHistoryServiceImpl implements ClinicalHistoryService {
             throw new RuntimeException("Hay procedimientos repetidos en el request.");
         }
 
-        Set<Long> currentProcedureIds = history.getProcedures().stream()
-                .map(DentalProcedure::getId)
-                .collect(Collectors.toSet());
+        List<DentalProcedure> newProcedures = uniqueRequestIds.stream()
+                .map(pid -> dentalProcedureRepository.findById(pid)
+                        .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid)))
+                .collect(Collectors.toList());
 
-        boolean algunAgregado = false;
-
-        for (Long pid : uniqueRequestIds) {
-            if (currentProcedureIds.contains(pid)) continue;
-
-            DentalProcedure procedure = dentalProcedureRepository.findById(pid)
-                    .orElseThrow(() -> new RuntimeException("Procedimiento no encontrado con ID: " + pid));
-
-            history.addProcedure(procedure);
-            algunAgregado = true;
-        }
-
-        if (!algunAgregado) {
-            throw new NoChangesDetectedException("Todos los procedimientos ya estaban asociados a la historia clínica.");
-        }
+        history.getProcedures().clear();
+        newProcedures.forEach(history::addProcedure);
 
         clinicalHistoryRepository.save(history);
-        return "Procedimientos agregados correctamente.";
+        return "Procedimientos actualizados correctamente.";
     }
 
 
