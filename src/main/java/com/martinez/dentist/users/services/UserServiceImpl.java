@@ -167,6 +167,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String deleteUser(Long id) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario actual no válido"));
+
+        if (currentUser.getId().equals(id)) {
+            throw new RuntimeException("No puedes eliminarte a ti mismo.");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
         userRepository.delete(user);
