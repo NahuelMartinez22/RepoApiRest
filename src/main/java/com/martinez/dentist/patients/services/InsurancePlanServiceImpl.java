@@ -10,7 +10,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -24,13 +26,18 @@ public class InsurancePlanServiceImpl implements InsurancePlanService {
 
     @Override
     @Transactional
-    public String create(InsurancePlanRequestDTO dto) {
+    public Map<String, Object> create(InsurancePlanRequestDTO dto) {
         HealthInsurance hi = healthInsuranceRepository.findById(dto.getHealthInsuranceId())
                 .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
 
         InsurancePlan plan = new InsurancePlan(dto.getName(), hi);
         planRepository.save(plan);
-        return "Plan creado con éxito.";
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Plan creado con éxito.");
+        response.put("id", plan.getId());
+
+        return response;
     }
 
     @Override

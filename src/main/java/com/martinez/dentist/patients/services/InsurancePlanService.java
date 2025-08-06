@@ -4,9 +4,10 @@ import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanRequ
 import com.martinez.dentist.patients.controllers.InsurancePlan.InsurancePlanResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface InsurancePlanService {
-    String create(InsurancePlanRequestDTO dto);
+    Map<String, Object> create(InsurancePlanRequestDTO dto);
     List<InsurancePlanResponseDTO> getAll();
     List<InsurancePlanResponseDTO> getByHealthInsuranceId(Long id);
     void deleteById(Long id);
