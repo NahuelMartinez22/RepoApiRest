@@ -8,6 +8,7 @@ import com.martinez.dentist.patients.models.*;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -199,6 +200,15 @@ public class PatientServiceImpl implements PatientService {
         return null;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PatientResponseDTO> findAllGuests() {
+        return repository.findByIsGuestTrue()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
     private PatientResponseDTO toResponseDTO(Patient patient) {
         return new PatientResponseDTO(
                 patient.getId(),
@@ -206,11 +216,19 @@ public class PatientServiceImpl implements PatientService {
                 patient.getDocumentType(),
                 patient.getDocumentNumber(),
 
-                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getId() : null,
-                patient.getHealthInsurance() != null ? patient.getHealthInsurance().getName() : null,
+                patient.getHealthInsurance() != null
+                        ? patient.getHealthInsurance().getId()
+                        : null,
+                patient.getHealthInsurance() != null
+                        ? patient.getHealthInsurance().getName()
+                        : null,
 
-                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getId() : null,
-                patient.getInsurancePlan() != null ? patient.getInsurancePlan().getName() : null,
+                patient.getInsurancePlan() != null
+                        ? patient.getInsurancePlan().getId()
+                        : null,
+                patient.getInsurancePlan() != null
+                        ? patient.getInsurancePlan().getName()
+                        : null,
 
                 patient.getAffiliateNumber(),
                 patient.getPhone(),
@@ -221,13 +239,5 @@ public class PatientServiceImpl implements PatientService {
                 patient.getPatientState().getDisplayName(),
                 patient.getIsGuest()
         );
-    }
-
-    @Override
-    public List<PatientResponseDTO> findAllGuests() {
-        return repository.findByIsGuestTrue()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
     }
 }
