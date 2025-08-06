@@ -54,14 +54,14 @@ public class AppointmentReminderService {
 
                 String mensaje = String.format(
                         "Hola %s, recordatorio de tu turno el %s a las %s con %s.\n\n" +
-                                "✅ Confirmar: https://tusitio.com/api/appointments/confirmar/%d\n" +
-                                "❌ Cancelar: https://tusitio.com/api/appointments/cancelar/%d",
+                                "✅ Confirmar: https://odonto-turno.up.railway.app/appointments/confirm/%s\n" +
+                                "❌ Cancelar: https://odonto-turno.up.railway.app/appointments/cancel/%s",
                         paciente.getFullName(),
                         dia,
                         fechaTurno.toLocalTime().toString(),
                         turno.getProfessional().getFullName(),
-                        turno.getId(),
-                        turno.getId()
+                        turno.getConfirmToken(),
+                        turno.getCancelToken()
                 );
 
                 System.out.println("📨 Enviando mensaje a " + telefono);
