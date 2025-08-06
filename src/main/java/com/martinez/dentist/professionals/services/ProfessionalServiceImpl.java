@@ -27,6 +27,22 @@ public class ProfessionalServiceImpl implements ProfessionalService {
 
     @Override
     public Long create(ProfessionalRequestDTO dto) {
+        if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
+            throw new RuntimeException("El nombre completo es obligatorio.");
+        }
+
+        if (dto.getDocumentType() == null) {
+            throw new RuntimeException("El tipo de documento es obligatorio.");
+        }
+
+        if (dto.getDocumentNumber() == null || dto.getDocumentNumber().trim().isEmpty()) {
+            throw new RuntimeException("El número de documento es obligatorio.");
+        }
+
+        if (dto.getSpecialtyIds() == null || dto.getSpecialtyIds().isEmpty()) {
+            throw new RuntimeException("Debe seleccionar al menos una especialidad.");
+        }
+
         if (professionalRepository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
             throw new RuntimeException("Ya existe un profesional con el mismo número de documento.");
         }
@@ -50,20 +66,18 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        if (dto.getSpecialtyIds() != null && !dto.getSpecialtyIds().isEmpty()) {
-            Set<Long> uniqueSpecIds = new HashSet<>(dto.getSpecialtyIds());
-            if (uniqueSpecIds.size() < dto.getSpecialtyIds().size()) {
-                throw new RuntimeException("Hay IDs de especialidades duplicados en el request.");
-            }
+        Set<Long> uniqueSpecIds = new HashSet<>(dto.getSpecialtyIds());
+        if (uniqueSpecIds.size() < dto.getSpecialtyIds().size()) {
+            throw new RuntimeException("Hay IDs de especialidades duplicados en el request.");
+        }
 
-            for (Long specId : uniqueSpecIds) {
-                Specialty specialty = specialtyRepository.findById(specId)
-                        .orElseThrow(() -> new RuntimeException("Especialidad no encontrada con ID: " + specId));
-                ProfessionalSpecialty ps = new ProfessionalSpecialty();
-                ps.setProfessional(professional);
-                ps.setSpecialty(specialty);
-                professional.getProfessionalSpecialties().add(ps);
-            }
+        for (Long specId : uniqueSpecIds) {
+            Specialty specialty = specialtyRepository.findById(specId)
+                    .orElseThrow(() -> new RuntimeException("Especialidad no encontrada con ID: " + specId));
+            ProfessionalSpecialty ps = new ProfessionalSpecialty();
+            ps.setProfessional(professional);
+            ps.setSpecialty(specialty);
+            professional.getProfessionalSpecialties().add(ps);
         }
 
         Professional saved = professionalRepository.save(professional);
@@ -74,6 +88,23 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     public Long updateById(Long id, ProfessionalRequestDTO dto) {
         Professional professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
+
+        // Validaciones obligatorias
+        if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
+            throw new RuntimeException("El nombre completo es obligatorio.");
+        }
+
+        if (dto.getDocumentType() == null) {
+            throw new RuntimeException("El tipo de documento es obligatorio.");
+        }
+
+        if (dto.getDocumentNumber() == null || dto.getDocumentNumber().trim().isEmpty()) {
+            throw new RuntimeException("El número de documento es obligatorio.");
+        }
+
+        if (dto.getSpecialtyIds() == null || dto.getSpecialtyIds().isEmpty()) {
+            throw new RuntimeException("Debe seleccionar al menos una especialidad.");
+        }
 
         boolean personalDataUnchanged =
                 Objects.equals(professional.getFullName(), dto.getFullName()) &&
@@ -86,13 +117,20 @@ public class ProfessionalServiceImpl implements ProfessionalService {
         List<Long> newSpecialtyIds = dto.getSpecialtyIds() != null
                 ? dto.getSpecialtyIds()
                 : List.of();
+
         Set<Long> currentSpecialtyIds = professional.getProfessionalSpecialties().stream()
                 .map(ps -> ps.getSpecialty().getId())
                 .collect(Collectors.toSet());
+
         boolean specialtiesUnchanged = new HashSet<>(newSpecialtyIds).equals(currentSpecialtyIds);
 
         if (personalDataUnchanged && schedulesUnchanged && specialtiesUnchanged) {
             throw new NoChangesDetectedException("No se detectaron cambios en los datos del profesional.");
+        }
+
+        Set<Long> uniqueSpecIds = new HashSet<>(newSpecialtyIds);
+        if (uniqueSpecIds.size() < newSpecialtyIds.size()) {
+            throw new RuntimeException("Hay IDs de especialidades duplicados en el request.");
         }
 
         professional.updateData(dto);
@@ -109,16 +147,14 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             professional.getSchedules().addAll(schedules);
         }
 
-        if (dto.getSpecialtyIds() != null) {
-            professional.getProfessionalSpecialties().clear();
-            for (Long specId : newSpecialtyIds) {
-                Specialty specialty = specialtyRepository.findById(specId)
-                        .orElseThrow(() -> new RuntimeException("Especialidad no encontrada con ID: " + specId));
-                ProfessionalSpecialty ps = new ProfessionalSpecialty();
-                ps.setProfessional(professional);
-                ps.setSpecialty(specialty);
-                professional.getProfessionalSpecialties().add(ps);
-            }
+        professional.getProfessionalSpecialties().clear();
+        for (Long specId : uniqueSpecIds) {
+            Specialty specialty = specialtyRepository.findById(specId)
+                    .orElseThrow(() -> new RuntimeException("Especialidad no encontrada con ID: " + specId));
+            ProfessionalSpecialty ps = new ProfessionalSpecialty();
+            ps.setProfessional(professional);
+            ps.setSpecialty(specialty);
+            professional.getProfessionalSpecialties().add(ps);
         }
 
         Professional saved = professionalRepository.save(professional);
