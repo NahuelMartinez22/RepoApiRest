@@ -27,8 +27,17 @@ public class AppointmentReminderService {
     @Autowired
     private WhatsAppService whatsappService;
 
-    @Scheduled(fixedRate = 5000)//30000 = 30s ----- 86400000 = 24hs
-    public void enviarRecordatorios() {
+    @Scheduled(fixedRate = 43200000) // Cada 12 horas
+    public void enviarRecordatoriosAutomaticamente() {
+        int enviados = processRecordatorios();
+        System.out.println("🔁 Recordatorios automáticos enviados: " + enviados);
+    }
+
+    public int enviarRecordatoriosManualmente() {
+        return processRecordatorios();
+    }
+
+    private int processRecordatorios() {
         LocalDateTime ahora = LocalDateTime.now();
         LocalDateTime en24Horas = ahora.plusHours(24);
 
@@ -36,6 +45,7 @@ public class AppointmentReminderService {
         System.out.println("🔔 Enviando recordatorios para turnos entre ahora y las próximas 24hs...");
 
         List<Appointment> proximosTurnos = appointmentRepository.findByState(AppointmentState.PENDIENTE);
+        int enviados = 0;
 
         for (Appointment turno : proximosTurnos) {
             if (turno.isReminderSent()) continue;
@@ -64,16 +74,13 @@ public class AppointmentReminderService {
                         turno.getCancelToken()
                 );
 
-                // Enviar WhatsApp con manejo de error
                 try {
                     System.out.println("📨 Enviando mensaje a " + telefono);
                     whatsappService.enviarMensaje(telefono, mensaje);
                 } catch (Exception e) {
                     System.out.println("⚠️ Error al enviar WhatsApp: " + e.getMessage());
-                    e.printStackTrace(); // Opcional, para ver más detalles del error
                 }
 
-                // Enviar correo electrónico
                 try {
                     if (paciente.getEmail() != null && !paciente.getEmail().isBlank()) {
                         EmailDTO email = new EmailDTO(
@@ -86,14 +93,15 @@ public class AppointmentReminderService {
                     }
                 } catch (Exception e) {
                     System.out.println("⚠️ Error al enviar correo: " + e.getMessage());
-                    e.printStackTrace();
                 }
 
-                // Marcar turno como recordado
                 turno.setReminderSent(true);
                 appointmentRepository.save(turno);
                 System.out.println("✅ Recordatorio enviado para turno ID: " + turno.getId());
+                enviados++;
             }
         }
+
+        return enviados;
     }
 }
