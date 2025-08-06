@@ -64,9 +64,16 @@ public class AppointmentReminderService {
                         turno.getCancelToken()
                 );
 
-                System.out.println("📨 Enviando mensaje a " + telefono);
-                whatsappService.enviarMensaje(telefono, mensaje);
+                // Enviar WhatsApp con manejo de error
+                try {
+                    System.out.println("📨 Enviando mensaje a " + telefono);
+                    whatsappService.enviarMensaje(telefono, mensaje);
+                } catch (Exception e) {
+                    System.out.println("⚠️ Error al enviar WhatsApp: " + e.getMessage());
+                    e.printStackTrace(); // Opcional, para ver más detalles del error
+                }
 
+                // Enviar correo electrónico
                 try {
                     if (paciente.getEmail() != null && !paciente.getEmail().isBlank()) {
                         EmailDTO email = new EmailDTO(
@@ -79,8 +86,10 @@ public class AppointmentReminderService {
                     }
                 } catch (Exception e) {
                     System.out.println("⚠️ Error al enviar correo: " + e.getMessage());
+                    e.printStackTrace();
                 }
 
+                // Marcar turno como recordado
                 turno.setReminderSent(true);
                 appointmentRepository.save(turno);
                 System.out.println("✅ Recordatorio enviado para turno ID: " + turno.getId());
