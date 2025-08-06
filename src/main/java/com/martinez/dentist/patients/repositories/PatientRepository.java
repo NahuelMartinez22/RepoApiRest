@@ -2,6 +2,7 @@ package com.martinez.dentist.patients.repositories;
 
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.models.PatientState;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,5 +25,6 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
             "GROUP BY FUNCTION('MONTH', p.registrationDate)")
     List<Object[]> countNewPatientsPerMonth(@Param("desde") LocalDate desde);
 
+    @EntityGraph(attributePaths = {"healthInsurance", "insurancePlan"})
     List<Patient> findByIsGuestTrue();
 }

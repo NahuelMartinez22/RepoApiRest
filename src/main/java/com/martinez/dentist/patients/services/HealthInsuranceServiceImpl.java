@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -20,7 +22,7 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
 
     @Override
     @Transactional
-    public String create(HealthInsuranceRequestDTO dto) {
+    public Map<String, Object> create(HealthInsuranceRequestDTO dto) {
         if (repository.existsByName(dto.getName())) {
             throw new RuntimeException("Ya existe una obra social con ese nombre");
         }
@@ -33,7 +35,12 @@ public class HealthInsuranceServiceImpl implements HealthInsuranceService {
         );
 
         repository.save(hi);
-        return "Obra social creada con éxito.";
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Obra social creada con éxito.");
+        response.put("id", hi.getId());
+
+        return response;
     }
 
     @Override

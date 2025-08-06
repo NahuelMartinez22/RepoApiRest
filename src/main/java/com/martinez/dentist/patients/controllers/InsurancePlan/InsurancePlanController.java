@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/insurance-plans")
@@ -16,7 +17,7 @@ public class InsurancePlanController {
     private InsurancePlanService service;
 
     @PostMapping
-    public ResponseEntity<String> create(@RequestBody @Valid InsurancePlanRequestDTO dto) {
+    public ResponseEntity<Map<String, Object>> create(@RequestBody @Valid InsurancePlanRequestDTO dto) {
         return ResponseEntity.ok(service.create(dto));
     }
 

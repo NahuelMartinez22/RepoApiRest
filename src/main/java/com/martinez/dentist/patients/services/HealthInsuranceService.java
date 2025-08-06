@@ -4,9 +4,10 @@ import com.martinez.dentist.patients.controllers.healthInsurance.HealthInsurance
 import com.martinez.dentist.patients.controllers.healthInsurance.HealthInsuranceResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HealthInsuranceService {
-    String create(HealthInsuranceRequestDTO dto);
+    Map<String, Object> create(HealthInsuranceRequestDTO dto);
     void disable(Long id);
     void enable(Long id);
     HealthInsuranceResponseDTO update(Long id, HealthInsuranceRequestDTO dto);

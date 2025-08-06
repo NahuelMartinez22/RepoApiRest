@@ -27,8 +27,17 @@ public class AppointmentReminderService {
     @Autowired
     private WhatsAppService whatsappService;
 
-    @Scheduled(fixedRate = 86400000)//30000 = 30s ----- 86400000 = 24hs
-    public void enviarRecordatorios() {
+    @Scheduled(fixedRate = 43200000) // Cada 12 horas
+    public void enviarRecordatoriosAutomaticamente() {
+        int enviados = processRecordatorios();
+        System.out.println("🔁 Recordatorios automáticos enviados: " + enviados);
+    }
+
+    public int enviarRecordatoriosManualmente() {
+        return processRecordatorios();
+    }
+
+    private int processRecordatorios() {
         LocalDateTime ahora = LocalDateTime.now();
         LocalDateTime en24Horas = ahora.plusHours(24);
 
@@ -36,6 +45,7 @@ public class AppointmentReminderService {
         System.out.println("🔔 Enviando recordatorios para turnos entre ahora y las próximas 24hs...");
 
         List<Appointment> proximosTurnos = appointmentRepository.findByState(AppointmentState.PENDIENTE);
+        int enviados = 0;
 
         for (Appointment turno : proximosTurnos) {
             if (turno.isReminderSent()) continue;
@@ -54,18 +64,22 @@ public class AppointmentReminderService {
 
                 String mensaje = String.format(
                         "Hola %s, recordatorio de tu turno el %s a las %s con %s.\n\n" +
-                                "✅ Confirmar: https://tusitio.com/api/appointments/confirmar/%d\n" +
-                                "❌ Cancelar: https://tusitio.com/api/appointments/cancelar/%d",
+                                "✅ Confirmar: https://odonto-turno.up.railway.app/appointments/confirm/%s\n" +
+                                "❌ Cancelar: https://odonto-turno.up.railway.app/appointments/cancel/%s",
                         paciente.getFullName(),
                         dia,
                         fechaTurno.toLocalTime().toString(),
                         turno.getProfessional().getFullName(),
-                        turno.getId(),
-                        turno.getId()
+                        turno.getConfirmToken(),
+                        turno.getCancelToken()
                 );
 
-                System.out.println("📨 Enviando mensaje a " + telefono);
-                whatsappService.enviarMensaje(telefono, mensaje);
+                try {
+                    System.out.println("📨 Enviando mensaje a " + telefono);
+                    whatsappService.enviarMensaje(telefono, mensaje);
+                } catch (Exception e) {
+                    System.out.println("⚠️ Error al enviar WhatsApp: " + e.getMessage());
+                }
 
                 try {
                     if (paciente.getEmail() != null && !paciente.getEmail().isBlank()) {
@@ -84,7 +98,10 @@ public class AppointmentReminderService {
                 turno.setReminderSent(true);
                 appointmentRepository.save(turno);
                 System.out.println("✅ Recordatorio enviado para turno ID: " + turno.getId());
+                enviados++;
             }
         }
+
+        return enviados;
     }
 }
