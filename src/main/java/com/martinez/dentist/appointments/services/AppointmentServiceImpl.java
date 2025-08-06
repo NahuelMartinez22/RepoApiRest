@@ -103,7 +103,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             EmailDTO email = new EmailDTO(
                     patient.getEmail(),
-                    "Confirmación de turno",
+                    "Tu Turno Odontológico Fue Creado",
                     cuerpo
             );
 
