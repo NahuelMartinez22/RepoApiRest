@@ -31,7 +31,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
             throw new RuntimeException("El nombre completo es obligatorio.");
         }
 
-        if (dto.getDocumentType() == null) {
+        if (dto.getDocumentType() == null || dto.getDocumentType().trim().isEmpty()) {
             throw new RuntimeException("El tipo de documento es obligatorio.");
         }
 
@@ -89,12 +89,11 @@ public class ProfessionalServiceImpl implements ProfessionalService {
         Professional professional = professionalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
-        // Validaciones obligatorias
         if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
             throw new RuntimeException("El nombre completo es obligatorio.");
         }
 
-        if (dto.getDocumentType() == null) {
+        if (dto.getDocumentType() == null || dto.getDocumentType().trim().isEmpty()) {
             throw new RuntimeException("El tipo de documento es obligatorio.");
         }
 

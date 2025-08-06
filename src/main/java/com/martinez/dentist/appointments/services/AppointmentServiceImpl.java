@@ -90,22 +90,15 @@ public class AppointmentServiceImpl implements AppointmentService {
                     .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
             String hora = dto.getDateTime().toLocalTime().toString();
 
-            String cancelUrl = "https://odonto-turno.up.railway.app/appointments/cancel/" + appointment.getCancelToken();
-            String confirmUrl = "https://odonto-turno.up.railway.app/appointments/confirm/" + appointment.getConfirmToken();
-
             String cuerpo = String.format(
                     "Hola %s,\n\nTu turno fue creado con éxito. Te esperamos el %s a las %s con el profesional %s.\n" +
                             "Dirección: Av. Corrientes 3822, CABA.\nMotivo: %s\n\n" +
-                            "✔️ Confirmar turno: %s\n" +
-                            "❌ Cancelar turno: %s\n\n" +
                             "¡Gracias por confiar en nosotros!",
                     patient.getFullName(),
                     dia,
                     hora,
                     professional.getFullName(),
-                    dto.getReason(),
-                    confirmUrl,
-                    cancelUrl
+                    dto.getReason()
             );
 
             EmailDTO email = new EmailDTO(
@@ -124,6 +117,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return saved.getId();
     }
+
 
     @Override
     public Long updateAppointment(Long id, AppointmentRequestDTO dto) {
