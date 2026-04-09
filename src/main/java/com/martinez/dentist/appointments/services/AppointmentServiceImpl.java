@@ -131,13 +131,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime threeHoursAgo = now.minusHours(3);
-        if (dto.getDateTime().isBefore(now) && dto.getDateTime().isAfter(threeHoursAgo)) {
-            throw new RuntimeException(
-                    "No se puede asignar un turno en una fecha/hora pasada."
-            );
-        }
+//         LocalDateTime now = LocalDateTime.now();
+//         LocalDateTime threeHoursAgo = now.minusHours(3);
+//         if (dto.getDateTime().isBefore(now) && dto.getDateTime().isAfter(threeHoursAgo)) {
+//             throw new RuntimeException(
+//                     "No se puede asignar un turno en una fecha/hora pasada."
+//             );
+//         }
 
         boolean noChanges =
                 Objects.equals(appointment.getPatientDni(), dto.getPatientDni()) &&
