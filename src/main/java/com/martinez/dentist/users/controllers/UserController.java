@@ -31,8 +31,6 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(dto));
     }
 
-
-
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
