@@ -3,7 +3,6 @@ package com.martinez.dentist.appointments.services;
 import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
-import com.martinez.dentist.notifications.services.WhatsAppService;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.javamail.EmailDTO;
@@ -23,9 +22,6 @@ public class AppointmentReminderService {
 
     @Autowired
     private PatientRepository patientRepository;
-
-    @Autowired
-    private WhatsAppService whatsappService;
 
     @Scheduled(fixedRate = 43200000) // Cada 12 horas
     public void enviarRecordatoriosAutomaticamente() {
@@ -76,7 +72,6 @@ public class AppointmentReminderService {
 
                 try {
                     System.out.println("📨 Enviando mensaje a " + telefono);
-                    whatsappService.enviarMensaje(telefono, mensaje);
                 } catch (Exception e) {
                     System.out.println("⚠️ Error al enviar WhatsApp: " + e.getMessage());
                 }
