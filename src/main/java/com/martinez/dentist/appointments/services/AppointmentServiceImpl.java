@@ -205,10 +205,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<AppointmentResponseDTO> findAppointmentsByDni(String dni) {
         List<Appointment> appointments = appointmentRepository.findByPatientDni(dni);
 
-        if (appointments.isEmpty()) {
-            throw new RuntimeException("No se encontraron turnos con el DNI: " + dni);
-        }
-
         return appointments.stream()
                 .map(this::toResponseDTO)
                 .toList();
