@@ -1,7 +1,10 @@
 package com.martinez.dentist.appointments.models;
 
+import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -9,39 +12,56 @@ import java.time.LocalDateTime;
 @Table(name = "appointments")
 public class Appointment {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
     @Column(name = "patient_dni", nullable = false)
     private String patientDni;
 
+    @Getter
     @Column(name = "date_time", nullable = false)
     private LocalDateTime dateTime;
 
+    @Getter
     @ManyToOne
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
+    @Getter
     @Column(name = "reason")
     private String reason;
 
+    @Setter
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private AppointmentState state;
 
+    @Setter
+    @Getter
     @Column(name = "reminder_sent")
     private boolean reminderSent = false;
 
+    @Getter
     @Column(name = "credential_token")
     private String credentialToken;
 
+    @Setter
+    @Getter
     @Column(name = "cancel_token", unique = true)
     private String cancelToken;
 
+    @Setter
+    @Getter
     @Column(name = "confirm_token", unique = true)
     private String confirmToken;
 
+    @ManyToOne
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patientId;
 
     public Appointment() {}
 
@@ -69,62 +89,7 @@ public class Appointment {
         this.state = newState;
     }
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getPatientDni() {
-        return patientDni;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public Professional getProfessional() {
-        return professional;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public AppointmentState getState() {
-        return state;
-    }
-
-    public void setState(AppointmentState state) {
-        this.state = state;
-    }
-
-    public boolean isReminderSent() {
-        return reminderSent;
-    }
-
-    public void setReminderSent(boolean reminderSent) {
-        this.reminderSent = reminderSent;
-    }
-
-    public String getCredentialToken() {return credentialToken;}
-
     public void registrarCredentialToken(String token) {
         this.credentialToken = token;
-    }
-
-    public String getCancelToken() {
-        return cancelToken;
-    }
-
-    public void setCancelToken(String cancelToken) {
-        this.cancelToken = cancelToken;
-    }
-
-    public String getConfirmToken() {
-        return confirmToken;
-    }
-
-    public void setConfirmToken(String confirmToken) {
-        this.confirmToken = confirmToken;
     }
 }
