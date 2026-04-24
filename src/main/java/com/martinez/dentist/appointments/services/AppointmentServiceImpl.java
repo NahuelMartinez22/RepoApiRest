@@ -38,9 +38,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Autowired
     private ProfessionalRepository professionalRepository;
 
-    @Autowired
-    private DentalProcedureRepository dentalProcedureRepository;
-
     @Override
     public Long createAppointment(AppointmentRequestDTO dto) {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
@@ -77,7 +74,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getDateTime(),
                 professional,
                 dto.getReason(),
-                dto.getState()
+                dto.getState(),
+                patient
         );
 
         appointment.setCancelToken(UUID.randomUUID().toString());
@@ -161,7 +159,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                 dto.getDateTime(),
                 professional,
                 dto.getReason(),
-                dto.getState()
+                dto.getState(),
+                patient
         );
 
         Appointment saved = appointmentRepository.save(appointment);

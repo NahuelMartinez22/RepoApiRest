@@ -1,5 +1,6 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.appointments.models.Appointment;
 import com.martinez.dentist.appointments.repositories.AppointmentRepository;
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class PatientServiceImpl implements PatientService {
@@ -27,6 +27,7 @@ public class PatientServiceImpl implements PatientService {
 
     @Autowired
     private InsurancePlanRepository insurancePlanRepository;
+
 
     @Autowired
     private AppointmentRepository appointmentRepository;
@@ -76,6 +77,11 @@ public class PatientServiceImpl implements PatientService {
 
         validatePatientDTO(dto);
 
+        if (!dto.getDocumentNumber().equals(patient.getDocumentNumber()) &&
+                repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
+            throw new RuntimeException("Ya existe un paciente con ese DNI");
+        }
+
         InsurancePlan plan = getPlan(dto);
         HealthInsurance healthInsurance = getHealthInsurance(dto);
 
@@ -85,13 +91,6 @@ public class PatientServiceImpl implements PatientService {
         }
 
         String trimmedAffiliate = dto.getAffiliateNumber() != null ? dto.getAffiliateNumber().trim() : null;
-
-        if (!Objects.equals(patient.getDocumentNumber(), dto.getDocumentNumber())) {
-            boolean tieneTurnos = appointmentRepository.existsByPatientDni(patient.getDocumentNumber());
-            if (tieneTurnos) {
-                throw new RuntimeException("No se puede cambiar el DNI porque el paciente tiene turnos asociados.");
-            }
-        }
 
         boolean noChanges =
                 Objects.equals(patient.getFullName(), dto.getFullName()) &&
@@ -115,6 +114,12 @@ public class PatientServiceImpl implements PatientService {
 
         patient.updateData(dto, healthInsurance, plan);
         Patient saved = repository.save(patient);
+
+        List<Appointment> appointments = appointmentRepository.findByPatientId(patient.getId());
+        for (Appointment appointment : appointments) {
+            appointment.setPatientDni(saved.getDocumentNumber());
+        }
+        appointmentRepository.saveAll(appointments);
 
         return saved.getId();
     }

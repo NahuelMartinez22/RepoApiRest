@@ -1,7 +1,5 @@
 package com.martinez.dentist.appointments.controllers;
 
-import com.martinez.dentist.appointments.models.Appointment;
-import com.martinez.dentist.appointments.models.AppointmentState;
 import com.martinez.dentist.appointments.services.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
