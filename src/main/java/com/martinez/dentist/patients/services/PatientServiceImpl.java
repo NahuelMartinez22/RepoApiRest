@@ -1,5 +1,7 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.appointments.models.Appointment;
+import com.martinez.dentist.appointments.repositories.AppointmentRepository;
 import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
@@ -25,6 +27,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Autowired
     private InsurancePlanRepository insurancePlanRepository;
+
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @Override
     public Long save(PatientRequestDTO dto) {
@@ -71,7 +77,8 @@ public class PatientServiceImpl implements PatientService {
 
         validatePatientDTO(dto);
 
-        if (repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
+        if (!dto.getDocumentNumber().equals(patient.getDocumentNumber()) &&
+                repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
             throw new RuntimeException("Ya existe un paciente con ese DNI");
         }
 
@@ -107,6 +114,12 @@ public class PatientServiceImpl implements PatientService {
 
         patient.updateData(dto, healthInsurance, plan);
         Patient saved = repository.save(patient);
+
+        List<Appointment> appointments = appointmentRepository.findByPatientId(patient.getId());
+        for (Appointment appointment : appointments) {
+            appointment.setPatientDni(saved.getDocumentNumber());
+        }
+        appointmentRepository.saveAll(appointments);
 
         return saved.getId();
     }

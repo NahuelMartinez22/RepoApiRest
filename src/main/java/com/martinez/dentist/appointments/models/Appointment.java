@@ -18,6 +18,7 @@ public class Appointment {
     private Long id;
 
     @Getter
+    @Setter
     @Column(name = "patient_dni", nullable = false)
     private String patientDni;
 
@@ -61,28 +62,30 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patientId;
+    private Patient patient;
 
     public Appointment() {}
 
     public Appointment(String patientDni, LocalDateTime dateTime,
                        Professional professional, String reason,
-                       AppointmentState state) {
+                       AppointmentState state, Patient patient) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
+        this.patient = patient;
     }
 
 
     public void updateData(String dni, LocalDateTime dateTime, Professional professional,
-                           String reason, AppointmentState state) {
+                           String reason, AppointmentState state, Patient patient) {
         this.patientDni = dni;
         this.dateTime = dateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
+        this.patient = patient;
     }
 
     public void updateState(AppointmentState newState) {
