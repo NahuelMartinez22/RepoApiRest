@@ -8,7 +8,6 @@ import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.javamail.EmailDTO;
 import com.martinez.dentist.javamail.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,7 +22,6 @@ public class AppointmentReminderService {
     @Autowired
     private PatientRepository patientRepository;
 
-    @Scheduled(fixedRate = 43200000) // Cada 12 horas
     public void enviarRecordatoriosAutomaticamente() {
         int enviados = processRecordatorios();
         System.out.println("🔁 Recordatorios automáticos enviados: " + enviados);
