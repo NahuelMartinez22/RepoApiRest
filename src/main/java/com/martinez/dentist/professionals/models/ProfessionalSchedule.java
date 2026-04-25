@@ -1,9 +1,12 @@
 package com.martinez.dentist.professionals.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
+@Getter
 @Entity
 @Table(name = "professional_schedules")
 public class ProfessionalSchedule {
@@ -35,9 +38,4 @@ public class ProfessionalSchedule {
         this.endTime = endTime;
     }
 
-    public Long getId() { return id; }
-    public Professional getProfessional() { return professional; }
-    public DayOfWeek getDayOfWeek() { return dayOfWeek; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
 }

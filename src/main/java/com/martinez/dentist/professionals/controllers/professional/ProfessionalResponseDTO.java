@@ -1,8 +1,11 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
 import com.martinez.dentist.professionals.controllers.schedule.ScheduleResponseDTO;
+import lombok.Getter;
+
 import java.util.List;
 
+@Getter
 public class ProfessionalResponseDTO {
     private Long id;
     private String fullName;
@@ -33,15 +36,4 @@ public class ProfessionalResponseDTO {
         this.professionalState = professionalState;
         this.available = available;
     }
-
-    public Long getId() { return id; }
-    public String getFullName() { return fullName; }
-    public String getDocumentType() { return documentType; }
-    public String getDocumentNumber() { return documentNumber; }
-    public String getPhone() { return phone; }
-    public List<ScheduleResponseDTO> getSchedules() { return schedules; }
-    public List<Long> getSpecialtyIds() { return specialtyIds; }
-    public List<String> getSpecialtyNames() { return specialtyNames; }
-    public String getProfessionalState() { return professionalState; }
-    public Boolean getAvailable() { return available; }
 }

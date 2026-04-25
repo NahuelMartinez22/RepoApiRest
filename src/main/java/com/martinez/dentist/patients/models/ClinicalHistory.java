@@ -2,11 +2,13 @@ package com.martinez.dentist.patients.models;
 
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 @Entity
 @Table(name = "clinical_histories")
 public class ClinicalHistory {
@@ -45,14 +47,6 @@ public class ClinicalHistory {
         this.description = description;
     }
 
-
-    public Long getId() { return id; }
-    public Patient getPatient() { return patient; }
-    public Professional getProfessional() { return professional; }
-    public LocalDateTime getDateTime() { return dateTime; }
-    public String getDescription() { return description; }
-    public List<ClinicalFile> getFiles() { return files; }
-    public List<ClinicalHistoryProcedure> getClinicalHistoryProcedures() { return clinicalHistoryProcedures; }
 
     public void addProcedure(DentalProcedure procedure) {
         ClinicalHistoryProcedure chp = new ClinicalHistoryProcedure(this, procedure);

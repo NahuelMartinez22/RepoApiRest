@@ -1,5 +1,8 @@
 package com.martinez.dentist.users.controllers;
 
+import lombok.Getter;
+
+@Getter
 public class LoginSuccessResponseDTO {
     private String token;
     private UserResponseDTO user;
@@ -9,11 +12,4 @@ public class LoginSuccessResponseDTO {
         this.user = user;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public UserResponseDTO getUser() {
-        return user;
-    }
 }

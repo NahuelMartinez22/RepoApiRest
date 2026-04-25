@@ -1,5 +1,8 @@
 package com.martinez.dentist.appointments.models;
 
+import lombok.Getter;
+
+@Getter
 public enum AppointmentState {
     PENDIENTE("Pendiente"),
     ATENDIDO("Atendido"),
@@ -15,7 +18,4 @@ public enum AppointmentState {
         this.descripcion = descripcion;
     }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
 }

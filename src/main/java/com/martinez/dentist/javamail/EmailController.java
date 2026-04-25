@@ -93,7 +93,6 @@ public class EmailController {
         return ResponseEntity.ok("Contraseña cambiada correctamente.");
     }
 
-    // Confirmar turno por email
     @PatchMapping("/appointments/confirm/{token}")
     @Transactional
     public ResponseEntity<String> confirmTurno(@PathVariable String token) {
@@ -107,7 +106,6 @@ public class EmailController {
         }
     }
 
-    // Cancelar turno por email
     @PatchMapping("/appointments/cancel/{token}")
     @Transactional
     public ResponseEntity<String> cancelTurno(@PathVariable String token) {
@@ -120,5 +118,4 @@ public class EmailController {
                     .body("❌ No se pudo cancelar el turno. Token inválido o ya cancelado.");
         }
     }
-
 }

@@ -20,9 +20,9 @@ public class AppointmentController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<?> createAppointment(@RequestBody AppointmentRequestDTO dto) {
+    public ResponseEntity<?> createAppointment(@RequestBody AppointmentRequestDTO appointmentRequest) {
         try {
-            Long id = appointmentService.createAppointment(dto);
+            Long id = appointmentService.createAppointment(appointmentRequest);
             return ResponseEntity.ok(Map.of(
                     "message", "Turno creado con éxito.",
                     "id", id
@@ -98,15 +98,4 @@ public class AppointmentController {
         appointmentService.markAsAttended(id, dto.getCredentialToken());
         return ResponseEntity.ok("Turno marcado como ATENDIDO correctamente.");
     }
-
-    @GetMapping("/facturacion")
-    public ResponseEntity<Map<String, Object>> getFacturacionMensual(
-            @RequestParam Long obraSocialId,
-            @RequestParam int mes,
-            @RequestParam int anio) {
-
-        return ResponseEntity.ok(appointmentService.getAppointmentsForBilling(obraSocialId, mes, anio));
-    }
-
-
 }

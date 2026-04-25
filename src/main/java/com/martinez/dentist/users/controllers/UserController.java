@@ -2,10 +2,9 @@ package com.martinez.dentist.users.controllers;
 
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.users.models.User;
+import com.martinez.dentist.users.services.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
-import com.martinez.dentist.users.repositories.UserRepository;
-import com.martinez.dentist.users.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,17 +20,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-
     @PostMapping("/save")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> createUser(@RequestBody UserRequestDTO dto) {
         return ResponseEntity.ok(userService.createUser(dto));
     }
-
-
 
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {

@@ -1,5 +1,8 @@
 package com.martinez.dentist.professionals.controllers.professionalSpecialty;
 
+import lombok.Getter;
+
+@Getter
 public class ProfessionalSpecialtyResponseDTO {
     private Long id;
     private Long professionalId;
@@ -16,24 +19,5 @@ public class ProfessionalSpecialtyResponseDTO {
         this.specialtyName = specialtyName;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getProfessionalId() {
-        return professionalId;
-    }
-
-    public String getProfessionalName() {
-        return professionalName;
-    }
-
-    public Long getSpecialtyId() {
-        return specialtyId;
-    }
-
-    public String getSpecialtyName() {
-        return specialtyName;
-    }
 }
 
