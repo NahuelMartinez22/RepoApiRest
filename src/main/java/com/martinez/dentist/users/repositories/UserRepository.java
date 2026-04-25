@@ -1,6 +1,5 @@
 package com.martinez.dentist.users.repositories;
 
-import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.users.models.User;
 import org.springframework.data.repository.CrudRepository;
 

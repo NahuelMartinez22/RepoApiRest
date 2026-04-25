@@ -1,7 +1,11 @@
 package com.martinez.dentist.professionals.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "professional_specialties")
 public class ProfessionalSpecialty {
@@ -18,27 +22,4 @@ public class ProfessionalSpecialty {
     @JoinColumn(name = "specialty_id")
     private Specialty specialty;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Professional getProfessional() {
-        return professional;
-    }
-
-    public void setProfessional(Professional professional) {
-        this.professional = professional;
-    }
-
-    public Specialty getSpecialty() {
-        return specialty;
-    }
-
-    public void setSpecialty(Specialty specialty) {
-        this.specialty = specialty;
-    }
 }

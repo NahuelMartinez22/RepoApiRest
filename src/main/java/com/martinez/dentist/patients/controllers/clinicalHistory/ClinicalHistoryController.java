@@ -1,8 +1,6 @@
 package com.martinez.dentist.patients.controllers.clinicalHistory;
 
 import com.martinez.dentist.patients.models.ClinicalFile;
-import com.martinez.dentist.patients.models.ClinicalHistory;
-import com.martinez.dentist.patients.repositories.ClinicalFileRepository;
 import com.martinez.dentist.patients.services.ClinicalHistoryService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +18,6 @@ public class ClinicalHistoryController {
 
     @Autowired
     private ClinicalHistoryService clinicalHistoryService;
-
-    @Autowired
-    private ClinicalFileRepository clinicalFileRepository;
 
     @PostMapping
     @Transactional

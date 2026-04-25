@@ -1,5 +1,10 @@
 package com.martinez.dentist.users.controllers;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class UserResponseDTO {
 
     private Long id;
@@ -21,21 +26,4 @@ public class UserResponseDTO {
         this.professionalName = professionalName;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
-
-    public Long getProfessionalId() { return professionalId; }
-    public void setProfessionalId(Long professionalId) { this.professionalId = professionalId; }
-
-    public String getProfessionalName() { return professionalName; }
-    public void setProfessionalName(String professionalName) { this.professionalName = professionalName; }
 }

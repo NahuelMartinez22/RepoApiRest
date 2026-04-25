@@ -1,7 +1,11 @@
 package com.martinez.dentist.patients.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "clinical_files")
 public class ClinicalFile {
@@ -29,15 +33,4 @@ public class ClinicalFile {
         this.clinicalHistory = clinicalHistory;
     }
 
-    public Long getId() { return id; }
-    public String getFileName() { return fileName; }
-    public String getFileType() { return fileType; }
-    public byte[] getData() { return data; }
-    public ClinicalHistory getClinicalHistory() { return clinicalHistory; }
-
-    public void setId(Long id) { this.id = id; }
-    public void setFileName(String fileName) { this.fileName = fileName; }
-    public void setFileType(String fileType) { this.fileType = fileType; }
-    public void setData(byte[] data) { this.data = data; }
-    public void setClinicalHistory(ClinicalHistory clinicalHistory) { this.clinicalHistory = clinicalHistory; }
 }

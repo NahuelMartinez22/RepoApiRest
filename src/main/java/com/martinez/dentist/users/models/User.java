@@ -2,6 +2,8 @@ package com.martinez.dentist.users.models;
 
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +14,7 @@ import java.util.List;
 @Table(name = "users")
 public class User implements UserDetails {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,13 +25,17 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 300)
     private String password;
 
+    @Getter
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Getter
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Setter
+    @Getter
     @OneToOne
     @JoinColumn(name = "professional_id")
     private Professional professional;
@@ -42,18 +49,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
     public void updateData(String username, String email, UserRole role) {
         this.username = username;
         this.email = email;
@@ -63,8 +58,6 @@ public class User implements UserDetails {
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
-
-    // Métodos de UserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -81,27 +74,4 @@ public class User implements UserDetails {
         return username;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    public Professional getProfessional() {return professional;}
-
-    public void setProfessional(Professional professional) {this.professional = professional;}
 }

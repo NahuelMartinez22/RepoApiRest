@@ -1,8 +1,13 @@
 package com.martinez.dentist.professionals.controllers.professional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
+@Setter
+@Getter
 public class LicenseDatesDTO {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -19,19 +24,4 @@ public class LicenseDatesDTO {
         this.endDate = endDate;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
 }

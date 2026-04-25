@@ -1,5 +1,8 @@
 package com.martinez.dentist.professionals.models;
 
+import lombok.Getter;
+
+@Getter
 public enum ProfessionalState {
     ACTIVE("Active"),
     DEACTIVATED("Deactivated");
@@ -10,7 +13,4 @@ public enum ProfessionalState {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
 }

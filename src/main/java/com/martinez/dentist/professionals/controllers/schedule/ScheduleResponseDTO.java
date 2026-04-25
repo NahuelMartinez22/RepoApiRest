@@ -1,8 +1,11 @@
 package com.martinez.dentist.professionals.controllers.schedule;
 
+import lombok.Getter;
+
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
+@Getter
 public class ScheduleResponseDTO {
     private DayOfWeek dayOfWeek;
     private LocalTime startTime;
@@ -14,7 +17,4 @@ public class ScheduleResponseDTO {
         this.endTime = endTime;
     }
 
-    public DayOfWeek getDayOfWeek() { return dayOfWeek; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
 }

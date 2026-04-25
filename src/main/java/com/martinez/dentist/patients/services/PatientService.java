@@ -1,26 +1,240 @@
 package com.martinez.dentist.patients.services;
 
+import com.martinez.dentist.appointments.models.Appointment;
+import com.martinez.dentist.appointments.repositories.AppointmentRepository;
+import com.martinez.dentist.exceptions.NoChangesDetectedException;
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
-import com.martinez.dentist.patients.models.PatientState;
+import com.martinez.dentist.patients.models.*;
+import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
+import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
+import com.martinez.dentist.patients.repositories.PatientRepository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
-public interface PatientService {
+@Service
+public class PatientService {
 
-    Long save(PatientRequestDTO dto);
+    @Autowired
+    private PatientRepository repository;
 
-    Long update(Long id, PatientRequestDTO dto);
+    @Autowired
+    private HealthInsuranceRepository healthInsuranceRepository;
 
-    PatientResponseDTO findById(Long id);
+    @Autowired
+    private InsurancePlanRepository insurancePlanRepository;
 
-    List<PatientResponseDTO> findAll();
 
-    List<PatientResponseDTO> findByState(PatientState state);
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
-    void disable(Long id);
+    public Long save(PatientRequestDTO dto) {
+        if (repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
+            throw new RuntimeException("Ya existe un paciente con ese DNI");
+        }
 
-    void enable(Long id);
+        validatePatientDTO(dto);
 
-    List<PatientResponseDTO> findAllGuests();
+        InsurancePlan plan = getPlan(dto);
+        HealthInsurance healthInsurance = getHealthInsurance(dto);
+
+        if (plan != null && healthInsurance != null &&
+                !Objects.equals(plan.getHealthInsurance().getId(), healthInsurance.getId())) {
+            throw new RuntimeException("El plan no corresponde a la obra social seleccionada");
+        }
+
+        String trimmedAffiliate = dto.getAffiliateNumber() != null ? dto.getAffiliateNumber().trim() : null;
+
+        Patient patient = new Patient(
+                dto.getFullName().trim(),
+                dto.getDocumentType().trim(),
+                dto.getDocumentNumber().trim(),
+                healthInsurance,
+                plan,
+                trimmedAffiliate,
+                dto.getPhone(),
+                dto.getEmail(),
+                dto.getRegistrationDate(),
+                dto.getLastVisitDate(),
+                dto.getNote(),
+                dto.getIsGuest() != null ? dto.getIsGuest() : false
+        );
+
+        Patient savedPatient = repository.save(patient);
+
+        return savedPatient.getId();
+    }
+
+    public Long update(Long id, PatientRequestDTO dto) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        validatePatientDTO(dto);
+
+        if (!dto.getDocumentNumber().equals(patient.getDocumentNumber()) &&
+                repository.findByDocumentNumber(dto.getDocumentNumber()).isPresent()) {
+            throw new RuntimeException("Ya existe un paciente con ese DNI");
+        }
+
+        InsurancePlan plan = getPlan(dto);
+        HealthInsurance healthInsurance = getHealthInsurance(dto);
+
+        if (plan != null && healthInsurance != null &&
+                !Objects.equals(plan.getHealthInsurance().getId(), healthInsurance.getId())) {
+            throw new RuntimeException("El plan no corresponde a la obra social seleccionada");
+        }
+
+        String trimmedAffiliate = dto.getAffiliateNumber() != null ? dto.getAffiliateNumber().trim() : null;
+
+        boolean noChanges =
+                Objects.equals(patient.getFullName(), dto.getFullName()) &&
+                        Objects.equals(patient.getDocumentType(), dto.getDocumentType()) &&
+                        Objects.equals(patient.getDocumentNumber(), dto.getDocumentNumber()) &&
+                        Objects.equals(patient.getAffiliateNumber(), trimmedAffiliate) &&
+                        Objects.equals(patient.getPhone(), dto.getPhone()) &&
+                        Objects.equals(patient.getEmail(), dto.getEmail()) &&
+                        Objects.equals(patient.getNote(), dto.getNote()) &&
+                        ((patient.getInsurancePlan() == null && plan == null) ||
+                                (patient.getInsurancePlan() != null && plan != null &&
+                                        Objects.equals(patient.getInsurancePlan().getId(), plan.getId()))) &&
+                        ((patient.getHealthInsurance() == null && healthInsurance == null) ||
+                                (patient.getHealthInsurance() != null && healthInsurance != null &&
+                                        Objects.equals(patient.getHealthInsurance().getId(), healthInsurance.getId()))) &&
+                        Objects.equals(patient.getIsGuest(), dto.getIsGuest());
+
+        if (noChanges) {
+            throw new NoChangesDetectedException("No se detectaron cambios en los datos del paciente.");
+        }
+
+        patient.updateData(dto, healthInsurance, plan);
+        Patient saved = repository.save(patient);
+
+        List<Appointment> appointments = appointmentRepository.findByPatientId(patient.getId());
+        for (Appointment appointment : appointments) {
+            appointment.setPatientDni(saved.getDocumentNumber());
+        }
+        appointmentRepository.saveAll(appointments);
+
+        return saved.getId();
+    }
+
+    public PatientResponseDTO findById(Long id) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        return toResponseDTO(patient);
+    }
+
+    public List<PatientResponseDTO> findAll() {
+        return ((List<Patient>) repository.findAll()).stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<PatientResponseDTO> findByState(PatientState state) {
+        return repository.findByPatientState(state).stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public void disable(Long id) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        patient.disablePatient();
+        repository.save(patient);
+    }
+
+    public void enable(Long id) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        patient.enablePatient();
+        repository.save(patient);
+    }
+
+    private void validatePatientDTO(PatientRequestDTO dto) {
+        if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
+            throw new RuntimeException("El nombre completo es obligatorio");
+        }
+
+        if (dto.getDocumentType() == null || dto.getDocumentType().trim().isEmpty()) {
+            throw new RuntimeException("El tipo de documento es obligatorio");
+        }
+
+        if (dto.getDocumentNumber() == null || dto.getDocumentNumber().trim().isEmpty()) {
+            throw new RuntimeException("El número de documento es obligatorio");
+        }
+
+        String trimmedAffiliate = dto.getAffiliateNumber() != null ? dto.getAffiliateNumber().trim() : null;
+
+        if (trimmedAffiliate != null && !trimmedAffiliate.isEmpty()) {
+            if (dto.getHealthInsuranceId() == null || dto.getInsurancePlanId() == null) {
+                throw new RuntimeException("Debe seleccionar obra social y plan si se proporciona un número de afiliado.");
+            }
+        }
+
+        if (dto.getHealthInsuranceId() != null && dto.getInsurancePlanId() != null) {
+            if (trimmedAffiliate == null || trimmedAffiliate.isEmpty()) {
+                throw new RuntimeException("Debe ingresar el número de afiliado si selecciona obra social y plan.");
+            }
+        }
+    }
+
+    private InsurancePlan getPlan(PatientRequestDTO dto) {
+        if (dto.getInsurancePlanId() != null) {
+            return insurancePlanRepository.findById(dto.getInsurancePlanId())
+                    .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
+        }
+        return null;
+    }
+
+    private HealthInsurance getHealthInsurance(PatientRequestDTO dto) {
+        if (dto.getHealthInsuranceId() != null) {
+            return healthInsuranceRepository.findById(dto.getHealthInsuranceId())
+                    .orElseThrow(() -> new RuntimeException("Obra social no encontrada"));
+        }
+        return null;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PatientResponseDTO> findAllGuests() {
+        return repository.findByIsGuestTrue()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    private PatientResponseDTO toResponseDTO(Patient patient) {
+        return new PatientResponseDTO(
+                patient.getId(),
+                patient.getFullName(),
+                patient.getDocumentType(),
+                patient.getDocumentNumber(),
+
+                patient.getHealthInsurance() != null
+                        ? patient.getHealthInsurance().getId()
+                        : null,
+                patient.getHealthInsurance() != null
+                        ? patient.getHealthInsurance().getName()
+                        : null,
+
+                patient.getInsurancePlan() != null
+                        ? patient.getInsurancePlan().getId()
+                        : null,
+                patient.getInsurancePlan() != null
+                        ? patient.getInsurancePlan().getName()
+                        : null,
+
+                patient.getAffiliateNumber(),
+                patient.getPhone(),
+                patient.getEmail(),
+                patient.getRegistrationDate(),
+                patient.getLastVisitDate(),
+                patient.getNote(),
+                patient.getPatientState().getDisplayName(),
+                patient.getIsGuest()
+        );
+    }
 }

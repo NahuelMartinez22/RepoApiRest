@@ -2,9 +2,12 @@ package com.martinez.dentist.patients.models;
 
 import com.martinez.dentist.patients.controllers.PatientRequestDTO;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
 @Entity
 @Table(name = "patients")
 public class Patient {
@@ -36,15 +39,18 @@ public class Patient {
     @Column(name = "phone")
     private String phone;
 
+    @Setter
     @Column(name = "email")
     private String email;
 
     @Column(name = "registration_date")
     private LocalDate registrationDate;
 
+    @Setter
     @Column(name = "last_visit_date")
     private LocalDate lastVisitDate;
 
+    @Setter
     @Column(name = "note")
     private String note;
 
@@ -108,83 +114,11 @@ public class Patient {
         this.isGuest = dto.getIsGuest() != null ? dto.getIsGuest() : this.isGuest;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getDocumentType() {
-        return documentType;
-    }
-
-    public String getDocumentNumber() {
-        return documentNumber;
-    }
-
-    public HealthInsurance getHealthInsurance() {
-        return healthInsurance;
-    }
-
-    public InsurancePlan getInsurancePlan() {
-        return insurancePlan;
-    }
-
-    public String getAffiliateNumber() {
-        return affiliateNumber;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public LocalDate getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public LocalDate getLastVisitDate() {
-        return lastVisitDate;
-    }
-
-    public void setLastVisitDate(LocalDate lastVisitDate) {
-        this.lastVisitDate = lastVisitDate;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public PatientState getPatientState() {
-        return patientState;
-    }
-
     public void disablePatient() {
         this.patientState = PatientState.DEACTIVATED;
     }
 
     public void enablePatient() {
         this.patientState = PatientState.ACTIVE;
-    }
-
-    public Boolean getIsGuest() {
-        return isGuest;
-    }
-
-    public void setIsGuest(Boolean isGuest) {
-        this.isGuest = isGuest;
     }
 }
