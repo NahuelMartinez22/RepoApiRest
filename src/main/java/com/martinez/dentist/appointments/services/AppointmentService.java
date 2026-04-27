@@ -11,29 +11,44 @@ import com.martinez.dentist.javamail.EmailService;
 import com.martinez.dentist.patients.controllers.PatientResponseDTO;
 import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
+import com.martinez.dentist.practices.models.Practice;
+import com.martinez.dentist.practices.repositories.PracticeRepository;
 import com.martinez.dentist.professionals.models.Professional;
 import com.martinez.dentist.professionals.models.ProfessionalState;
 import com.martinez.dentist.professionals.repositories.ProfessionalRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService  {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
+    @Value("${app.notifications.email.appointment-scheduled.enabled}")
+    private boolean appointmentScheduledEmailEnabled;
 
-    @Autowired
-    private PatientRepository patientRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final PatientRepository patientRepository;
+    private final ProfessionalRepository professionalRepository;
+    private final EmailService emailService;
+    private final PracticeRepository practiceRepository;
 
-    @Autowired
-    private ProfessionalRepository professionalRepository;
+    public AppointmentService(AppointmentRepository appointmentRepository,
+                              PatientRepository patientRepository,
+                              ProfessionalRepository professionalRepository,
+                              EmailService emailService,
+                              PracticeRepository practiceRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.patientRepository = patientRepository;
+        this.professionalRepository = professionalRepository;
+        this.emailService = emailService;
+        this.practiceRepository = practiceRepository;
+    }
 
     public Long createAppointment(AppointmentRequestDTO appointmentRequest) {
         Professional professional = professionalRepository.findById(appointmentRequest.getProfessionalId())
@@ -58,13 +73,17 @@ public class AppointmentService  {
             throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
         }
 
+        // TODO: Hacer desarrollo para recibir el id de la practica. Tarea en el board #29
+        Practice practice = practiceRepository.findById(1L).orElseThrow(() -> new RuntimeException("Practica no encontrada"));
+
         Appointment appointment = new Appointment(
                 appointmentRequest.getPatientDni(),
                 appointmentRequest.getDateTime(),
                 professional,
                 appointmentRequest.getReason(),
                 appointmentRequest.getState(),
-                patient
+                patient,
+                practice
         );
 
         appointment.setCancelToken(UUID.randomUUID().toString());
@@ -72,34 +91,8 @@ public class AppointmentService  {
 
         Appointment saved = appointmentRepository.save(appointment);
 
-        if (patient.getEmail() != null && !patient.getEmail().isBlank()) {
-            String dia = appointmentRequest.getDateTime().getDayOfWeek()
-                    .getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
-            String hora = appointmentRequest.getDateTime().toLocalTime().toString();
-
-            String cuerpo = String.format(
-                    "Hola %s,\n\nTu turno fue creado con éxito. Te esperamos el %s a las %s con el profesional %s.\n" +
-                            "Dirección: Av. Corrientes 3822, CABA.\nMotivo: %s\n\n" +
-                            "¡Gracias por confiar en nosotros!",
-                    patient.getFullName(),
-                    dia,
-                    hora,
-                    professional.getFullName(),
-                    appointmentRequest.getReason()
-            );
-
-            EmailDTO email = new EmailDTO(
-                    patient.getEmail(),
-                    "Tu Turno Odontológico Fue Creado",
-                    cuerpo
-            );
-
-            new Thread(() -> {
-                try {
-                    EmailService.enviar(email);
-                } catch (Exception e) {
-                }
-            }).start();
+        if (appointmentScheduledEmailEnabled) {
+            notifyAppointmentBooked(patient, appointment, practice);
         }
 
         return saved.getId();
@@ -315,5 +308,73 @@ public class AppointmentService  {
                 patient.getPatientState().getDisplayName(),
                 patient.getIsGuest()
         );
+    }
+
+    private void notifyAppointmentBooked(Patient patient, Appointment appointment, Practice practice) {
+        if (patient.getEmail() == null || patient.getEmail().isBlank()) {
+            return;
+        }
+
+        String hour = appointment.getDateTime().toLocalTime().toString();
+        String date = appointment.getDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        String body = String.format(getTemplate(),
+                patient.getFullName(),
+                date,
+                hour,
+                appointment.getProfessional().getFullName(),
+                practice.getName()
+        );
+
+        EmailDTO email = new EmailDTO(
+                patient.getEmail(),
+                "Turno agendado con " + appointment.getProfessional().getFullName(),
+                body
+        );
+
+        emailService.send(email);
+    }
+
+    private String getTemplate() {
+        return """
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 0; background-color: #f5f5f5;">
+               \s
+                <div style="background-color: #1a73e8; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px;">Tu <span style="background-color: rgba(255,255,0,0.4); padding: 0 4px;">turno</span> fue agendado</h1>
+                </div>
+               \s
+                <div style="background-color: white; padding: 30px; text-align: center;">
+                    <p style="font-weight: bold; color: #333; font-size: 16px; margin: 0;">%s,</p>
+                    <p style="color: #555; margin: 5px 0 20px 0;">Te informamos los datos de tu <span style="background-color: rgba(255,255,0,0.4); padding: 0 4px;">turno</span> agendado:</p>
+                   \s
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 10px 0;">
+                        <p style="font-size: 28px; margin: 0;">📅</p>
+                        <p style="font-weight: bold; font-size: 18px; color: #1a73e8; margin: 5px 0;">%s</p>
+                    </div>
+                   \s
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 10px 0;">
+                        <p style="font-size: 28px; margin: 0;">🕐</p>
+                        <p style="font-weight: bold; font-size: 18px; color: #1a73e8; margin: 5px 0;">%s</p>
+                    </div>
+                   \s
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 10px 0;">
+                        <p style="font-size: 28px; margin: 0;">👨‍⚕️</p>
+                        <p style="font-weight: bold; font-size: 18px; color: #1a73e8; margin: 5px 0;">%s</p>
+                    </div>
+                   \s
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px; margin: 10px 0;">
+                        <p style="font-size: 28px; margin: 0;">🏥</p>
+                        <p style="font-weight: bold; font-size: 18px; color: #1a73e8; margin: 5px 0;">%s</p>
+                    </div>
+                   \s
+                    <p style="color: #888; margin-top: 30px; font-size: 14px;">¡Gracias por confiar en nosotros!</p>
+                </div>
+               \s
+                <div style="background-color: #1a73e8; padding: 15px; text-align: center; border-radius: 0 0 10px 10px;">
+                    <p style="color: white; margin: 0; font-size: 12px;">OdontoTurno © 2026</p>
+                </div>
+               \s
+            </div>
+           \s""";
     }
 }

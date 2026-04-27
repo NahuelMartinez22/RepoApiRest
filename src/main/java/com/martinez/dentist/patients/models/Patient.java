@@ -25,11 +25,11 @@ public class Patient {
     @Column(name = "document_number")
     private String documentNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "health_insurance_id")
     private HealthInsurance healthInsurance;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "insurance_plan_id")
     private InsurancePlan insurancePlan;
 
