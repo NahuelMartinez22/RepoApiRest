@@ -28,6 +28,10 @@ public class Appointment {
     private LocalDateTime dateTime;
 
     @Getter
+    @Column(name = "end_date_time")
+    private LocalDateTime endDateTime;
+
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
@@ -71,11 +75,12 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(String patientDni, LocalDateTime dateTime,
-                       Professional professional, String reason,
-                       AppointmentState state, Patient patient, Practice practice) {
+    public Appointment(String patientDni, LocalDateTime dateTime, LocalDateTime endDateTime,
+                       Professional professional, String reason, AppointmentState state,
+                       Patient patient, Practice practice) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
+        this.endDateTime = endDateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
@@ -84,10 +89,11 @@ public class Appointment {
     }
 
 
-    public void updateData(String dni, LocalDateTime dateTime, Professional professional,
-                           String reason, AppointmentState state, Patient patient) {
+    public void updateData(String dni, LocalDateTime dateTime, LocalDateTime endDateTime,
+                           Professional professional, String reason, AppointmentState state, Patient patient) {
         this.patientDni = dni;
         this.dateTime = dateTime;
+        this.endDateTime = endDateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;

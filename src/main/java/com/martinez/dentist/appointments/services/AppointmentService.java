@@ -79,6 +79,7 @@ public class AppointmentService  {
         Appointment appointment = new Appointment(
                 appointmentRequest.getPatientDni(),
                 appointmentRequest.getDateTime(),
+                appointmentRequest.getEndDateTime(),
                 professional,
                 appointmentRequest.getReason(),
                 appointmentRequest.getState(),
@@ -111,6 +112,7 @@ public class AppointmentService  {
         boolean noChanges =
                 Objects.equals(appointment.getPatientDni(), dto.getPatientDni()) &&
                         Objects.equals(appointment.getDateTime(), dto.getDateTime()) &&
+                        Objects.equals(appointment.getEndDateTime(), dto.getEndDateTime()) &&
                         Objects.equals(appointment.getProfessional().getId(), professional.getId()) &&
                         Objects.equals(appointment.getReason(), dto.getReason()) &&
                         Objects.equals(appointment.getState(), dto.getState()) &&
@@ -128,6 +130,7 @@ public class AppointmentService  {
         appointment.updateData(
                 dto.getPatientDni(),
                 dto.getDateTime(),
+                dto.getEndDateTime(),
                 professional,
                 dto.getReason(),
                 dto.getState(),
@@ -279,6 +282,7 @@ public class AppointmentService  {
                 patient != null ? patient.getId() : null,
                 patientDTO,
                 appointment.getDateTime(),
+                appointment.getEndDateTime(),
                 appointment.getProfessional().getFullName(),
                 appointment.getReason(),
                 patient != null ? patient.getNote() : null,
