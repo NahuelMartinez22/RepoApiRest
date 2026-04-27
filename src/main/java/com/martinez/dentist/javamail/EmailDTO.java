@@ -1,47 +1,27 @@
 package com.martinez.dentist.javamail;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class EmailDTO {
-    public String destinatario;
-    public String asunto;
-    public String cuerpo;
+    private String recipient;
+    private String subject;
+    private String body;
 
-    public EmailDTO(String destinatario, String asunto, String cuerpo) {
-        this.destinatario = destinatario;
-        this.asunto = asunto;
-        this.cuerpo = cuerpo;
+    public EmailDTO(String recipient, String subject, String body) {
+        this.recipient = recipient;
+        this.subject = subject;
+        this.body = body;
     }
 
-    public EmailDTO() {
-    }
-
-    public String getDestinatario() {
-        return destinatario;
-    }
-
-    public void setDestinatario(String destinatario) {
-        this.destinatario = destinatario;
-    }
-
-    public String getAsunto() {
-        return asunto;
-    }
-
-    public void setAsunto(String asunto) {
-        this.asunto = asunto;
-    }
-
-    public String getCuerpo() {
-        return cuerpo;
-    }
-
-    public void setCuerpo(String cuerpo) {
-        this.cuerpo = cuerpo;
-    }
+    public EmailDTO() {}
 
     @Override
     public String toString() {
         return "MailDTO{" +
-                "destinatario='" + destinatario + '\'' +
+                "destinatario='" + recipient + '\'' +
                 '}';
     }
 }

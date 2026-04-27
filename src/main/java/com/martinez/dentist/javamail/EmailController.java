@@ -38,7 +38,14 @@ public class EmailController {
 
     @PostMapping("/enviar")
     public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
-        Optional<User> userOptional = userRepository.findByEmail(email.getDestinatario());
+
+        emailService.send(email);
+
+        return ResponseEntity.ok("Te enviamos un correo. Por favor, revisá tu casilla de email.");
+    }
+
+    public ResponseEntity<String> enviarCorreoo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
+        Optional<User> userOptional = userRepository.findByEmail(email.getRecipient());
 
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -59,11 +66,11 @@ public class EmailController {
         String resetLink = "https://odonto-turno.up.railway.app/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
-        dto.setDestinatario(user.getEmail());
-        dto.setAsunto("Recuperación de contraseña");
-        dto.setCuerpo("Hacé clic en el siguiente enlace para cambiar tu contraseña:\n\n" + resetLink);
+        dto.setRecipient(user.getEmail());
+        dto.setSubject("Recuperación de contraseña");
+        dto.setBody("Hacé clic en el siguiente enlace para cambiar tu contraseña:\n\n" + resetLink);
 
-        emailService.enviar(dto);
+        emailService.send( dto);
 
         return ResponseEntity.ok("Te enviamos un correo. Por favor, revisá tu casilla de email.");
     }

@@ -1,6 +1,7 @@
 package com.martinez.dentist.appointments.models;
 
 import com.martinez.dentist.patients.models.Patient;
+import com.martinez.dentist.practices.models.Practice;
 import com.martinez.dentist.professionals.models.Professional;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class Appointment {
     private LocalDateTime dateTime;
 
     @Getter
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
@@ -60,21 +61,26 @@ public class Appointment {
     @Column(name = "confirm_token", unique = true)
     private String confirmToken;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "practice_id", nullable = false)
+    private Practice practice;
 
     public Appointment() {}
 
     public Appointment(String patientDni, LocalDateTime dateTime,
                        Professional professional, String reason,
-                       AppointmentState state, Patient patient) {
+                       AppointmentState state, Patient patient, Practice practice) {
         this.patientDni = patientDni;
         this.dateTime = dateTime;
         this.professional = professional;
         this.reason = reason;
         this.state = state;
         this.patient = patient;
+        this.practice = practice;
     }
 
 

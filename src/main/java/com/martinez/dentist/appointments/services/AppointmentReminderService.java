@@ -7,7 +7,6 @@ import com.martinez.dentist.patients.models.Patient;
 import com.martinez.dentist.patients.repositories.PatientRepository;
 import com.martinez.dentist.javamail.EmailDTO;
 import com.martinez.dentist.javamail.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,11 +15,15 @@ import java.util.List;
 @Service
 public class AppointmentReminderService {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final PatientRepository patientRepository;
+    private final EmailService emailService;
 
-    @Autowired
-    private PatientRepository patientRepository;
+    public AppointmentReminderService(AppointmentRepository appointmentRepository, PatientRepository patientRepository, EmailService emailService) {
+        this.appointmentRepository = appointmentRepository;
+        this.patientRepository = patientRepository;
+        this.emailService = emailService;
+    }
 
     public void enviarRecordatoriosAutomaticamente() {
         int enviados = processRecordatorios();
@@ -81,7 +84,7 @@ public class AppointmentReminderService {
                                 "Recordatorio de turno",
                                 mensaje
                         );
-                        EmailService.enviar(email);
+                        emailService.send( email);
                         System.out.println("📧 Correo enviado a " + paciente.getEmail());
                     }
                 } catch (Exception e) {
