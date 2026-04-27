@@ -12,6 +12,7 @@ public class AppointmentRequestDTO {
 
     private String patientDni;
     private LocalDateTime dateTime;
+    private LocalDateTime endDateTime;
     private Long professionalId;
     private String reason;
     private String note;
