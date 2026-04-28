@@ -3,6 +3,7 @@ package com.martinez.dentist.patients.controllers;
 import com.martinez.dentist.patients.models.PatientState;
 import com.martinez.dentist.patients.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -17,16 +18,12 @@ public class PatientController {
     @Autowired
     private PatientService service;
 
-
     @PostMapping
     @Transactional
     public ResponseEntity<?> save(@RequestBody PatientRequestDTO dto) {
         try {
             Long id = service.save(dto);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Paciente creado con éxito.",
-                    "id", id
-            ));
+            return ResponseEntity.ok(Map.of("message", "Paciente creado con éxito.", "id", id));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -34,19 +31,14 @@ public class PatientController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> updatePatient(@PathVariable Long id,
-                                           @RequestBody PatientRequestDTO dto) {
+    public ResponseEntity<?> updatePatient(@PathVariable Long id, @RequestBody PatientRequestDTO dto) {
         try {
             Long updatedId = service.update(id, dto);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Paciente actualizado con éxito.",
-                    "id", updatedId
-            ));
+            return ResponseEntity.ok(Map.of("message", "Paciente actualizado con éxito.", "id", updatedId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> getByIdPatient(@PathVariable Long id) {
@@ -56,7 +48,12 @@ public class PatientController {
 
     @GetMapping
     @Transactional(readOnly = true)
-    public ResponseEntity<List<PatientResponseDTO>> findAllPatients(@RequestParam(required = false) String state) {
+    public ResponseEntity<?> findAllPatients(
+            @RequestParam(required = false) String state,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) String search) {
+
         if (state != null) {
             try {
                 PatientState parsedState = PatientState.valueOf(state.toUpperCase());
@@ -65,16 +62,15 @@ public class PatientController {
                 return ResponseEntity.badRequest().build();
             }
         }
-        return ResponseEntity.ok(service.findAll());
-    }
 
+        return ResponseEntity.ok(service.findAll(page, limit, search));
+    }
 
     @PatchMapping("/{id}/disable")
     public ResponseEntity<String> disablePatient(@PathVariable Long id) {
         service.disable(id);
         return ResponseEntity.ok("Paciente deshabilitado.");
     }
-
 
     @PatchMapping("/{id}/enable")
     public ResponseEntity<String> enablePatient(@PathVariable Long id) {

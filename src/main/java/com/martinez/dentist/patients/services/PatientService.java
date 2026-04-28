@@ -9,10 +9,14 @@ import com.martinez.dentist.patients.models.*;
 import com.martinez.dentist.patients.repositories.HealthInsuranceRepository;
 import com.martinez.dentist.patients.repositories.InsurancePlanRepository;
 import com.martinez.dentist.patients.repositories.PatientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Objects;
 
@@ -205,6 +209,18 @@ public class PatientService {
                 .map(this::toResponseDTO)
                 .toList();
     }
+
+    public Page<PatientResponseDTO> findAll(int page, int limit, String search) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("fullName").ascending());
+
+        if (search != null && !search.isBlank()) {
+            return repository.findBySearch(search, pageable).map(this::toResponseDTO);
+        }
+
+        return repository.findAll(pageable).map(this::toResponseDTO);
+    }
+
+
 
     private PatientResponseDTO toResponseDTO(Patient patient) {
         return new PatientResponseDTO(
