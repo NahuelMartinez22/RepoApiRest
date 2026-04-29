@@ -214,13 +214,13 @@ public class PatientService {
         Pageable pageable = PageRequest.of(page, limit, Sort.by("fullName").ascending());
 
         if (search != null && !search.isBlank()) {
-            return repository.findBySearch(search, pageable).map(this::toResponseDTO);
+            return repository.findBySearch(search, pageable)
+                    .map(this::toResponseDTO);
         }
 
-        return repository.findAll(pageable).map(this::toResponseDTO);
+        return repository.findAllActive(pageable)
+                .map(this::toResponseDTO);
     }
-
-
 
     private PatientResponseDTO toResponseDTO(Patient patient) {
         return new PatientResponseDTO(

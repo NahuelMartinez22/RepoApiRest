@@ -20,9 +20,13 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByPatientState(PatientState state);
 
     @Query("SELECT p FROM Patient p WHERE " +
-            "LOWER(p.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.documentNumber) LIKE LOWER(CONCAT('%', :search, '%'))")
+            "p.patientState = com.martinez.dentist.patients.models.PatientState.ACTIVE AND " +
+            "(LOWER(p.fullName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(p.documentNumber) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Patient> findBySearch(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT p FROM Patient p WHERE p.patientState = com.martinez.dentist.patients.models.PatientState.ACTIVE")
+    Page<Patient> findAllActive(Pageable pageable);
 
     @Query("SELECT FUNCTION('MONTH', p.registrationDate), COUNT(p) " +
             "FROM Patient p " +

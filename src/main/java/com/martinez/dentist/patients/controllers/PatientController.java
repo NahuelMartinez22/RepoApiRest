@@ -3,7 +3,6 @@ package com.martinez.dentist.patients.controllers;
 import com.martinez.dentist.patients.models.PatientState;
 import com.martinez.dentist.patients.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -45,15 +44,11 @@ public class PatientController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-
     @GetMapping
+    @Deprecated
     @Transactional(readOnly = true)
-    public ResponseEntity<?> findAllPatients(
-            @RequestParam(required = false) String state,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int limit,
-            @RequestParam(required = false) String search) {
-
+    public ResponseEntity<List<PatientResponseDTO>> findAllPatients(
+            @RequestParam(required = false) String state) {
         if (state != null) {
             try {
                 PatientState parsedState = PatientState.valueOf(state.toUpperCase());
@@ -62,8 +57,16 @@ public class PatientController {
                 return ResponseEntity.badRequest().build();
             }
         }
+        return ResponseEntity.ok(service.findAll());
+    }
 
-        return ResponseEntity.ok(service.findAll(page, limit, search));
+    @GetMapping("/paginated")
+    @Transactional(readOnly = true)
+    public PageResponse<PatientResponseDTO> getPatientsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String search) {
+        return PageResponse.of(service.findAll(page, limit, search));
     }
 
     @PatchMapping("/{id}/disable")
