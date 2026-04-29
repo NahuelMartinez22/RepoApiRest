@@ -17,16 +17,12 @@ public class PatientController {
     @Autowired
     private PatientService service;
 
-
     @PostMapping
     @Transactional
     public ResponseEntity<?> save(@RequestBody PatientRequestDTO dto) {
         try {
             Long id = service.save(dto);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Paciente creado con éxito.",
-                    "id", id
-            ));
+            return ResponseEntity.ok(Map.of("message", "Paciente creado con éxito.", "id", id));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -34,29 +30,25 @@ public class PatientController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<?> updatePatient(@PathVariable Long id,
-                                           @RequestBody PatientRequestDTO dto) {
+    public ResponseEntity<?> updatePatient(@PathVariable Long id, @RequestBody PatientRequestDTO dto) {
         try {
             Long updatedId = service.update(id, dto);
-            return ResponseEntity.ok(Map.of(
-                    "message", "Paciente actualizado con éxito.",
-                    "id", updatedId
-            ));
+            return ResponseEntity.ok(Map.of("message", "Paciente actualizado con éxito.", "id", updatedId));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponseDTO> getByIdPatient(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
-
     @GetMapping
+    @Deprecated
     @Transactional(readOnly = true)
-    public ResponseEntity<List<PatientResponseDTO>> findAllPatients(@RequestParam(required = false) String state) {
+    public ResponseEntity<List<PatientResponseDTO>> findAllPatients(
+            @RequestParam(required = false) String state) {
         if (state != null) {
             try {
                 PatientState parsedState = PatientState.valueOf(state.toUpperCase());
@@ -68,13 +60,20 @@ public class PatientController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/paginated")
+    @Transactional(readOnly = true)
+    public PageResponse<PatientResponseDTO> getPatientsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String search) {
+        return PageResponse.of(service.findAll(page, limit, search));
+    }
 
     @PatchMapping("/{id}/disable")
     public ResponseEntity<String> disablePatient(@PathVariable Long id) {
         service.disable(id);
         return ResponseEntity.ok("Paciente deshabilitado.");
     }
-
 
     @PatchMapping("/{id}/enable")
     public ResponseEntity<String> enablePatient(@PathVariable Long id) {

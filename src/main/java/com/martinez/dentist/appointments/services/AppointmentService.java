@@ -106,6 +106,10 @@ public class AppointmentService  {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
+        if (!professional.trabajaEsteDiaYHorario(dto.getDateTime())) {
+            throw new RuntimeException("El profesional no atiende en el día y horario seleccionado.");
+        }
+
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
