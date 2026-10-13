@@ -7,12 +7,16 @@ import com.martinez.dentist.users.controllers.UserResponseDTO;
 import com.martinez.dentist.users.models.User;
 import com.martinez.dentist.users.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,16 +33,34 @@ public class AuthenticationController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private LoginAttemptService loginAttemptService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginSuccessResponseDTO> login(@RequestBody LoginDTO loginDTO) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDTO.getUsername(),
-                        loginDTO.getPassword()
-                )
-        );
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO, HttpServletRequest request) {
+        String ip = clientIp(request);
+
+        if (loginAttemptService.isBlocked(loginDTO.getUsername(), ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(Map.of(
+                    "status", 429,
+                    "message", "Demasiados intentos fallidos. Esperá 15 minutos y volvé a intentar."
+            ));
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginDTO.getUsername(),
+                            loginDTO.getPassword()
+                    )
+            );
+        } catch (AuthenticationException ex) {
+            loginAttemptService.loginFailed(loginDTO.getUsername(), ip);
+            throw ex;
+        }
+        loginAttemptService.loginSucceeded(loginDTO.getUsername(), ip);
 
         User user = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -59,6 +81,16 @@ public class AuthenticationController {
         );
 
         return ResponseEntity.ok(new LoginSuccessResponseDTO(token, userDTO));
+    }
+
+    // El proxy de Railway pone la IP real del cliente en X-Real-IP.
+    // No se usa X-Forwarded-For porque el cliente puede falsificar su primer valor.
+    private String clientIp(HttpServletRequest request) {
+        String realIp = request.getHeader("X-Real-IP");
+        if (realIp != null && !realIp.isBlank()) {
+            return realIp.trim();
+        }
+        return request.getRemoteAddr();
     }
 
 }
