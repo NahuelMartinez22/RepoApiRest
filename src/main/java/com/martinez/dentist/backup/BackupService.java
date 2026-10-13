@@ -66,70 +66,86 @@ public class BackupService {
                         }
                     }
 
-                    try (Statement st = conn.createStatement();
-                         ResultSet rs = st.executeQuery("SELECT * FROM `" + table + "`")) {
+                    // Lectura fila por fila (streaming): sin esto, el driver de MySQL carga la tabla
+                    // entera en memoria, incluidos todos los archivos de clinical_files.
+                    try (Statement st = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+                        st.setFetchSize(Integer.MIN_VALUE);
+                        try (ResultSet rs = st.executeQuery("SELECT * FROM `" + table + "`")) {
 
-                        ResultSetMetaData rsmd = rs.getMetaData();
-                        int cols = rsmd.getColumnCount();
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int cols = rsmd.getColumnCount();
 
-                        out.println("-- ----------------------------");
-                        out.println("-- Datos de tabla `" + table + "`");
-                        out.println("-- ----------------------------");
+                            out.println("-- ----------------------------");
+                            out.println("-- Datos de tabla `" + table + "`");
+                            out.println("-- ----------------------------");
 
-                        while (rs.next()) {
-                            StringBuilder sb = new StringBuilder("INSERT INTO `")
-                                    .append(table)
-                                    .append("` VALUES (");
-                            for (int i = 1; i <= cols; i++) {
-                                int type = rsmd.getColumnType(i);
+                            while (rs.next()) {
+                                out.print("INSERT INTO `");
+                                out.print(table);
+                                out.print("` VALUES (");
+                                for (int i = 1; i <= cols; i++) {
+                                    int type = rsmd.getColumnType(i);
 
-                                if (type == Types.BLOB
-                                        || type == Types.LONGVARBINARY
-                                        || type == Types.BINARY
-                                        || type == Types.VARBINARY) {
+                                    if (type == Types.BLOB
+                                            || type == Types.LONGVARBINARY
+                                            || type == Types.BINARY
+                                            || type == Types.VARBINARY) {
 
-                                    byte[] data = rs.getBytes(i);
-                                    if (data == null) {
-                                        sb.append("NULL");
-                                    } else {
-                                        StringBuilder hex = new StringBuilder();
-                                        for (byte b : data) {
-                                            hex.append(String.format("%02X", b));
+                                        byte[] data = rs.getBytes(i);
+                                        if (data == null) {
+                                            out.print("NULL");
+                                        } else {
+                                            out.print("0x");
+                                            writeHex(data, out);
                                         }
-                                        sb.append("0x").append(hex);
-                                    }
 
-                                } else if (type == Types.BIT
-                                        || (rs.getObject(i) instanceof Boolean)
-                                        || type == Types.TINYINT) {
+                                    } else if (type == Types.BIT
+                                            || (rs.getObject(i) instanceof Boolean)
+                                            || type == Types.TINYINT) {
 
-                                    sb.append(rs.getBoolean(i) ? "1" : "0");
+                                        out.print(rs.getBoolean(i) ? "1" : "0");
 
-                                } else if (rs.getObject(i) instanceof Number) {
-                                    sb.append(rs.getObject(i));
+                                    } else if (rs.getObject(i) instanceof Number) {
+                                        out.print(rs.getObject(i));
 
-                                } else {
-                                    String s = rs.getString(i);
-                                    if (s == null) {
-                                        sb.append("NULL");
                                     } else {
-                                        sb.append("'")
-                                                .append(s.replace("'", "''"))
-                                                .append("'");
+                                        String value = rs.getString(i);
+                                        out.print(value == null ? "NULL" : "'" + escapeSqlString(value) + "'");
                                     }
-                                }
 
-                                if (i < cols) sb.append(", ");
+                                    if (i < cols) out.print(", ");
+                                }
+                                out.println(");");
                             }
-                            sb.append(");");
-                            out.println(sb);
+                            out.println();
                         }
-                        out.println();
                     }
                 }
             }
 
             out.println("SET FOREIGN_KEY_CHECKS=1;");
         }
+    }
+
+    private static final char[] HEX = "0123456789ABCDEF".toCharArray();
+
+    // Escribe los bytes en hexadecimal por bloques, sin armar un String gigante en memoria
+    static void writeHex(byte[] data, Writer out) throws IOException {
+        char[] buffer = new char[8192];
+        int pos = 0;
+        for (byte b : data) {
+            buffer[pos++] = HEX[(b >> 4) & 0x0F];
+            buffer[pos++] = HEX[b & 0x0F];
+            if (pos == buffer.length) {
+                out.write(buffer, 0, pos);
+                pos = 0;
+            }
+        }
+        out.write(buffer, 0, pos);
+    }
+
+    // En MySQL la barra invertida también es carácter de escape dentro de un string
+    static String escapeSqlString(String value) {
+        return value.replace("\\", "\\\\").replace("'", "''");
     }
 }
