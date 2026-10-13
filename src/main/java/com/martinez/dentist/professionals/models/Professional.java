@@ -99,4 +99,30 @@ public class Professional {
                         !appointmentTime.isAfter(schedule.getEndTime())
         );
     }
+
+    // Igual que trabajaEsteDiaYHorario, y además el turno tiene que terminar dentro del horario.
+    // Se tolera hasta un bloque de 15 minutos después del fin del horario, como se permitía
+    // hasta ahora con los turnos que empiezan justo a la hora de cierre.
+    public boolean trabajaEsteDiaYHorario(LocalDateTime start, LocalDateTime end) {
+        if (schedules == null || schedules.isEmpty()) {
+            return false;
+        }
+
+        DayOfWeek day = start.getDayOfWeek();
+        LocalTime startTime = start.toLocalTime();
+        LocalTime endTime = end.toLocalTime();
+
+        return schedules.stream().anyMatch(schedule ->
+                schedule.getDayOfWeek() == day &&
+                        end.toLocalDate().equals(start.toLocalDate()) &&
+                        !startTime.isBefore(schedule.getStartTime()) &&
+                        !startTime.isAfter(schedule.getEndTime()) &&
+                        !endTime.isAfter(schedule.getEndTime().plusMinutes(15))
+        );
+    }
+
+    public boolean estaDeLicencia(LocalDate date) {
+        return licenseStartDate != null && licenseEndDate != null &&
+                !date.isBefore(licenseStartDate) && !date.isAfter(licenseEndDate);
+    }
 }

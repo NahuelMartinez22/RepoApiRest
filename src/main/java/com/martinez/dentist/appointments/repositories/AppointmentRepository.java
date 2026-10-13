@@ -20,6 +20,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     boolean existsByPatientDniAndDateTime(String patientDni, LocalDateTime dateTime);
 
+    List<Appointment> findByProfessionalIdAndDateTimeBetweenOrderByDateTime(Long professionalId,
+                                                                            LocalDateTime from,
+                                                                            LocalDateTime to);
+
+    List<Appointment> findByPatientDniAndDateTimeBetween(String patientDni, LocalDateTime from, LocalDateTime to);
+
     List<Appointment> findByState(AppointmentState state);
 
 
