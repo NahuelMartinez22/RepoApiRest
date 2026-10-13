@@ -53,6 +53,9 @@ public class EmailController {
 
         User user = userOptional.get();
 
+        // Limpieza: tokens vencidos y enlaces anteriores de este usuario
+        tokenRepository.deleteExpiredOrOwnedBy(LocalDateTime.now(), user);
+
         String tokenStr = UUID.randomUUID().toString();
         LocalDateTime expiration = LocalDateTime.now().plusHours(1);
 

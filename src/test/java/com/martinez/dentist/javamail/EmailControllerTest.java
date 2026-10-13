@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +65,7 @@ class EmailControllerTest {
         assertThat(sent.getValue().getRecipient()).isEqualTo("usuario@clinica.com");
         assertThat(sent.getValue().getSubject()).isEqualTo("Recuperación de contraseña");
         assertThat(sent.getValue().getBody()).contains("/cambiar-contrasena?token=");
+        verify(tokenRepository).deleteExpiredOrOwnedBy(any(LocalDateTime.class), eq(user));
         verify(tokenRepository).save(any(Token.class));
     }
 
