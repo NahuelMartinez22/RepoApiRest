@@ -3,6 +3,7 @@ package com.martinez.dentist.professionals.controllers.professional;
 import com.martinez.dentist.professionals.controllers.schedule.ScheduleResponseDTO;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -17,6 +18,8 @@ public class ProfessionalResponseDTO {
     private List<String> specialtyNames;
     private String professionalState;
     private Boolean available;
+    private LocalDate licenseStartDate;
+    private LocalDate licenseEndDate;
 
     public ProfessionalResponseDTO(Long id, String fullName, String documentType,
                                    String documentNumber, String phone,
@@ -35,5 +38,11 @@ public class ProfessionalResponseDTO {
         this.specialtyNames = specialtyNames;
         this.professionalState = professionalState;
         this.available = available;
+    }
+
+    public ProfessionalResponseDTO withLicense(LocalDate licenseStartDate, LocalDate licenseEndDate) {
+        this.licenseStartDate = licenseStartDate;
+        this.licenseEndDate = licenseEndDate;
+        return this;
     }
 }

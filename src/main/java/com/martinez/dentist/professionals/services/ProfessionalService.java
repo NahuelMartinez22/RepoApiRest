@@ -246,7 +246,7 @@ public class ProfessionalService {
                 specialtyNames,
                 professional.getProfessionalState().toString(),
                 professional.getAvailable()
-        );
+        ).withLicense(professional.getLicenseStartDate(), professional.getLicenseEndDate());
     }
 
     public void setAvailable(Long professionalId, boolean available) {
