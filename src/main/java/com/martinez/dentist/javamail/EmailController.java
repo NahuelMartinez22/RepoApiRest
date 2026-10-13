@@ -5,14 +5,12 @@ import com.martinez.dentist.users.models.Token;
 import com.martinez.dentist.users.models.User;
 import com.martinez.dentist.users.repositories.TokenRepository;
 import com.martinez.dentist.users.repositories.UserRepository;
-import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,20 +34,21 @@ public class EmailController {
     @Autowired
     private AppointmentService appointmentService;
 
+    private static final String RECOVERY_SENT_MESSAGE =
+            "Si el correo está registrado, te enviamos un enlace para cambiar tu contraseña. Revisá tu casilla de email.";
+
+    // Solo envía el enlace de recuperación a usuarios registrados. La respuesta es la misma
+    // exista o no el usuario, para no revelar qué correos están registrados.
     @PostMapping("/enviar")
-    public ResponseEntity<String> enviarCorreo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<String> enviarCorreo(@RequestBody PasswordRecoveryRequest request) {
+        String email = request.getEmail() == null ? "" : request.getEmail().trim();
+        if (email.isEmpty()) {
+            return ResponseEntity.badRequest().body("Ingresá un correo electrónico.");
+        }
 
-        emailService.send(email);
-
-        return ResponseEntity.ok("Te enviamos un correo. Por favor, revisá tu casilla de email.");
-    }
-
-    public ResponseEntity<String> enviarCorreoo(@RequestBody EmailDTO email) throws MessagingException, UnsupportedEncodingException {
-        Optional<User> userOptional = userRepository.findByEmail(email.getRecipient());
-
+        Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No existe un usuario con ese correo electrónico.");
+            return ResponseEntity.ok(RECOVERY_SENT_MESSAGE);
         }
 
         User user = userOptional.get();
@@ -68,19 +67,30 @@ public class EmailController {
         EmailDTO dto = new EmailDTO();
         dto.setRecipient(user.getEmail());
         dto.setSubject("Recuperación de contraseña");
-        dto.setBody("Hacé clic en el siguiente enlace para cambiar tu contraseña:\n\n" + resetLink);
+        dto.setBody("Hacé clic en el siguiente enlace para cambiar tu contraseña:<br><br>"
+                + "<a href=\"" + resetLink + "\">" + resetLink + "</a>");
 
-        emailService.send( dto);
+        emailService.send(dto);
 
-        return ResponseEntity.ok("Te enviamos un correo. Por favor, revisá tu casilla de email.");
+        return ResponseEntity.ok(RECOVERY_SENT_MESSAGE);
     }
 
+    // La contraseña nueva se recibe en el cuerpo del pedido para que no quede en logs ni historial.
+    // Los parámetros de URL se aceptan solo por compatibilidad con el frontend anterior.
     @PostMapping("/cambiar-contrasena")
     @Transactional
-    public ResponseEntity<String> cambiarPassword(@RequestParam("token") String tokenParam,
-                                                  @RequestParam("newPassword") String newPassword) {
+    public ResponseEntity<String> cambiarPassword(@RequestBody(required = false) ResetPasswordRequest body,
+                                                  @RequestParam(value = "token", required = false) String tokenParam,
+                                                  @RequestParam(value = "newPassword", required = false) String passwordParam) {
 
-        Optional<Token> tokenOpt = tokenRepository.findByToken(tokenParam);
+        String tokenValue = body != null && body.getToken() != null ? body.getToken() : tokenParam;
+        String newPassword = body != null && body.getNewPassword() != null ? body.getNewPassword() : passwordParam;
+
+        if (tokenValue == null || tokenValue.isBlank() || newPassword == null || newPassword.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Faltan datos para cambiar la contraseña.");
+        }
+
+        Optional<Token> tokenOpt = tokenRepository.findByToken(tokenValue);
 
         if (tokenOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token inválido.");
