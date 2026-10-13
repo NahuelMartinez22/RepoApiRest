@@ -97,67 +97,13 @@ public class ClinicalHistoryService {
 
         List<ClinicalHistory> histories = clinicalHistoryRepository.findByPatientId(patient.getId());
 
-        return histories.stream().map(history -> {
-            List<ClinicalFileDTO> fileDTOs = history.getFiles().stream()
-                    .map(file -> new ClinicalFileDTO(
-                            file.getId(),
-                            file.getFileName(),
-                            file.getFileType(),
-                            (long) file.getData().length
-                    )).toList();
-
-            List<Long> procedureIds = history.getProcedures().stream()
-                    .map(DentalProcedure::getId)
-                    .toList();
-
-            List<String> procedureNames = history.getProcedures().stream()
-                    .map(DentalProcedure::getName)
-                    .toList();
-
-            return new ClinicalHistoryResponseDTO(
-                    history.getId(),
-                    history.getPatient().getFullName(),
-                    history.getProfessional().getFullName(),
-                    history.getDateTime(),
-                    history.getDescription(),
-                    procedureIds,
-                    procedureNames,
-                    fileDTOs
-            );
-        }).toList();
+        return toResponseDTOs(histories);
     }
 
     public List<ClinicalHistoryResponseDTO> getAll() {
         List<ClinicalHistory> histories = clinicalHistoryRepository.findAll();
 
-        return histories.stream().map(history -> {
-            List<ClinicalFileDTO> fileDTOs = history.getFiles().stream()
-                    .map(file -> new ClinicalFileDTO(
-                            file.getId(),
-                            file.getFileName(),
-                            file.getFileType(),
-                            (long) file.getData().length
-                    )).toList();
-
-            List<Long> procedureIds = history.getProcedures().stream()
-                    .map(DentalProcedure::getId)
-                    .toList();
-
-            List<String> procedureNames = history.getProcedures().stream()
-                    .map(DentalProcedure::getName)
-                    .toList();
-
-            return new ClinicalHistoryResponseDTO(
-                    history.getId(),
-                    history.getPatient().getFullName(),
-                    history.getProfessional().getFullName(),
-                    history.getDateTime(),
-                    history.getDescription(),
-                    procedureIds,
-                    procedureNames,
-                    fileDTOs
-            );
-        }).toList();
+        return toResponseDTOs(histories);
     }
 
     public ClinicalHistory getById(Long id) {
@@ -256,6 +202,44 @@ public class ClinicalHistoryService {
         }
 
         return savedFiles;
+    }
+
+    // Arma la respuesta sin leer el contenido de los archivos adjuntos (solo nombre, tipo y tamaño)
+    private List<ClinicalHistoryResponseDTO> toResponseDTOs(List<ClinicalHistory> histories) {
+        Map<Long, List<ClinicalFileDTO>> filesByHistory = new HashMap<>();
+        if (!histories.isEmpty()) {
+            List<Long> historyIds = histories.stream().map(ClinicalHistory::getId).toList();
+            for (Object[] row : clinicalFileRepository.findFileSummariesByHistoryIds(historyIds)) {
+                ClinicalFileDTO file = new ClinicalFileDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        (String) row[2],
+                        row[3] == null ? 0L : ((Number) row[3]).longValue()
+                );
+                filesByHistory.computeIfAbsent(((Number) row[4]).longValue(), id -> new ArrayList<>()).add(file);
+            }
+        }
+
+        return histories.stream().map(history -> {
+            List<Long> procedureIds = history.getProcedures().stream()
+                    .map(DentalProcedure::getId)
+                    .toList();
+
+            List<String> procedureNames = history.getProcedures().stream()
+                    .map(DentalProcedure::getName)
+                    .toList();
+
+            return new ClinicalHistoryResponseDTO(
+                    history.getId(),
+                    history.getPatient().getFullName(),
+                    history.getProfessional().getFullName(),
+                    history.getDateTime(),
+                    history.getDescription(),
+                    procedureIds,
+                    procedureNames,
+                    filesByHistory.getOrDefault(history.getId(), List.of())
+            );
+        }).toList();
     }
 
     public void downloadFile(Long fileId, HttpServletResponse response) throws IOException {
