@@ -70,7 +70,16 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.findAppointmentsByDni(dni));
     }
 
-    @GetMapping("/professional/dni/{dni}")
+    // Ejemplo: /api/appointments/professional/3/range?from=2026-10-01&to=2026-10-31
+    @GetMapping("/professional/{professionalId}/range")
+    public ResponseEntity<List<AppointmentResponseDTO>> getByProfessionalAndRange(
+            @PathVariable Long professionalId,
+            @RequestParam("from") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam("to") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByProfessionalAndRange(professionalId, from, to));
+    }
+
+        @GetMapping("/professional/dni/{dni}")
     public ResponseEntity<List<AppointmentResponseDTO>> getByProfessionalDni(@PathVariable String dni) {
         return ResponseEntity.ok(appointmentService.getAppointmentsByProfessionalDni(dni));
     }

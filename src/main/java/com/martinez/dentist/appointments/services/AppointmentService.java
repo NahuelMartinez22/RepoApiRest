@@ -58,20 +58,14 @@ public class AppointmentService  {
             throw new RuntimeException("El profesional seleccionado no está activo.");
         }
 
-        if (!professional.trabajaEsteDiaYHorario(appointmentRequest.getDateTime())) {
-            throw new RuntimeException("El profesional no atiende en el día y horario seleccionado.");
-        }
+        LocalDateTime start = appointmentRequest.getDateTime();
+        LocalDateTime end = resolveEnd(start, appointmentRequest.getEndDateTime());
+        appointmentRequest.setEndDateTime(end);
 
         Patient patient = patientRepository.findByDocumentNumber(appointmentRequest.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
-        if (appointmentRepository.existsByProfessionalIdAndDateTime(professional.getId(), appointmentRequest.getDateTime())) {
-            throw new RuntimeException("El profesional ya tiene un turno asignado en ese horario.");
-        }
-
-        if (appointmentRepository.existsByPatientDniAndDateTime(patient.getDocumentNumber(), appointmentRequest.getDateTime())) {
-            throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
-        }
+        validateSchedule(professional, patient.getDocumentNumber(), start, end, null);
 
         // TODO: Hacer desarrollo para recibir el id de la practica. Tarea en el board #29
         Practice practice = practiceRepository.findById(1L).orElseThrow(() -> new RuntimeException("Practica no encontrada"));
@@ -106,17 +100,27 @@ public class AppointmentService  {
         Professional professional = professionalRepository.findById(dto.getProfessionalId())
                 .orElseThrow(() -> new RuntimeException("Profesional no encontrado"));
 
-        if (!professional.trabajaEsteDiaYHorario(dto.getDateTime())) {
-            throw new RuntimeException("El profesional no atiende en el día y horario seleccionado.");
-        }
+        LocalDateTime start = dto.getDateTime();
+        LocalDateTime end = resolveEnd(start, dto.getEndDateTime());
+        dto.setEndDateTime(end);
 
         Patient patient = patientRepository.findByDocumentNumber(dto.getPatientDni())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
 
+        // Solo se revalida el horario si cambió algo que lo afecta (así se puede, por ejemplo,
+        // cambiar el estado de un turno viejo aunque hoy no cumpla las reglas nuevas).
+        boolean timeChanged = !Objects.equals(appointment.getDateTime(), start)
+                || !Objects.equals(AppointmentTimeRules.endOf(appointment), end)
+                || !Objects.equals(appointment.getProfessional().getId(), professional.getId())
+                || !Objects.equals(appointment.getPatientDni(), dto.getPatientDni());
+        if (timeChanged) {
+            validateSchedule(professional, patient.getDocumentNumber(), start, end, appointment.getId());
+        }
+
         boolean noChanges =
                 Objects.equals(appointment.getPatientDni(), dto.getPatientDni()) &&
                         Objects.equals(appointment.getDateTime(), dto.getDateTime()) &&
-                        Objects.equals(appointment.getEndDateTime(), dto.getEndDateTime()) &&
+                        Objects.equals(AppointmentTimeRules.endOf(appointment), dto.getEndDateTime()) &&
                         Objects.equals(appointment.getProfessional().getId(), professional.getId()) &&
                         Objects.equals(appointment.getReason(), dto.getReason()) &&
                         Objects.equals(appointment.getState(), dto.getState()) &&
@@ -181,6 +185,58 @@ public class AppointmentService  {
         return appointments.stream()
                 .map(this::toResponseDTO)
                 .toList();
+    }
+
+    // Turnos de un profesional entre dos fechas (incluidas), para el calendario y la vista mensual
+    public List<AppointmentResponseDTO> getAppointmentsByProfessionalAndRange(Long professionalId,
+                                                                              LocalDate from, LocalDate to) {
+        if (to.isBefore(from)) {
+            throw new IllegalArgumentException("La fecha final no puede ser anterior a la inicial.");
+        }
+        if (from.plusDays(62).isBefore(to)) {
+            throw new IllegalArgumentException("El rango máximo es de dos meses.");
+        }
+        return appointmentRepository
+                .findByProfessionalIdAndDateTimeBetweenOrderByDateTime(professionalId,
+                        from.atStartOfDay(), to.atTime(LocalTime.MAX))
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    private LocalDateTime resolveEnd(LocalDateTime start, LocalDateTime end) {
+        try {
+            return AppointmentTimeRules.resolveEnd(start, end);
+        } catch (IllegalArgumentException ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    // Horario del profesional, licencia y superposición con otros turnos del profesional y del paciente
+    private void validateSchedule(Professional professional, String patientDni,
+                                  LocalDateTime start, LocalDateTime end, Long ignoreId) {
+        if (professional.estaDeLicencia(start.toLocalDate())) {
+            throw new RuntimeException("El profesional está de licencia en la fecha seleccionada.");
+        }
+        if (!professional.trabajaEsteDiaYHorario(start, end)) {
+            throw new RuntimeException("El profesional no atiende en el día y horario seleccionado.");
+        }
+
+        LocalDateTime dayStart = start.toLocalDate().atStartOfDay();
+        LocalDateTime dayEnd = start.toLocalDate().atTime(LocalTime.MAX);
+
+        if (AppointmentTimeRules.findOverlap(
+                appointmentRepository.findByProfessionalIdAndDateTimeBetweenOrderByDateTime(
+                        professional.getId(), dayStart, dayEnd),
+                start, end, ignoreId).isPresent()) {
+            throw new RuntimeException("El profesional ya tiene un turno asignado en ese horario.");
+        }
+
+        if (AppointmentTimeRules.findOverlap(
+                appointmentRepository.findByPatientDniAndDateTimeBetween(patientDni, dayStart, dayEnd),
+                start, end, ignoreId).isPresent()) {
+            throw new RuntimeException("El paciente ya tiene un turno asignado en ese horario.");
+        }
     }
 
     public List<AppointmentResponseDTO> getAppointmentsByProfessionalDni(String dni) {
