@@ -7,6 +7,7 @@ import com.martinez.dentist.users.repositories.TokenRepository;
 import com.martinez.dentist.users.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,12 @@ public class EmailController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    static final String DEFAULT_FRONTEND_URL = "https://odonto-turno.up.railway.app";
+
+    // Dirección del frontend para armar el enlace del correo (FRONTEND_URL en Railway)
+    @Value("${app.frontend-url:" + DEFAULT_FRONTEND_URL + "}")
+    private String frontendUrl;
 
     private static final String RECOVERY_SENT_MESSAGE =
             "Si el correo está registrado, te enviamos un enlace para cambiar tu contraseña. Revisá tu casilla de email.";
@@ -65,7 +72,7 @@ public class EmailController {
         token.setExpirationDate(expiration);
         tokenRepository.save(token);
 
-        String resetLink = "https://odonto-turno.up.railway.app/cambiar-contrasena?token=" + tokenStr;
+        String resetLink = frontendBaseUrl() + "/cambiar-contrasena?token=" + tokenStr;
 
         EmailDTO dto = new EmailDTO();
         dto.setRecipient(user.getEmail());
@@ -76,6 +83,11 @@ public class EmailController {
         emailService.send(dto);
 
         return ResponseEntity.ok(RECOVERY_SENT_MESSAGE);
+    }
+
+    private String frontendBaseUrl() {
+        String base = frontendUrl == null || frontendUrl.isBlank() ? DEFAULT_FRONTEND_URL : frontendUrl.trim();
+        return base.endsWith("/") ? base.substring(0, base.length() - 1) : base;
     }
 
     // La contraseña nueva se recibe en el cuerpo del pedido para que no quede en logs ni historial.

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -67,6 +68,20 @@ class EmailControllerTest {
         assertThat(sent.getValue().getBody()).contains("/cambiar-contrasena?token=");
         verify(tokenRepository).deleteExpiredOrOwnedBy(any(LocalDateTime.class), eq(user));
         verify(tokenRepository).save(any(Token.class));
+    }
+
+    @Test
+    void armaElEnlaceConLaDireccionDelFrontendConfigurada() {
+        ReflectionTestUtils.setField(controller, "frontendUrl", "http://localhost:3000/");
+        User user = mock(User.class);
+        when(user.getEmail()).thenReturn("usuario@clinica.com");
+        when(userRepository.findByEmail("usuario@clinica.com")).thenReturn(Optional.of(user));
+
+        controller.enviarCorreo(new PasswordRecoveryRequest("usuario@clinica.com"));
+
+        ArgumentCaptor<EmailDTO> sent = ArgumentCaptor.forClass(EmailDTO.class);
+        verify(emailService).send(sent.capture());
+        assertThat(sent.getValue().getBody()).contains("http://localhost:3000/cambiar-contrasena?token=");
     }
 
     @Test
