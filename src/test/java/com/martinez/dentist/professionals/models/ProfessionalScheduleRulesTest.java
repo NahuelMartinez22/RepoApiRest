@@ -28,8 +28,7 @@ class ProfessionalScheduleRulesTest {
         Professional p = profesional();
         assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(9), MIERCOLES.withHour(10))).isTrue();
         assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(12).withMinute(30), MIERCOLES.withHour(13))).isTrue();
-        // Como hasta ahora: un turno de 15 minutos que empieza a la hora de cierre
-        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(13), MIERCOLES.withHour(13).withMinute(15))).isTrue();
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(12).withMinute(45), MIERCOLES.withHour(13))).isTrue();
     }
 
     @Test
@@ -38,6 +37,22 @@ class ProfessionalScheduleRulesTest {
         assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(12).withMinute(30), MIERCOLES.withHour(13).withMinute(30))).isFalse();
         assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(8).withMinute(45), MIERCOLES.withHour(9).withMinute(15))).isFalse();
         assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.plusDays(1).withHour(9), MIERCOLES.plusDays(1).withHour(10))).isFalse();
+        // Igual que la agenda del frontend: no se dan turnos que empiezan a la hora de cierre
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(13), MIERCOLES.withHour(13).withMinute(15))).isFalse();
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(12).withMinute(45), MIERCOLES.withHour(13).withMinute(15))).isFalse();
+    }
+
+    @Test
+    void conDosFranjasElTurnoTieneQueEntrarEnUnaSola() {
+        Professional p = new Professional();
+        ReflectionTestUtils.setField(p, "schedules", List.of(
+                new ProfessionalSchedule(p, DayOfWeek.WEDNESDAY, LocalTime.of(9, 0), LocalTime.of(12, 0)),
+                new ProfessionalSchedule(p, DayOfWeek.WEDNESDAY, LocalTime.of(14, 0), LocalTime.of(18, 0))));
+
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(11).withMinute(30), MIERCOLES.withHour(12))).isTrue();
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(14), MIERCOLES.withHour(15))).isTrue();
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(11).withMinute(45), MIERCOLES.withHour(12).withMinute(15))).isFalse();
+        assertThat(p.trabajaEsteDiaYHorario(MIERCOLES.withHour(12), MIERCOLES.withHour(12).withMinute(15))).isFalse();
     }
 
     @Test

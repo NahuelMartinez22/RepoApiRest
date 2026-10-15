@@ -100,11 +100,12 @@ public class Professional {
         );
     }
 
-    // Igual que trabajaEsteDiaYHorario, y además el turno tiene que terminar dentro del horario.
-    // Se tolera hasta un bloque de 15 minutos después del fin del horario, como se permitía
-    // hasta ahora con los turnos que empiezan justo a la hora de cierre.
+    // El turno tiene que empezar y terminar dentro de una misma franja de atención del día
+    // (la misma regla que aplica la agenda del frontend). Ej.: con horario de 9 a 13,
+    // 12:30 a 13:00 entra; 13:00 a 13:15 no.
     public boolean trabajaEsteDiaYHorario(LocalDateTime start, LocalDateTime end) {
-        if (schedules == null || schedules.isEmpty()) {
+        if (schedules == null || schedules.isEmpty() || !end.isAfter(start)
+                || !end.toLocalDate().equals(start.toLocalDate())) {
             return false;
         }
 
@@ -114,10 +115,9 @@ public class Professional {
 
         return schedules.stream().anyMatch(schedule ->
                 schedule.getDayOfWeek() == day &&
-                        end.toLocalDate().equals(start.toLocalDate()) &&
                         !startTime.isBefore(schedule.getStartTime()) &&
-                        !startTime.isAfter(schedule.getEndTime()) &&
-                        !endTime.isAfter(schedule.getEndTime().plusMinutes(15))
+                        startTime.isBefore(schedule.getEndTime()) &&
+                        !endTime.isAfter(schedule.getEndTime())
         );
     }
 
