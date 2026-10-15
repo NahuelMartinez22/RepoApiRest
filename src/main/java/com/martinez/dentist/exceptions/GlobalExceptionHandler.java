@@ -79,6 +79,34 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    // ❗ 400 - Datos inválidos (por ejemplo, un rango de fechas al revés)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+        return businessError(ex.getMessage(), request);
+    }
+
+    // ❗ 400 - Reglas de negocio. Los servicios avisan con un RuntimeException y un mensaje para el usuario
+    // (por ejemplo, "El profesional ya tiene un turno asignado en ese horario."). Las subclases
+    // (NullPointerException, etc.) son errores del sistema y siguen como 500.
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex, HttpServletRequest request) {
+        if (ex.getClass() == RuntimeException.class && ex.getMessage() != null && !ex.getMessage().isBlank()) {
+            return businessError(ex.getMessage(), request);
+        }
+        return handleGeneric(ex, request);
+    }
+
+    private ResponseEntity<Map<String, Object>> businessError(String message, HttpServletRequest request) {
+        String text = message == null || message.isBlank() ? "Los datos enviados no son válidos." : message;
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 400,
+                "message", text,
+                "error", text,
+                "path", request.getRequestURI()
+        ));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
