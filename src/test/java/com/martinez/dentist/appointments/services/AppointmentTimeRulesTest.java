@@ -22,8 +22,8 @@ class AppointmentTimeRulesTest {
     }
 
     @Test
-    void aceptaQuinceTreintaCuarentaYCincoYSesentaMinutos() {
-        for (int m : new int[]{15, 30, 45, 60}) {
+    void aceptaDeQuinceAHastaCientoVeinteMinutosEnPasosDeQuince() {
+        for (int m : new int[]{15, 30, 45, 60, 75, 90, 105, 120}) {
             assertThat(AppointmentTimeRules.resolveEnd(NUEVE, NUEVE.plusMinutes(m))).isEqualTo(NUEVE.plusMinutes(m));
         }
     }
@@ -32,7 +32,7 @@ class AppointmentTimeRulesTest {
     void rechazaDuracionesInvalidas() {
         assertThatThrownBy(() -> AppointmentTimeRules.resolveEnd(NUEVE, NUEVE)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> AppointmentTimeRules.resolveEnd(NUEVE, NUEVE.plusMinutes(20))).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> AppointmentTimeRules.resolveEnd(NUEVE, NUEVE.plusMinutes(75))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> AppointmentTimeRules.resolveEnd(NUEVE, NUEVE.plusMinutes(135))).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> AppointmentTimeRules.resolveEnd(NUEVE, NUEVE.minusMinutes(15))).isInstanceOf(IllegalArgumentException.class);
     }
 

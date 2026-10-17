@@ -14,7 +14,7 @@ import java.util.Optional;
 public final class AppointmentTimeRules {
 
     public static final int SLOT_MINUTES = 15;
-    public static final int MAX_DURATION_MINUTES = 60;
+    public static final int MAX_DURATION_MINUTES = 120;
 
     private AppointmentTimeRules() {}
 
@@ -27,7 +27,7 @@ public final class AppointmentTimeRules {
             throw new IllegalArgumentException("La hora de fin del turno debe ser posterior a la de inicio.");
         }
         if (minutes % SLOT_MINUTES != 0 || minutes > MAX_DURATION_MINUTES) {
-            throw new IllegalArgumentException("La duración del turno debe ser de 15, 30, 45 o 60 minutos.");
+            throw new IllegalArgumentException("La duración del turno debe ser de 15 a 120 minutos, en pasos de 15.");
         }
         return resolved;
     }
